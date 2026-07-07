@@ -78,16 +78,20 @@ docker service update --force --detach=true "${STACK_NAME}_notify" >/dev/null 2>
 docker service update --force --detach=true "${STACK_NAME}_insforge-proxy" >/dev/null 2>&1 || true
 
 cyan "── 7. Esperar healthcheck ─────────────────────"
-sleep 5
-for i in 1 2 3 4 5 6; do
+sleep 8
+for i in 1 2 3 4 5 6 7 8; do
   if curl -fsS "https://${DOMAIN}/healthz" >/dev/null 2>&1; then
     api_head="$(curl -fsS "https://${DOMAIN}/api/insforge/rk_solicitudes?limit=0" -H 'Accept: application/json' 2>/dev/null | head -c 1 || true)"
     green "✅ Producción activa: https://${DOMAIN}"
     green "   Commit:  $(git rev-parse --short HEAD)"
     if [ "$api_head" = "[" ] || [ "$api_head" = "{" ]; then
       green "   Base de datos: conectada"
+    elif [ "$i" -lt 8 ]; then
+      warn "   API aún iniciando… (${i}/8)"
+      sleep 4
+      continue
     else
-      warn "⚠️  API base de datos no responde JSON — reintente en 30s"
+      warn "⚠️  API base de datos no responde JSON"
     fi
     docker image prune -f >/dev/null
     exit 0

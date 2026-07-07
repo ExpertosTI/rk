@@ -36,14 +36,15 @@ services:
         - traefik.docker.network=RenaceNet
         - traefik.constraint-label=traefik-public
 
-        - traefik.http.routers.rk-http.rule=Host(`rk.renace.tech`)
+        - traefik.http.routers.rk-http.rule=Host(`rk.renace.tech`) && !PathPrefix(`/api`)
         - traefik.http.routers.rk-http.entrypoints=web
         - traefik.http.routers.rk-http.middlewares=rk-redirect-https
 
-        - traefik.http.routers.rk.rule=Host(`rk.renace.tech`)
+        - traefik.http.routers.rk.rule=Host(`rk.renace.tech`) && !PathPrefix(`/api`)
         - traefik.http.routers.rk.entrypoints=websecure
         - traefik.http.routers.rk.tls=true
         - traefik.http.routers.rk.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.rk.priority=1
         - traefik.http.routers.rk.service=rk-svc
         - traefik.http.routers.rk.middlewares=rk-security
 
@@ -96,7 +97,7 @@ services:
         - traefik.http.routers.rk-bureau.entrypoints=websecure
         - traefik.http.routers.rk-bureau.tls=true
         - traefik.http.routers.rk-bureau.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-bureau.priority=100
+        - traefik.http.routers.rk-bureau.priority=200
         - traefik.http.routers.rk-bureau.middlewares=rk-bureau-strip
         - traefik.http.middlewares.rk-bureau-strip.stripprefix.prefixes=/api/bureau
         - traefik.http.routers.rk-bureau.service=rk-bureau-svc
@@ -142,7 +143,7 @@ services:
         - traefik.http.routers.rk-notify.entrypoints=websecure
         - traefik.http.routers.rk-notify.tls=true
         - traefik.http.routers.rk-notify.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-notify.priority=100
+        - traefik.http.routers.rk-notify.priority=200
         - traefik.http.routers.rk-notify.middlewares=rk-notify-strip
         - traefik.http.middlewares.rk-notify-strip.stripprefix.prefixes=/api/notify
         - traefik.http.routers.rk-notify.service=rk-notify-svc
@@ -172,7 +173,7 @@ services:
         - traefik.http.routers.rk-insforge.entrypoints=websecure
         - traefik.http.routers.rk-insforge.tls=true
         - traefik.http.routers.rk-insforge.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-insforge.priority=100
+        - traefik.http.routers.rk-insforge.priority=200
         - traefik.http.routers.rk-insforge.middlewares=rk-insforge-strip
         - traefik.http.middlewares.rk-insforge-strip.stripprefix.prefixes=/api/insforge
         - traefik.http.routers.rk-insforge.service=rk-insforge-svc
