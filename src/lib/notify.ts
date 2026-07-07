@@ -12,11 +12,13 @@ export async function notifyNuevaSolicitud(solicitudId: string): Promise<void> {
   }
 }
 
-/** Notificación al solicitante cuando se aprueba o rechaza. */
+/** Notificación al solicitante cuando cambia el estado (correo; WhatsApp si aplica). */
+export type EstadoNotificable = 'revision' | 'aprobada' | 'rechazada' | 'cerrada';
+
 export async function notifyEstadoSolicitud(
   solicitudId: string,
-  estado: 'aprobada' | 'rechazada',
-): Promise<{ ok: boolean; error?: string; email?: boolean; whatsapp?: boolean }> {
+  estado: EstadoNotificable,
+): Promise<{ ok: boolean; error?: string; email?: boolean; whatsapp?: boolean; skipped?: boolean }> {
   try {
     const res = await fetch('/api/notify/estado', {
       method: 'POST',

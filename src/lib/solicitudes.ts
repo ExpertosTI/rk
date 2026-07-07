@@ -364,11 +364,25 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
 }
 
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
+  const prevRes = await insforgeQuery<SolicitudRow>(
+    'rk_solicitudes',
+    `id=eq.${encodeURIComponent(id)}&limit=1`,
+    'anon',
+  );
+  const prevEstado = prevRes.ok ? prevRes.data?.[0]?.estado : undefined;
+  if (prevEstado === estado) {
+    return { ok: true, notify: { ok: false, skipped: true } };
+  }
+
   const patch = { estado, updated_at: nowIso() };
   const result = await insforgePatch('rk_solicitudes', id, patch, 'anon');
-  let notify: { ok: boolean; error?: string; email?: boolean; whatsapp?: boolean } | undefined;
-  if (result.ok && (estado === 'aprobada' || estado === 'rechazada')) {
-    notify = await notifyEstadoSolicitud(id, estado);
+  let notify:
+    | { ok: boolean; error?: string; email?: boolean; whatsapp?: boolean; skipped?: boolean }
+    | undefined;
+
+  const notificables = ['revision', 'aprobada', 'rechazada', 'cerrada'] as const;
+  if (result.ok && (notificables as readonly string[]).includes(estado)) {
+    notify = await notifyEstadoSolicitud(id, estado as (typeof notificables)[number]);
   }
   return { ...result, notify };
 }

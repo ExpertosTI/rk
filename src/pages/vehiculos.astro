@@ -1,0 +1,66 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import FlyerChrome from '../components/FlyerChrome.astro';
+import { BRAND, MARKETING } from '../lib/constants';
+import { VEHICULOS_PAGE, FOOTER } from '../lib/landing';
+
+const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me interesa financiamiento de vehículo con RK Inversiones')}`;
+---
+
+<LandingLayout
+  title={`Financiamiento de Vehículos — ${BRAND.name}`}
+  description="Financiamiento de vehículos nuevos y usados. Hasta 60 meses. Aprobación inmediata."
+>
+  <FlyerChrome active="vehiculos" />
+
+  <main class="flyer-page flyer-page-vehiculos" id="main">
+    <section class="flyer-visual flyer-visual-vehiculos" aria-label="Financiamiento de vehículos">
+      <img
+        src={VEHICULOS_PAGE.image}
+        alt={VEHICULOS_PAGE.title}
+        class="flyer-visual-img"
+        width="1080"
+        height="1080"
+        loading="eager"
+      />
+      <div class="flyer-visual-overlay">
+        <p class="flyer-brand-tag">{BRAND.slogan}</p>
+        <h1 class="flyer-title flyer-title-vehiculos">{VEHICULOS_PAGE.title}</h1>
+      </div>
+    </section>
+
+    <section class="flyer-panel flyer-panel-dark">
+      <div class="flyer-badges">
+        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-badge flyer-badge-light">
+          {VEHICULOS_PAGE.badgeHistorial}
+        </a>
+        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-badge flyer-badge-plazo">
+          <span class="flyer-plazo-pre">Hasta</span>
+          <span class="flyer-plazo-num">{VEHICULOS_PAGE.plazo}</span>
+          <span class="flyer-plazo-post">{VEHICULOS_PAGE.plazoLabel}</span>
+        </a>
+      </div>
+
+      <ul class="flyer-highlights">
+        {MARKETING.highlights.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+
+      <div class="flyer-actions">
+        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-btn flyer-btn-primary flyer-btn-lg">
+          {VEHICULOS_PAGE.cta}
+        </a>
+        <a href="/solicitar" class="flyer-btn flyer-btn-ghost">
+          Otros productos
+        </a>
+        <a href={waUrl} class="flyer-btn flyer-btn-wa" target="_blank" rel="noopener noreferrer">
+          WhatsApp · {FOOTER.phone}
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <WhatsAppFloat />
+</LandingLayout>

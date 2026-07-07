@@ -1,80 +1,14 @@
 import type { ProductKey } from './constants';
-import { BRAND, MARKETING, PRODUCTS } from './constants';
+import { BRAND, PRODUCTS } from './constants';
 
-export const NAV_LINKS = [
-  { href: '#solicitar', label: 'Solicitar' },
-  { href: '#productos', label: 'Productos' },
-  { href: '#nosotros', label: 'Nosotros' },
-] as const;
-
-export const PROMO = {
-  text: `${MARKETING.approval} · ${BRAND.slogan}`,
-} as const;
-
-export const HERO = {
-  title: 'Tu aliado en financiamiento',
-  subtitle:
-    'Apartamentos, casas, vehículos y solares en República Dominicana. Cotiza, solicita y recibe respuesta por WhatsApp.',
-  ctaPrimary: 'Solicitar financiamiento',
-  ctaWhatsApp: 'WhatsApp',
-  tagline: `${BRAND.slogan} — con el respaldo de ${BRAND.name}.`,
-} as const;
-
-export const FORM_SECTION = {
-  eyebrow: 'Solicitud en línea',
-  title: 'Solicita tu financiamiento',
-  lead: 'Unos pasos rápidos — sin compromiso.',
-} as const;
-
-export const STRIP = {
-  title: 'Metas reales, financiamiento accesible.',
-  caption: BRAND.name,
-} as const;
-
-export const PRODUCT_LINES: { key: ProductKey; label: string; desc: string }[] = [
-  {
-    key: 'vehiculos',
-    label: PRODUCTS.vehiculos,
-    desc: 'Nuevos y usados. Hasta 60 meses. Aprobación inmediata.',
-  },
-  {
-    key: 'apartamentos',
-    label: PRODUCTS.apartamentos,
-    desc: 'Financiamiento para el apartamento que tu familia necesita.',
-  },
-  {
-    key: 'casas',
-    label: PRODUCTS.casas,
-    desc: 'Vivienda propia o inversión inmobiliaria con asesoría personal.',
-  },
-  {
-    key: 'solares',
-    label: PRODUCTS.solares,
-    desc: 'Terrenos y solares para proyectos a mediano plazo.',
-  },
+export const PRODUCT_FORM_LINES: { key: ProductKey; label: string; desc: string }[] = [
+  { key: 'vehiculos', label: PRODUCTS.vehiculos, desc: 'Nuevos y usados. Hasta 60 meses. Aprobación inmediata.' },
+  { key: 'apartamentos', label: PRODUCTS.apartamentos, desc: 'Financiamiento para el apartamento que tu familia necesita.' },
+  { key: 'casas', label: PRODUCTS.casas, desc: 'Vivienda propia o inversión inmobiliaria.' },
+  { key: 'solares', label: PRODUCTS.solares, desc: 'Terrenos y solares para proyectos a mediano plazo.' },
 ];
 
-export const PRODUCT_CARDS = PRODUCT_LINES;
-
-export const PRODUCTS_SECTION = {
-  eyebrow: 'Productos',
-  title: 'Líneas de financiamiento',
-  lead: 'Cada línea responde a una necesidad distinta. Te orientamos para elegir la opción adecuada.',
-} as const;
-
-export const ABOUT = {
-  eyebrow: 'Sobre nosotros',
-  title: BRAND.name,
-  lead: `Empresa de financiamiento en ${BRAND.city}, ${BRAND.country}.`,
-  text: `${BRAND.advisor}, ${BRAND.advisorRole}, coordina la atención desde la primera consulta. Trato directo, condiciones claras y respuesta ágil.`,
-} as const;
-
-export const FOOTER = {
-  tagline: `${BRAND.slogan} — ${BRAND.city}, ${BRAND.country}.`,
-  email: BRAND.email,
-  phone: BRAND.phone,
-  whatsapp: BRAND.whatsapp,
-} as const;
+export const PRODUCT_CARDS = PRODUCT_FORM_LINES;
 
 export const PRODUCT_STACK: Record<ProductKey, string> = {
   apartamentos: 'Financiamiento de apartamentos',
@@ -82,3 +16,35 @@ export const PRODUCT_STACK: Record<ProductKey, string> = {
   vehiculos: 'Financiamiento de vehículos',
   solares: 'Financiamiento de solares y terrenos',
 };
+
+export const PRODUCT_LINKS: { key: ProductKey; label: string; href: string }[] = [
+  { key: 'apartamentos', label: PRODUCTS.apartamentos, href: '/solicitar?producto=apartamentos' },
+  { key: 'casas', label: PRODUCTS.casas, href: '/solicitar?producto=casas' },
+  { key: 'vehiculos', label: PRODUCTS.vehiculos, href: '/vehiculos' },
+  { key: 'solares', label: PRODUCTS.solares, href: '/solicitar?producto=solares' },
+];
+
+export const GENERAL_PAGE = {
+  title: 'FINANCIAMIENTO',
+  subtitle: 'Apartamentos · Casas · Vehículos · Solares',
+  image: '/brand/flyer-general.jpeg',
+  cta: 'Solicitar financiamiento',
+  ctaHref: '/solicitar',
+} as const;
+
+export const VEHICULOS_PAGE = {
+  title: 'FINANCIAMIENTO DE VEHÍCULO',
+  badgeHistorial: 'No importa tu historial de crédito',
+  plazo: '60',
+  plazoLabel: 'meses para pagar',
+  image: '/brand/flyer-vehiculos.jpeg',
+  cta: 'Solicitar vehículo',
+  ctaHref: '/solicitar?producto=vehiculos',
+} as const;
+
+export const FOOTER = {
+  phone: BRAND.phone,
+  email: BRAND.email,
+  whatsapp: BRAND.whatsapp,
+  slogan: BRAND.slogan,
+} as const;

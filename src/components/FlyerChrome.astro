@@ -1,0 +1,25 @@
+---
+import { BRAND } from '../lib/constants';
+
+interface Props {
+  active?: 'general' | 'vehiculos';
+}
+
+const { active = 'general' } = Astro.props;
+const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me gustaría información sobre RK Inversiones')}`;
+---
+
+<header class="flyer-header">
+  <a href="/" class="flyer-header-brand">
+    <img src="/brand/logo.jpeg" alt={BRAND.name} width="44" height="44" />
+    <span>{BRAND.name}</span>
+  </a>
+  <nav class="flyer-header-nav" aria-label="Principal">
+    <a href="/" class:list={[{ active: active === 'general' }]}>Financiamiento</a>
+    <a href="/vehiculos" class:list={[{ active: active === 'vehiculos' }]}>Vehículos</a>
+    <a href="/solicitar">Solicitar</a>
+  </nav>
+  <a href={waUrl} class="flyer-header-wa" target="_blank" rel="noopener noreferrer">
+    WhatsApp
+  </a>
+</header>

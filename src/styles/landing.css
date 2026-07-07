@@ -1,571 +1,366 @@
-/* ── Landing estilo ZAV — RK Inversiones ── */
+/* ── Landing flyer RK Inversiones ── */
 
 .landing-body {
-  background: #fff;
-  color: var(--rk-navy);
+  background: #0a0a0a;
+  color: #fff;
   min-height: 100dvh;
 }
 
-.zav-skip {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  z-index: 100;
-  padding: 12px 16px;
-  background: var(--rk-green);
-  color: #fff;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.zav-skip:focus {
-  left: 12px;
-  top: 12px;
-}
-
-.zav-container {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-/* Promo ribbon */
-.zav-promo {
-  text-align: center;
-  padding: 10px 16px;
-  background: var(--rk-navy);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
 /* Header */
-.zav-header {
+.flyer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 14px 24px;
-  background: #fff;
-  border-bottom: 1px solid var(--rk-border);
+  gap: 16px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.92);
+  border-bottom: 1px solid rgba(58, 170, 53, 0.25);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.zav-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  color: var(--rk-navy);
-}
-
-.zav-logo {
-  height: 44px;
-  width: auto;
-  object-fit: contain;
-}
-
-.zav-brand-name {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.zav-nav {
-  display: flex;
-  gap: 28px;
-}
-
-.zav-nav a {
-  color: var(--rk-text-muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  transition: color 0.15s;
-}
-
-.zav-nav a:hover {
-  color: var(--rk-green-dark);
-}
-
-.zav-header-actions {
+.flyer-header-brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
 }
 
-/* Buttons */
-.zav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 18px;
-  border-radius: var(--rk-radius-pill);
-  font-size: 14px;
-  font-weight: 700;
+.flyer-header-brand img {
+  border-radius: 8px;
+}
+
+.flyer-header-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.flyer-header-nav a {
+  color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
-  border: 1.5px solid transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.flyer-header-nav a:hover,
+.flyer-header-nav a.active {
+  color: var(--rk-green);
+}
+
+.flyer-header-wa {
+  padding: 8px 16px;
+  background: var(--rk-green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 999px;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.zav-btn-primary {
+.flyer-header-wa:hover {
+  background: var(--rk-green-dark);
+}
+
+/* Page */
+.flyer-page {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: calc(100dvh - 60px);
+}
+
+/* Visual hero (flyer image) */
+.flyer-visual {
+  position: relative;
+  overflow: hidden;
+  background: #111;
+}
+
+.flyer-visual-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.flyer-visual-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 24px 20px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  pointer-events: none;
+}
+
+.flyer-brand-tag {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rk-green);
+  margin-bottom: 6px;
+}
+
+.flyer-title {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.flyer-title-vehiculos {
+  font-size: clamp(1.5rem, 5.5vw, 2.1rem);
+}
+
+.flyer-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Panel */
+.flyer-panel {
+  padding: 28px 20px 40px;
+  background: #f2f2f2;
+  color: var(--rk-navy);
+}
+
+.flyer-panel-dark {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  color: #fff;
+}
+
+.flyer-panel-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rk-green-dark);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.flyer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.flyer-link-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--rk-navy);
+  font-weight: 800;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.flyer-link-card:hover {
+  border-color: var(--rk-green);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(58, 170, 53, 0.15);
+}
+
+.flyer-link-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--rk-green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.flyer-link-label {
+  flex: 1;
+}
+
+.flyer-link-arrow {
+  color: var(--rk-green-dark);
+  font-size: 18px;
+}
+
+/* Badges vehículos */
+.flyer-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.flyer-badge {
+  display: block;
+  padding: 16px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  text-align: center;
+  transition: transform 0.15s;
+}
+
+.flyer-badge:hover {
+  transform: scale(1.02);
+}
+
+.flyer-badge-light {
+  background: #fff;
+  color: var(--rk-navy);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.flyer-badge-plazo {
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flyer-plazo-pre,
+.flyer-plazo-post {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--rk-green);
+  text-transform: uppercase;
+}
+
+.flyer-plazo-num {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+}
+
+.flyer-highlights {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.flyer-highlights li {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(58, 170, 53, 0.15);
+  border: 1px solid rgba(58, 170, 53, 0.35);
+  color: #9ef098;
+}
+
+/* Actions */
+.flyer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flyer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.flyer-btn:hover {
+  transform: translateY(-1px);
+}
+
+.flyer-btn-primary {
   background: var(--rk-green);
   color: #fff;
 }
 
-.zav-btn-primary:hover {
+.flyer-btn-primary:hover {
   background: var(--rk-green-dark);
-  transform: translateY(-1px);
 }
 
-.zav-btn-ghost {
-  background: transparent;
-  color: var(--rk-navy);
-  border-color: var(--rk-border);
-}
-
-.zav-btn-ghost:hover {
-  border-color: var(--rk-green);
-  color: var(--rk-green-dark);
-}
-
-.zav-btn-outline {
-  background: transparent;
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.zav-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.zav-btn-lg {
-  padding: 14px 26px;
+.flyer-btn-lg {
+  padding: 16px 24px;
   font-size: 15px;
 }
 
-.zav-btn-sm {
-  padding: 8px 16px;
-  font-size: 13px;
-}
-
-/* Hero */
-.zav-hero {
-  position: relative;
-  min-height: 72vh;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-
-.zav-hero-bg {
-  position: absolute;
-  inset: 0;
-  background: url('/brand/hero-bg.jpeg') center center / cover no-repeat;
-}
-
-.zav-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    rgba(4, 18, 30, 0.92) 0%,
-    rgba(4, 18, 30, 0.75) 45%,
-    rgba(4, 18, 30, 0.45) 100%
-  );
-}
-
-.zav-hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 720px;
-  padding: 80px 24px;
-  margin: 0 auto 0 max(24px, calc((100% - 1080px) / 2 + 24px));
+.flyer-btn-wa {
+  background: #128c7e;
   color: #fff;
 }
 
-.zav-hero h1 {
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -0.03em;
-  margin-bottom: 18px;
+.flyer-btn-wa:hover {
+  background: #0d7268;
 }
 
-.zav-hero-lead {
-  font-size: clamp(16px, 2.2vw, 18px);
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.82);
-  margin-bottom: 28px;
-  max-width: 560px;
-}
-
-.zav-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.zav-hero-phone {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.zav-hero-phone a {
-  color: #9ef098;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.zav-hero-phone a:hover {
-  text-decoration: underline;
-}
-
-/* Strip */
-.zav-strip {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 280px;
-  background: #f8fafb;
-  border-bottom: 1px solid var(--rk-border);
-}
-
-.zav-strip-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 48px clamp(24px, 5vw, 64px);
-}
-
-.zav-strip-title {
-  font-size: clamp(1.35rem, 3vw, 1.85rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
-  color: var(--rk-navy);
-  margin-bottom: 10px;
-}
-
-.zav-strip-caption {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--rk-green-dark);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.zav-strip-visual {
-  position: relative;
-  min-height: 240px;
-  overflow: hidden;
-}
-
-.zav-strip-visual img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* Form section */
-.zav-form-section {
-  padding: 72px 0 80px;
-  background: #fff;
-}
-
-.zav-form-head {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.zav-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--rk-green-dark);
-  margin-bottom: 10px;
-}
-
-.zav-form-head h2,
-.zav-products h2,
-.zav-about h2 {
-  font-size: clamp(1.6rem, 3.5vw, 2.25rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 12px;
-}
-
-.zav-lead {
-  font-size: 16px;
-  line-height: 1.65;
-  color: var(--rk-text-muted);
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.zav-lead-muted {
-  margin-bottom: 36px;
-}
-
-.zav-form-card {
-  max-width: 520px;
-  margin: 0 auto;
-  background: #fff;
-  border: 1px solid var(--rk-border);
-  border-radius: 20px;
-  padding: 28px 24px 24px;
-  box-shadow: 0 24px 64px rgba(4, 18, 30, 0.08);
-}
-
-.zav-form-card .trust-badges {
-  margin-bottom: 20px;
-}
-
-/* Products */
-.zav-products {
-  padding: 72px 0;
-  background: #f8fafb;
-  border-top: 1px solid var(--rk-border);
-}
-
-.zav-products-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.zav-product-card {
-  background: #fff;
-  border: 1px solid var(--rk-border);
-  border-radius: 16px;
-  padding: 28px;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-
-.zav-product-card:hover {
-  border-color: rgba(58, 170, 53, 0.35);
-  box-shadow: 0 12px 32px rgba(4, 18, 30, 0.06);
-}
-
-.zav-product-card h3 {
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 8px;
-  color: var(--rk-navy);
-}
-
-.zav-product-card p {
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--rk-text-muted);
-  margin-bottom: 16px;
-}
-
-.zav-product-link {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--rk-green-dark);
-  text-decoration: none;
-}
-
-.zav-product-link:hover {
-  text-decoration: underline;
-}
-
-/* About */
-.zav-about {
-  padding: 72px 0;
-  background: #fff;
-}
-
-.zav-about-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 40px;
-  align-items: start;
-}
-
-.zav-about-lead {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  line-height: 1.55;
-}
-
-.zav-about-text {
-  font-size: 15px;
-  line-height: 1.75;
-  color: var(--rk-text-muted);
-}
-
-.zav-contact-card {
-  background: #f8fafb;
-  border: 1px solid var(--rk-border);
-  border-radius: 16px;
-  padding: 28px;
-}
-
-.zav-contact-card h3 {
-  font-size: 14px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 20px;
-  color: var(--rk-navy);
-}
-
-.zav-contact-card ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.zav-contact-card li span {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--rk-text-light);
-  margin-bottom: 4px;
-}
-
-.zav-contact-card a,
-.zav-contact-card strong {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--rk-navy);
-  text-decoration: none;
-}
-
-.zav-contact-card a:hover {
-  color: var(--rk-green-dark);
-}
-
-/* Footer */
-.zav-footer {
-  background: var(--rk-navy);
-  color: rgba(255, 255, 255, 0.75);
-  padding: 48px 0 32px;
-}
-
-.zav-footer-grid {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 32px;
-  margin-bottom: 32px;
-}
-
-.zav-footer-logo {
-  height: 40px;
-  margin-bottom: 12px;
-}
-
-.zav-footer-brand p {
-  font-size: 14px;
-  line-height: 1.55;
-  max-width: 320px;
-  margin-bottom: 16px;
-}
-
-.zav-footer-cta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.zav-footer .zav-btn-outline {
-  color: rgba(255, 255, 255, 0.9);
+.flyer-btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
   border-color: rgba(255, 255, 255, 0.25);
 }
 
-.zav-footer-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-end;
+.flyer-btn-ghost:hover {
+  border-color: var(--rk-green);
+  color: var(--rk-green);
 }
 
-.zav-footer-contact a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.zav-footer-contact a:hover {
-  color: #9ef098;
-}
-
-.zav-footer-legal {
-  font-size: 12px;
-  line-height: 1.65;
+.flyer-contact {
+  margin-top: 20px;
   text-align: center;
-  max-width: 680px;
-  margin: 0 auto;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  color: var(--rk-text-muted);
 }
 
-@media (max-width: 900px) {
-  .zav-nav,
-  .zav-brand-name {
-    display: none;
-  }
+.flyer-contact a {
+  color: var(--rk-green-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
 
-  .zav-hero-inner {
-    margin: 0 auto;
-    text-align: center;
-    padding: 64px 24px;
-  }
+.flyer-contact a:hover {
+  text-decoration: underline;
+}
 
-  .zav-hero-lead {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .zav-hero-actions {
-    justify-content: center;
-  }
-
-  .zav-strip {
-    grid-template-columns: 1fr;
-  }
-
-  .zav-strip-visual {
-    min-height: 200px;
-  }
-
-  .zav-products-grid,
-  .zav-about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .zav-footer-grid {
-    flex-direction: column;
-  }
-
-  .zav-footer-contact {
-    align-items: flex-start;
+@media (min-width: 768px) {
+  .flyer-page {
+    max-width: 480px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 }
 
 @media (max-width: 560px) {
-  .zav-header-actions .zav-btn-ghost {
+  .flyer-header-nav {
     display: none;
-  }
-
-  .zav-form-card {
-    padding: 20px 16px;
-    border-radius: 16px;
   }
 }

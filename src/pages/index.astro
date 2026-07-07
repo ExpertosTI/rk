@@ -1,169 +1,66 @@
 ---
 import LandingLayout from '../layouts/LandingLayout.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
-import CreditForm from '../components/react/CreditForm';
-import TrustBadges from '../components/react/TrustBadges';
+import FlyerChrome from '../components/FlyerChrome.astro';
 import { BRAND } from '../lib/constants';
-import {
-  NAV_LINKS,
-  PROMO,
-  HERO,
-  FORM_SECTION,
-  STRIP,
-  PRODUCT_LINES,
-  PRODUCTS_SECTION,
-  ABOUT,
-  FOOTER,
-} from '../lib/landing';
+import { GENERAL_PAGE, PRODUCT_LINKS, FOOTER } from '../lib/landing';
 
 const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me gustaría información sobre RK Inversiones')}`;
-const telHref = `tel:${BRAND.phone.replace(/-/g, '')}`;
 ---
 
 <LandingLayout
-  title={`${BRAND.name} — Financiamiento en ${BRAND.country}`}
-  description="Aprobación inmediata. Financiamiento de apartamentos, casas, vehículos y solares en República Dominicana."
+  title={`${BRAND.name} — Financiamiento`}
+  description="Financiamiento de apartamentos, casas, vehículos y solares. Aprobación inmediata en República Dominicana."
 >
-  <a class="zav-skip" href="#main">Ir al contenido</a>
+  <FlyerChrome active="general" />
 
-  <div class="zav-promo">{PROMO.text}</div>
-
-  <header class="zav-header">
-    <a href="/" class="zav-brand">
-      <img src="/brand/logo.jpeg" alt={BRAND.name} class="zav-logo" />
-      <span class="zav-brand-name">{BRAND.name}</span>
-    </a>
-
-    <nav class="zav-nav" aria-label="Principal">
-      {NAV_LINKS.map((link) => (
-        <a href={link.href}>{link.label}</a>
-      ))}
-    </nav>
-
-    <div class="zav-header-actions">
-      <a href={waUrl} class="zav-btn zav-btn-ghost" target="_blank" rel="noopener noreferrer">
-        WhatsApp
-      </a>
-      <a href="#solicitar" class="zav-btn zav-btn-primary">{HERO.ctaPrimary}</a>
-    </div>
-  </header>
-
-  <main id="main">
-    <section class="zav-hero">
-      <div class="zav-hero-bg" aria-hidden="true" />
-      <div class="zav-hero-overlay" aria-hidden="true" />
-      <div class="zav-hero-inner">
-        <h1>{HERO.title}</h1>
-        <p class="zav-hero-lead">{HERO.subtitle}</p>
-        <div class="zav-hero-actions">
-          <a href="#solicitar" class="zav-btn zav-btn-primary zav-btn-lg">{HERO.ctaPrimary}</a>
-          <a href={waUrl} class="zav-btn zav-btn-outline zav-btn-lg" target="_blank" rel="noopener noreferrer">
-            {HERO.ctaWhatsApp}
-          </a>
-        </div>
-        <p class="zav-hero-phone">
-          O llama al <a href={telHref}>{BRAND.phone}</a>
-        </p>
+  <main class="flyer-page" id="main">
+    <section class="flyer-visual flyer-visual-general" aria-label="Financiamiento RK">
+      <img
+        src={GENERAL_PAGE.image}
+        alt={`${BRAND.name} — ${GENERAL_PAGE.subtitle}`}
+        class="flyer-visual-img"
+        width="1080"
+        height="1080"
+        loading="eager"
+      />
+      <div class="flyer-visual-overlay">
+        <p class="flyer-brand-tag">{BRAND.slogan}</p>
+        <h1 class="flyer-title">{GENERAL_PAGE.title}</h1>
+        <p class="flyer-sub">{GENERAL_PAGE.subtitle}</p>
       </div>
     </section>
 
-    <section class="zav-strip" aria-label="Presentación">
-      <div class="zav-strip-text">
-        <p class="zav-strip-title">{STRIP.title}</p>
-        <p class="zav-strip-caption">{STRIP.caption}</p>
-      </div>
-      <div class="zav-strip-visual" aria-hidden="true">
-        <img src="/brand/hero-bg.jpeg" alt="" loading="lazy" />
-      </div>
-    </section>
+    <section class="flyer-panel">
+      <h2 class="flyer-panel-title">Elige tu financiamiento</h2>
+      <ul class="flyer-links">
+        {PRODUCT_LINKS.map((item) => (
+          <li>
+            <a href={item.href} class="flyer-link-card">
+              <span class="flyer-link-check" aria-hidden="true">✓</span>
+              <span class="flyer-link-label">{item.label}</span>
+              <span class="flyer-link-arrow" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
 
-    <section class="zav-form-section" id="solicitar">
-      <div class="zav-container zav-form-head">
-        <p class="zav-eyebrow">{FORM_SECTION.eyebrow}</p>
-        <h2>{FORM_SECTION.title}</h2>
-        <p class="zav-lead">{FORM_SECTION.lead}</p>
+      <div class="flyer-actions">
+        <a href={GENERAL_PAGE.ctaHref} class="flyer-btn flyer-btn-primary">
+          {GENERAL_PAGE.cta}
+        </a>
+        <a href={waUrl} class="flyer-btn flyer-btn-wa" target="_blank" rel="noopener noreferrer">
+          WhatsApp · {FOOTER.phone}
+        </a>
       </div>
-      <div class="zav-container">
-        <div class="zav-form-card">
-          <TrustBadges client:load />
-          <CreditForm client:load />
-        </div>
-      </div>
-    </section>
 
-    <section class="zav-products" id="productos">
-      <div class="zav-container">
-        <p class="zav-eyebrow">{PRODUCTS_SECTION.eyebrow}</p>
-        <h2>{PRODUCTS_SECTION.title}</h2>
-        <p class="zav-lead zav-lead-muted">{PRODUCTS_SECTION.lead}</p>
-        <div class="zav-products-grid">
-          {PRODUCT_LINES.map((item) => (
-            <article class="zav-product-card">
-              <h3>{item.label}</h3>
-              <p>{item.desc}</p>
-              <a href={`#solicitar`} class="zav-product-link">Solicitar →</a>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <section class="zav-about" id="nosotros">
-      <div class="zav-container zav-about-grid">
-        <div>
-          <p class="zav-eyebrow">{ABOUT.eyebrow}</p>
-          <h2>{ABOUT.title}</h2>
-          <p class="zav-about-lead">{ABOUT.lead}</p>
-          <p class="zav-about-text">{ABOUT.text}</p>
-        </div>
-        <aside class="zav-contact-card">
-          <h3>Contacto</h3>
-          <ul>
-            <li>
-              <span>Teléfono</span>
-              <a href={telHref}>{FOOTER.phone}</a>
-            </li>
-            <li>
-              <span>WhatsApp</span>
-              <a href={waUrl} target="_blank" rel="noopener noreferrer">Escribir</a>
-            </li>
-            <li>
-              <span>Correo</span>
-              <a href={`mailto:${FOOTER.email}`}>{FOOTER.email}</a>
-            </li>
-            <li>
-              <span>Asesor</span>
-              <strong>{BRAND.advisor}</strong>
-            </li>
-          </ul>
-        </aside>
-      </div>
+      <p class="flyer-contact">
+        <a href={`mailto:${FOOTER.email}`}>{FOOTER.email}</a>
+        ·
+        <a href={`tel:${FOOTER.phone.replace(/-/g, '')}`}>{FOOTER.phone}</a>
+      </p>
     </section>
   </main>
-
-  <footer class="zav-footer">
-    <div class="zav-container zav-footer-grid">
-      <div class="zav-footer-brand">
-        <img src="/brand/logo.jpeg" alt={BRAND.name} class="zav-footer-logo" />
-        <p>{FOOTER.tagline}</p>
-        <div class="zav-footer-cta">
-          <a href={waUrl} class="zav-btn zav-btn-outline zav-btn-sm" target="_blank" rel="noopener noreferrer">
-            WhatsApp
-          </a>
-          <a href="#solicitar" class="zav-btn zav-btn-primary zav-btn-sm">Solicitar</a>
-        </div>
-      </div>
-      <div class="zav-footer-contact">
-        <a href={telHref}>☎ {FOOTER.phone}</a>
-        <a href={waUrl} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-        <a href={`mailto:${FOOTER.email}`}>✉ {FOOTER.email}</a>
-      </div>
-    </div>
-    <p class="zav-footer-legal">
-      Tasas y condiciones sujetas a evaluación crediticia conforme a la normativa dominicana.
-      © {new Date().getFullYear()} {BRAND.name}. Todos los derechos reservados.
-    </p>
-  </footer>
 
   <WhatsAppFloat />
 </LandingLayout>

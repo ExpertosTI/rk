@@ -337,21 +337,83 @@ function buildDecisionWhatsApp(row, estado) {
   ].join('\n');
 }
 
-function buildTeamDecisionMail(row, estado) {
+function buildStatusMail(row, estado) {
+  if (estado === 'aprobada' || estado === 'rechazada') {
+    return buildDecisionMail(row, estado);
+  }
+
+  const nombre = row.nombre?.trim()?.split(/\s+/)[0] || 'Cliente';
+  const producto = formatProducto(row.producto);
+
+  if (estado === 'revision') {
+    return {
+      subject: 'Tu solicitud está en revisión — RK Inversiones',
+      text: [
+        `Hola ${nombre},`,
+        '',
+        'Te informamos que tu solicitud de financiamiento pasó a estado EN REVISIÓN.',
+        'Estamos evaluando tu información y te contactaremos pronto.',
+        '',
+        `Referencia: ${row.id}`,
+        `Producto: ${producto}`,
+        `Monto: ${row.monto || '—'}`,
+        '',
+        BRAND_PHONE
+          ? `Si tienes preguntas, escríbenos al ${BRAND_PHONE} o responde a este correo.`
+          : 'Si tienes preguntas, responde a este correo.',
+        '',
+        'RK Inversiones',
+        BRAND_EMAIL,
+      ].join('\n'),
+    };
+  }
+
+  if (estado === 'cerrada') {
+    return {
+      subject: 'Tu solicitud fue cerrada — RK Inversiones',
+      text: [
+        `Hola ${nombre},`,
+        '',
+        'Tu solicitud de financiamiento fue marcada como CERRADA en nuestro sistema.',
+        '',
+        `Referencia: ${row.id}`,
+        `Producto: ${producto}`,
+        '',
+        BRAND_PHONE
+          ? `Para retomar el proceso o una nueva solicitud, contáctanos al ${BRAND_PHONE}.`
+          : 'Para retomar el proceso, contáctanos por WhatsApp.',
+        '',
+        'RK Inversiones',
+        BRAND_EMAIL,
+      ].join('\n'),
+    };
+  }
+
+  return null;
+}
+
+function buildTeamStatusMail(row, estado) {
   const nombre = row.nombre?.trim() || 'Sin nombre';
-  const label = estado === 'aprobada' ? 'APROBADA' : 'RECHAZADA';
-  const subject = `Solicitud ${label} — ${nombre} — ${row.id}`;
-  const text = [
-    `Notificación de decisión enviada al solicitante (${label}).`,
-    '',
-    `Referencia: ${row.id}`,
-    `Nombre: ${nombre}`,
-    `WhatsApp: ${row.whatsapp || '—'}`,
-    `Email: ${row.email || '—'}`,
-    '',
-    `Panel: ${ADMIN_URL}`,
-  ].join('\n');
-  return { subject, text };
+  const labels = {
+    revision: 'EN REVISIÓN',
+    aprobada: 'APROBADA',
+    rechazada: 'RECHAZADA',
+    cerrada: 'CERRADA',
+  };
+  const label = labels[estado] || estado.toUpperCase();
+  return {
+    subject: `Estado ${label} — ${nombre} — ${row.id}`,
+    text: [
+      `Estado actualizado a ${label} — notificación enviada al solicitante.`,
+      '',
+      `Referencia: ${row.id}`,
+      `Nombre: ${nombre}`,
+      `Email: ${row.email || '—'}`,
+      `WhatsApp: ${row.whatsapp || '—'}`,
+      '',
+      `Panel: ${ADMIN_URL}`,
+    ].join('\n'),
+  };
 }
 
 async function sendMail({ to, subject, text, html }) {
@@ -540,12 +602,12 @@ async function handleSolicitud(req, res) {
   }
 }
 
-function canNotifyDecision(row, estado) {
+function canNotifyEstado(row, estado) {
   if (!row?.completada) return false;
   if (row.estado !== estado) return false;
   if (estado === 'aprobada' && row.notificada_aprobada_at) return false;
   if (estado === 'rechazada' && row.notificada_rechazada_at) return false;
-  return estado === 'aprobada' || estado === 'rechazada';
+  return ['revision', 'aprobada', 'rechazada', 'cerrada'].includes(estado);
 }
 
 async function handleEstado(req, res) {
@@ -569,7 +631,7 @@ async function handleEstado(req, res) {
   if (!solicitudId) {
     return json(res, 400, { ok: false, error: 'solicitud_requerida' });
   }
-  if (estado !== 'aprobada' && estado !== 'rechazada') {
+  if (!['revision', 'aprobada', 'rechazada', 'cerrada'].includes(estado)) {
     return json(res, 400, { ok: false, error: 'estado_invalido' });
   }
 
@@ -581,17 +643,30 @@ async function handleEstado(req, res) {
     return json(res, 502, { ok: false, error: msg });
   }
 
-  if (!canNotifyDecision(row, estado)) {
-    return json(res, 409, { ok: false, error: 'decision_ya_notificada_o_estado_distinto' });
+  if (!canNotifyEstado(row, estado)) {
+    return json(res, 409, { ok: false, error: 'estado_ya_notificado_o_invalido' });
   }
 
-  const decisionMail = buildDecisionMail(row, estado);
-  const decisionWa = buildDecisionWhatsApp(row, estado);
+  const statusMail = buildStatusMail(row, estado);
+  if (!statusMail) {
+    return json(res, 400, { ok: false, error: 'estado_sin_plantilla' });
+  }
+
+  const decisionWa =
+    estado === 'aprobada' || estado === 'rechazada'
+      ? buildDecisionWhatsApp(row, estado)
+      : null;
   const hasEmail = Boolean(row.email?.includes('@'));
-  const hasWhatsApp = Boolean(row.whatsapp && canWhatsAppToPhone(row.whatsapp));
+  const hasWhatsApp = Boolean(
+    decisionWa && row.whatsapp && canWhatsAppToPhone(row.whatsapp),
+  );
 
   if (!hasEmail && !hasWhatsApp) {
     return json(res, 400, { ok: false, error: 'sin_contacto_solicitante' });
+  }
+
+  if (!hasEmail && !smtpConfigured() && !hasWhatsApp) {
+    return json(res, 503, { ok: false, error: 'smtp_not_configured' });
   }
 
   let emailOk = false;
@@ -602,23 +677,23 @@ async function handleEstado(req, res) {
     if (hasEmail && smtpConfigured()) {
       await sendMail({
         to: row.email,
-        subject: decisionMail.subject,
-        text: decisionMail.text,
+        subject: statusMail.subject,
+        text: statusMail.text,
       });
       emailOk = true;
 
-      const teamCopy = buildTeamDecisionMail(row, estado);
+      const teamCopy = buildTeamStatusMail(row, estado);
       await sendMail({ to: NOTIFY_TO, ...teamCopy });
     }
 
-    if (hasWhatsApp) {
+    if (hasWhatsApp && decisionWa) {
       try {
         await sendWhatsAppMessage(row.whatsapp, decisionWa);
         whatsappOk = true;
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'whatsapp_failed';
         warnings.push(msg);
-        console.warn('[notify] decision whatsapp:', msg);
+        console.warn('[notify] status whatsapp:', msg);
       }
     }
 
@@ -631,7 +706,9 @@ async function handleEstado(req, res) {
       });
     }
 
-    await markDecisionNotified(solicitudId, estado);
+    if (estado === 'aprobada' || estado === 'rechazada') {
+      await markDecisionNotified(solicitudId, estado);
+    }
 
     return json(res, 200, {
       ok: true,

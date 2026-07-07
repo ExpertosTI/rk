@@ -199,8 +199,14 @@ export default function AdminInbox({ onLogout }: Props) {
     setDrafts(nextDrafts);
     if (selected?.id === id) setSelected({ ...selected, ...patch });
 
-    if (res.notify && (estado === 'aprobada' || estado === 'rechazada')) {
-      const label = estado === 'aprobada' ? 'aprobación' : 'rechazo';
+    if (res.notify && !res.notify.skipped) {
+      const labels: Record<string, string> = {
+        revision: 'revisión',
+        aprobada: 'aprobación',
+        rechazada: 'rechazo',
+        cerrada: 'cierre',
+      };
+      const label = labels[estado] ?? 'estado';
       if (res.notify.ok) {
         const parts = [];
         if (res.notify.email) parts.push('correo');
@@ -208,7 +214,7 @@ export default function AdminInbox({ onLogout }: Props) {
         const via = parts.length ? parts.join(' y ') : 'registro';
         window.alert(`Estado actualizado. Notificación de ${label} enviada por ${via}.`);
       } else if (res.notify.error === 'sin_contacto_solicitante') {
-        window.alert(`Estado actualizado, pero el solicitante no tiene email ni WhatsApp válido.`);
+        window.alert('Estado actualizado, pero el solicitante no tiene email ni WhatsApp válido.');
       } else {
         window.alert(`Estado actualizado. No se pudo enviar la notificación (${res.notify.error ?? 'error'}).`);
       }
