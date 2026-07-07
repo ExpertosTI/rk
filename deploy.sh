@@ -53,32 +53,18 @@ export PUBLIC_BUILD_ID="$(git rev-parse --short HEAD)"
 
 cyan "── 3. Build imágenes Docker ─────────────────────"
 export DOCKER_BUILDKIT=1
-nice -n 19 ionice -c 3 docker compose build --pull web bureau notify
+nice -n 19 ionice -c 3 docker compose build --pull web bureau notify insforge-proxy
 
 cyan "── 4. Red RenaceNet ───────────────────────────"
 if ! docker network ls --format '{{.Name}}' | grep -qx "RenaceNet"; then
   docker network create --driver overlay --attachable RenaceNet
 fi
 
-# PostgREST en RenaceNet + ruta Traefik /api/insforge (sin pasar por nginx)
+# PostgREST debe estar en RenaceNet (lo alcanza insforge-proxy del stack rk)
 postgrest_svc="$(docker service ls --format '{{.Name}}' | grep -Ei 'insforge.*postgrest|postgrest.*insforge' | head -1 || true)"
 if [ -n "$postgrest_svc" ]; then
-  docker service update \
-    --network-add RenaceNet \
-    --label-add 'traefik.enable=true' \
-    --label-add 'traefik.docker.network=RenaceNet' \
-    --label-add 'traefik.constraint-label=traefik-public' \
-    --label-add "traefik.http.routers.rk-insforge.rule=Host(\`${DOMAIN}\`) && PathPrefix(\`/api/insforge\`)" \
-    --label-add 'traefik.http.routers.rk-insforge.entrypoints=websecure' \
-    --label-add 'traefik.http.routers.rk-insforge.tls=true' \
-    --label-add 'traefik.http.routers.rk-insforge.tls.certresolver=letsencryptresolver' \
-    --label-add 'traefik.http.routers.rk-insforge.priority=100' \
-    --label-add 'traefik.http.middlewares.rk-insforge-strip.stripprefix.prefixes=/api/insforge' \
-    --label-add 'traefik.http.routers.rk-insforge.middlewares=rk-insforge-strip' \
-    --label-add 'traefik.http.routers.rk-insforge.service=rk-insforge-svc' \
-    --label-add 'traefik.http.services.rk-insforge-svc.loadbalancer.server.port=3000' \
-    "$postgrest_svc" >/dev/null 2>&1 || true
-  cyan "   Traefik: /api/insforge → ${postgrest_svc}"
+  docker service update --network-add RenaceNet "$postgrest_svc" >/dev/null 2>&1 || true
+  cyan "   RenaceNet: ${postgrest_svc}"
 fi
 
 cyan "── 5. Stack Swarm + Traefik ───────────────────"
@@ -89,18 +75,19 @@ cyan "── 6. Aplicar imágenes ───────────────�
 docker service update --force --detach=true "${SERVICE_NAME}" >/dev/null
 docker service update --force --detach=true "${STACK_NAME}_bureau" >/dev/null 2>&1 || true
 docker service update --force --detach=true "${STACK_NAME}_notify" >/dev/null 2>&1 || true
+docker service update --force --detach=true "${STACK_NAME}_insforge-proxy" >/dev/null 2>&1 || true
 
 cyan "── 7. Esperar healthcheck ─────────────────────"
 sleep 5
 for i in 1 2 3 4 5 6; do
   if curl -fsS "https://${DOMAIN}/healthz" >/dev/null 2>&1; then
-    api_code="$(curl -s -o /dev/null -w '%{http_code}' "https://${DOMAIN}/api/insforge/rk_solicitudes?limit=0" 2>/dev/null || echo 000)"
+    api_head="$(curl -fsS "https://${DOMAIN}/api/insforge/rk_solicitudes?limit=0" -H 'Accept: application/json' 2>/dev/null | head -c 1 || true)"
     green "✅ Producción activa: https://${DOMAIN}"
     green "   Commit:  $(git rev-parse --short HEAD)"
-    if [ "$api_code" = "500" ] || [ "$api_code" = "502" ] || [ "$api_code" = "000" ]; then
-      warn "⚠️  API base de datos no responde (HTTP ${api_code})"
+    if [ "$api_head" = "[" ] || [ "$api_head" = "{" ]; then
+      green "   Base de datos: conectada"
     else
-      green "   Base de datos: conectada (HTTP ${api_code})"
+      warn "⚠️  API base de datos no responde JSON — reintente en 30s"
     fi
     docker image prune -f >/dev/null
     exit 0

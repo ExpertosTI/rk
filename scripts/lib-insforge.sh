@@ -49,7 +49,7 @@ resolve_postgrest_container() {
 read_jwt_secret() {
   local container="${1:-}"
   [ -n "$container" ] || return 0
-  local v pg
+  local v pg svc
   for key in PGRST_JWT_SECRET JWT_SECRET INSFORGE_JWT_SECRET; do
     v="$(docker_env "$container" "$key")"
     if [ -n "$v" ]; then
@@ -59,13 +59,22 @@ read_jwt_secret() {
   done
   pg="$(resolve_pg_container)"
   if [ -n "$pg" ]; then
-    for key in PGRST_JWT_SECRET JWT_SECRET INSFORGE_JWT_SECRET; do
+    for key in PGRST_JWT_SECRET JWT_SECRET INSFORGE_JWT_SECRET POSTGRES_JWT_SECRET; do
       v="$(docker_env "$pg" "$key")"
       if [ -n "$v" ]; then
         echo "$v"
         return 0
       fi
     done
+  fi
+  svc="$(docker service ls --format '{{.Name}}' | grep -Ei 'insforge.*postgrest|postgrest.*insforge' | head -1 || true)"
+  if [ -n "$svc" ]; then
+    v="$(docker service inspect "$svc" --format '{{range .Spec.TaskTemplate.ContainerSpec.Env}}{{println .}}{{end}}' 2>/dev/null \
+      | grep -E '^(PGRST_JWT_SECRET|JWT_SECRET|INSFORGE_JWT_SECRET)=' | head -1 | cut -d= -f2- || true)"
+    if [ -n "$v" ]; then
+      echo "$v"
+      return 0
+    fi
   fi
 }
 
@@ -198,8 +207,21 @@ is_vps_with_docker() {
 }
 
 mint_jwt() {
-  local role="$1" secret="$2" root="$3"
-  node "$root/scripts/jwt-sign.mjs" "$role" "$secret" 2>/dev/null || true
+  local role="$1" secret="$2" root="${3:-}"
+  if [ -n "$root" ] && command -v node >/dev/null 2>&1 && [ -f "$root/scripts/jwt-sign.mjs" ]; then
+    local out
+    out="$(node "$root/scripts/jwt-sign.mjs" "$role" "$secret" 2>/dev/null || true)"
+    if [ -n "$out" ]; then
+      printf '%s' "$out"
+      return 0
+    fi
+  fi
+  local header payload data sig
+  header="$(printf '{"alg": "HS256", "typ": "JWT"}' | openssl base64 -e -A | tr -d '\n' | sed 's/=*$//')"
+  payload="$(printf '{"role": "%s"}' "$role" | openssl base64 -e -A | tr -d '\n' | sed 's/=*$//')"
+  data="${header}.${payload}"
+  sig="$(printf '%s' "$data" | openssl dgst -binary -sha256 -hmac "$secret" | openssl base64 -e -A | tr -d '\n' | sed 's/=*$//')"
+  printf '%s.%s' "$data" "$sig"
 }
 
 restart_postgrest() {
