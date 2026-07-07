@@ -46,6 +46,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  transition: color 0.15s;
 }
 
 .flyer-header-nav a:hover,
@@ -62,13 +63,19 @@
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
+  transition: background 0.15s, transform 0.15s;
 }
 
 .flyer-header-wa:hover {
   background: var(--rk-green-dark);
+  transform: translateY(-1px);
 }
 
-/* Page */
+/* Shell + page */
+.flyer-shell {
+  width: 100%;
+}
+
 .flyer-page {
   max-width: 520px;
   margin: 0 auto;
@@ -201,6 +208,11 @@
 .flyer-link-arrow {
   color: var(--rk-green-dark);
   font-size: 18px;
+  transition: transform 0.15s;
+}
+
+.flyer-link-card:hover .flyer-link-arrow {
+  transform: translateX(3px);
 }
 
 /* Badges vehículos */
@@ -218,11 +230,12 @@
   text-decoration: none;
   font-weight: 800;
   text-align: center;
-  transition: transform 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .flyer-badge:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .flyer-badge-light {
@@ -294,7 +307,7 @@
   text-decoration: none;
   text-align: center;
   border: 2px solid transparent;
-  transition: background 0.15s, transform 0.15s;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .flyer-btn:hover {
@@ -308,6 +321,7 @@
 
 .flyer-btn-primary:hover {
   background: var(--rk-green-dark);
+  box-shadow: 0 8px 24px rgba(58, 170, 53, 0.35);
 }
 
 .flyer-btn-lg {
@@ -322,6 +336,7 @@
 
 .flyer-btn-wa:hover {
   background: #0d7268;
+  box-shadow: 0 8px 24px rgba(18, 140, 126, 0.35);
 }
 
 .flyer-btn-ghost {
@@ -352,14 +367,195 @@
   text-decoration: underline;
 }
 
+/* ── Desktop / web (móvil intacto hasta 767px) ── */
 @media (min-width: 768px) {
+  .landing-body {
+    background:
+      radial-gradient(ellipse 70% 45% at 50% -5%, rgba(58, 170, 53, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 30% at 100% 100%, rgba(58, 170, 53, 0.06) 0%, transparent 50%),
+      #080808;
+  }
+
+  .flyer-header {
+    padding: 14px 32px;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(12px);
+  }
+
+  .flyer-header-brand {
+    font-size: 16px;
+    gap: 12px;
+  }
+
+  .flyer-header-brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .flyer-header-nav {
+    gap: 36px;
+  }
+
+  .flyer-header-nav a {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .flyer-header-wa {
+    padding: 10px 22px;
+    font-size: 13px;
+  }
+
+  .flyer-shell {
+    padding: 28px 32px 48px;
+    display: flex;
+    justify-content: center;
+  }
+
   .flyer-page {
-    max-width: 480px;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    max-width: 1060px;
+    width: 100%;
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 32px 80px rgba(0, 0, 0, 0.55),
+      0 0 120px rgba(58, 170, 53, 0.06);
+  }
+
+  .flyer-visual {
+    min-height: 520px;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .flyer-visual-img {
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .flyer-visual-overlay {
+    padding: 36px 32px;
+    background: linear-gradient(transparent 30%, rgba(0, 0, 0, 0.88) 100%);
+  }
+
+  .flyer-title {
+    font-size: 2.75rem;
+  }
+
+  .flyer-title-vehiculos {
+    font-size: 2.25rem;
+  }
+
+  .flyer-sub {
+    font-size: 15px;
+    max-width: 360px;
+  }
+
+  .flyer-panel {
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .flyer-panel-title {
+    text-align: left;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .flyer-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .flyer-link-card {
+    padding: 18px 16px;
+    font-size: 13px;
+    min-height: 72px;
+  }
+
+  .flyer-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .flyer-btn {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 160px;
+  }
+
+  .flyer-btn-primary {
+    flex: 1 1 100%;
+  }
+
+  .flyer-contact {
+    margin-top: 24px;
+    text-align: left;
+  }
+
+  /* Vehículos */
+  .flyer-page-vehiculos .flyer-badges {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .flyer-page-vehiculos .flyer-badge {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flyer-page-vehiculos .flyer-plazo-num {
+    font-size: 4rem;
+  }
+
+  .flyer-page-vehiculos .flyer-highlights {
+    justify-content: flex-start;
+  }
+
+  .flyer-page-vehiculos .flyer-actions .flyer-btn-primary {
+    flex: 1 1 100%;
   }
 }
 
-@media (max-width: 560px) {
+@media (min-width: 1100px) {
+  .flyer-page {
+    max-width: 1140px;
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+
+  .flyer-visual {
+    min-height: 580px;
+  }
+
+  .flyer-visual-img {
+    min-height: 580px;
+  }
+
+  .flyer-panel {
+    padding: 48px 44px;
+  }
+
+  .flyer-link-card {
+    font-size: 14px;
+    padding: 20px 18px;
+  }
+}
+
+@media (max-width: 767px) {
   .flyer-header-nav {
     display: none;
   }
