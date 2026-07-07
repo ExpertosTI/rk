@@ -2,19 +2,19 @@
 import { BRAND } from '../lib/constants';
 ---
 
-<footer class="legal-footer">
-  <p>
-    Tasas de interés y plazos sujetos a evaluación crediticia. Los plazos pueden extenderse hasta 60 meses
-    según el producto. Los datos personales pueden ser consultados y reportados a centrales de riesgo
-    (DATACRÉDITO y similares) conforme a la legislación de la República Dominicana.
+<footer class="form-legal">
+  <p class="form-legal-text">
+    Tasas y plazos sujetos a evaluación. Hasta 60 meses según producto.
+    Datos pueden reportarse a centrales de riesgo (DATACRÉDITO) conforme a la ley dominicana.
   </p>
-  <p>
-    {BRAND.name} · Santo Domingo, República Dominicana · Tel. {BRAND.phone} · WhatsApp {BRAND.phone}
+  <p class="form-legal-meta">
+    {BRAND.name} · Santo Domingo, RD · {BRAND.phone}
   </p>
-  <p class="legal-footer-links">
-    Al enviar tu solicitud aceptas nuestros{' '}
-    <a href="/terminos">términos y condiciones de servicio</a>
-    {' '}y nuestra{' '}
-    <a href="/privacidad">política de privacidad</a>.
+  <p class="form-legal-links">
+    <a href="/terminos">Términos</a>
+    <span aria-hidden="true">·</span>
+    <a href="/privacidad">Privacidad</a>
+    <span aria-hidden="true">·</span>
+    <a href="/">Inicio</a>
   </p>
 </footer>

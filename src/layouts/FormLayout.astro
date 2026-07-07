@@ -25,27 +25,24 @@ const {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body>
+  <body class="form-page">
     <div class="page">
       <div class="page-inner">
         <div class="form-card" role="main">
+          <div class="form-card-accent" aria-hidden="true" />
           <header class="card-header">
             <a href="/" class="brand-link">
               <img src="/brand/logo.jpeg" alt={BRAND.name} class="brand-logo" />
             </a>
-            <div class="assist-badge">
-              <div class="assist-avatar">RK</div>
-              <div class="assist-text">
-                <small>Te asiste</small>
-                <strong>{BRAND.advisor}</strong>
-              </div>
-            </div>
+            <a href={`tel:${BRAND.phone.replace(/-/g, '')}`} class="header-phone">
+              {BRAND.phone}
+            </a>
           </header>
 
           <slot />
-        </div>
 
-        <slot name="footer" />
+          <slot name="footer" />
+        </div>
       </div>
     </div>
     <slot name="float" />

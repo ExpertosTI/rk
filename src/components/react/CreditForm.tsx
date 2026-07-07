@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, ArrowRight, CircleCheck, MessageCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CircleCheck, MessageCircle } from 'lucide-react';
 import {
   BRAND,
   PRODUCTS,
@@ -450,7 +450,6 @@ export default function CreditForm({ initialProduct }: Props) {
             <button type="button" className="btn-next btn-ai" disabled={transitioning} onClick={onStep1}>
               {transitioning ? <span className="spinner" /> : (
                 <>
-                  <Sparkles size={16} />
                   Continuar
                   <ArrowRight size={16} />
                 </>
@@ -466,7 +465,6 @@ export default function CreditForm({ initialProduct }: Props) {
             >
               {submitting ? <span className="spinner" /> : (
                 <>
-                  <Sparkles size={16} />
                   Enviar solicitud
                   <ArrowRight size={16} />
                 </>
