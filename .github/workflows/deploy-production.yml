@@ -1,0 +1,25 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Escribe "produccion" para desplegar'
+        required: true
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'produccion'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Renace VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.RENACE_VPS_HOST }}
+          username: ${{ secrets.RENACE_VPS_USER }}
+          key: ${{ secrets.RENACE_VPS_SSH_KEY }}
+          script: |
+            cd /opt/rk 2>/dev/null || git clone https://github.com/ExpertosTI/rk.git /opt/rk
+            cd /opt/rk
+            chmod +x deploy.sh
+            ./deploy.sh
