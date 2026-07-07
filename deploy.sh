@@ -62,7 +62,11 @@ fi
 cyan "── 5. Stack Swarm + Traefik ───────────────────"
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 6. Esperar healthcheck ─────────────────────"
+# Swarm no reinicia contenedores si el tag :latest no cambió en registry
+cyan "── 6. Aplicar imagen web ──────────────────────"
+docker service update --force --detach=true "${SERVICE_NAME}" >/dev/null
+
+cyan "── 7. Esperar healthcheck ─────────────────────"
 sleep 3
 for i in 1 2 3 4 5; do
   if curl -fsS "https://${DOMAIN}/healthz" >/dev/null 2>&1; then
