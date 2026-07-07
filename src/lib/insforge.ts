@@ -1,20 +1,19 @@
 /**
  * Insforge client (PostgREST-compatible) — Renace stack
- * Patrón: ZAV / Moonshadows Sentinel
  */
+
+/** Clave anon del stack Renace — única válida en PostgREST local */
+export const RENACE_ANON_KEY =
+  'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJyb2xlIjogImFub24ifQ.YTrshWNWGSWsmc6DUhitFQSXDICh9BTIiz4CK0GX0Cw';
 
 const ENDPOINT = (
   import.meta.env.PUBLIC_INSFORGE_URL || 'https://insforge.renace.tech'
 ).replace(/\/$/, '');
 
-const ANON_KEY =
-  import.meta.env.PUBLIC_INSFORGE_ANON_KEY ||
-  'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJyb2xlIjogImFub24ifQ.YTrshWNWGSWsmc6DUhitFQSXDICh9BTIiz4CK0GX0Cw';
-
-const SERVICE_KEY =
-  import.meta.env.PUBLIC_INSFORGE_SERVICE_KEY || ANON_KEY;
-
 const MODE = import.meta.env.PUBLIC_INSFORGE_MODE || 'insforge';
+
+/** /api/insforge en el mismo dominio → proxy nginx → PostgREST Renace */
+const LOCAL_POSTGREST = MODE === 'postgrest' && ENDPOINT.startsWith('/api/');
 
 export type InsforgeResult<T = unknown> =
   | { ok: true; data?: T }
@@ -25,11 +24,11 @@ function isLegacyPostgrest() {
 }
 
 export function insforgeEnabled() {
-  return Boolean(ENDPOINT && ANON_KEY);
+  return Boolean(ENDPOINT);
 }
 
 function tablePath(table: string) {
-  if (MODE === 'postgrest') return `/${table}`;
+  if (LOCAL_POSTGREST) return `/${table}`;
   if (isLegacyPostgrest()) return `/${table}`;
   return `/api/database/records/${table}`;
 }
@@ -39,14 +38,19 @@ function buildUrl(table: string, qs = '') {
   return `${ENDPOINT}${tablePath(table)}${q}`;
 }
 
-function headers(key: 'anon' | 'service', prefer = 'return=representation') {
-  const token = key === 'service' ? SERVICE_KEY : ANON_KEY;
-  return {
+function headers(prefer = 'return=representation') {
+  const base: Record<string, string> = {
     'Content-Type': 'application/json',
-    apikey: ANON_KEY,
-    Authorization: `Bearer ${token}`,
     Prefer: prefer,
     Accept: 'application/json',
+  };
+  // PostgREST Renace vía /api/insforge: sin JWT (enviar uno inválido → 401)
+  if (LOCAL_POSTGREST) return base;
+  const anon = import.meta.env.PUBLIC_INSFORGE_ANON_KEY || RENACE_ANON_KEY;
+  return {
+    ...base,
+    apikey: anon,
+    Authorization: `Bearer ${anon}`,
   };
 }
 
@@ -67,7 +71,7 @@ export async function probeInsforge(table = 'rk_solicitudes') {
   try {
     const res = await insforgeFetch(buildUrl(table, 'limit=1'), {
       method: 'GET',
-      headers: headers('anon', 'return=minimal'),
+      headers: headers('return=minimal'),
     });
     const connected = res.ok || res.status === 404 || res.status === 406;
     return {
@@ -90,14 +94,14 @@ export async function insforgeUpsert(
   table: string,
   row: Record<string, unknown>,
   onConflict = 'id',
-  key: 'anon' | 'service' = 'anon',
+  _key?: 'anon' | 'service',
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
     const res = await insforgeFetch(buildUrl(table, `on_conflict=${encodeURIComponent(onConflict)}`), {
       method: 'POST',
       headers: {
-        ...headers(key),
+        ...headers(),
         Prefer: 'resolution=merge-duplicates,return=representation',
       },
       body: JSON.stringify([row]),
@@ -116,13 +120,13 @@ export async function insforgeUpsert(
 export async function insforgeQuery<T = Record<string, unknown>>(
   table: string,
   qs = 'order=created_at.desc',
-  key: 'anon' | 'service' = 'service',
+  _key?: 'anon' | 'service',
 ): Promise<InsforgeResult<T[]>> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
     const res = await insforgeFetch(buildUrl(table, qs), {
       method: 'GET',
-      headers: headers(key, 'return=representation'),
+      headers: headers('return=representation'),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -139,13 +143,13 @@ export async function insforgePatch(
   table: string,
   id: string,
   patch: Record<string, unknown>,
-  key: 'anon' | 'service' = 'service',
+  _key?: 'anon' | 'service',
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
     const res = await insforgeFetch(buildUrl(table, `id=eq.${encodeURIComponent(id)}`), {
       method: 'PATCH',
-      headers: headers(key),
+      headers: headers(),
       body: JSON.stringify(patch),
     });
     if (!res.ok) {
@@ -161,13 +165,13 @@ export async function insforgePatch(
 export async function insforgeInsert(
   table: string,
   row: Record<string, unknown> | Record<string, unknown>[],
-  key: 'anon' | 'service' = 'anon',
+  _key?: 'anon' | 'service',
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
     const res = await insforgeFetch(buildUrl(table), {
       method: 'POST',
-      headers: headers(key),
+      headers: headers(),
       body: JSON.stringify(Array.isArray(row) ? row : [row]),
     });
     if (!res.ok) {
