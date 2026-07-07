@@ -58,6 +58,7 @@ export async function probeInsforge(table = 'rk_solicitudes') {
     const res = await fetch(buildUrl(table, 'limit=1'), {
       method: 'GET',
       headers: headers('anon', 'return=minimal'),
+      cache: 'no-store',
     });
     const connected = res.ok || res.status === 404 || res.status === 406;
     return {
@@ -91,6 +92,7 @@ export async function insforgeUpsert(
         Prefer: 'resolution=merge-duplicates,return=representation',
       },
       body: JSON.stringify([row]),
+      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -113,6 +115,7 @@ export async function insforgeQuery<T = Record<string, unknown>>(
     const res = await fetch(buildUrl(table, qs), {
       method: 'GET',
       headers: headers(key, 'return=representation'),
+      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -137,6 +140,7 @@ export async function insforgePatch(
       method: 'PATCH',
       headers: headers(key),
       body: JSON.stringify(patch),
+      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -159,6 +163,7 @@ export async function insforgeInsert(
       method: 'POST',
       headers: headers(key),
       body: JSON.stringify(Array.isArray(row) ? row : [row]),
+      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');

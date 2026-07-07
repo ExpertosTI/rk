@@ -49,6 +49,7 @@ fi
 set -a
 [ -f .env ] && source .env
 set +a
+export PUBLIC_BUILD_ID="$(git rev-parse --short HEAD)"
 
 cyan "── 3. Build imágenes Docker ─────────────────────"
 export DOCKER_BUILDKIT=1

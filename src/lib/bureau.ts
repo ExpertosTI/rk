@@ -30,6 +30,7 @@ export async function consultarBuro(opts: {
       numeroCedula: cedulaDigits(opts.numeroCedula),
       nombre: opts.nombre,
     }),
+    cache: 'no-store',
   });
 
   const data = await res.json().catch(() => ({}));
@@ -49,6 +50,6 @@ export async function fetchConsultasBuro(solicitudId: string) {
   return insforgeQuery<BureauConsulta>(
     'rk_bureau_consultas',
     `solicitud_id=eq.${encodeURIComponent(solicitudId)}&order=created_at.desc`,
-    'anon',
+    'service',
   );
 }

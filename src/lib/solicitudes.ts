@@ -221,7 +221,7 @@ export async function fetchDocumentoCedula(solicitudId: string) {
   return insforgeQuery<DocumentoRow>(
     'rk_documentos',
     `solicitud_id=eq.${encodeURIComponent(solicitudId)}&tipo=eq.cedula&limit=1`,
-    'anon',
+    'service',
   );
 }
 
@@ -292,13 +292,12 @@ export async function fetchSolicitudes(): Promise<{ items: Solicitud[]; source: 
 export async function fetchAllSolicitudesAdmin(): Promise<{
   items: Solicitud[];
   drafts: Solicitud[];
-  source: 'insforge' | 'local';
   error?: string;
 }> {
   const remote = await insforgeQuery<SolicitudRow>(
     'rk_solicitudes',
-    'order=created_at.desc',
-    'anon',
+    'order=created_at.desc&limit=500',
+    'service',
   );
 
   if (remote.ok && remote.data) {
@@ -306,30 +305,19 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
     return {
       items: all.filter((s) => s.completada),
       drafts: all.filter((s) => !s.completada),
-      source: 'insforge',
     };
   }
 
-  const local = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]') as Solicitud[];
   return {
-    items: local,
+    items: [],
     drafts: [],
-    source: 'local',
-    error: remote.error,
+    error: remote.error ?? 'sync_failed',
   };
 }
 
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
   const patch = { estado, updated_at: nowIso() };
-  const result = await insforgePatch('rk_solicitudes', id, patch, 'anon');
-
-  if (!result.ok) {
-    const local = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]') as Solicitud[];
-    const updated = local.map((s) => (s.id === id ? { ...s, estado } : s));
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
-  }
-
-  return result;
+  return insforgePatch('rk_solicitudes', id, patch, 'service');
 }
 
 export async function checkInsforgeConnection() {
