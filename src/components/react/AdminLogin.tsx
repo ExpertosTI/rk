@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Lock, Inbox } from 'lucide-react';
-import { ADMIN } from '../../lib/constants';
+import { ADMIN, BRAND } from '../../lib/constants';
 import AdminInbox from './AdminInbox';
 
 const LOCK_KEY = 'rk_admin_lock';
@@ -67,7 +67,9 @@ export default function AdminLogin() {
   return (
     <div className="admin-login">
       <div className="admin-login-card">
-        <div className="admin-login-icon"><Lock size={28} /></div>
+        <div className="admin-login-icon">
+          <img src="/brand/logo.jpeg" alt={BRAND.name} className="admin-login-logo" />
+        </div>
         <h1>Bahía de solicitudes</h1>
         <p>RK Inversiones — Panel administrador</p>
         <form onSubmit={login}>

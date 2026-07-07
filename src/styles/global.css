@@ -1018,6 +1018,24 @@ body {
 }
 
 .admin-login-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-login-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(4, 18, 30, 0.15);
+  border: 2px solid rgba(58, 170, 53, 0.25);
+}
+
+.admin-login-icon-old {
   width: 60px;
   height: 60px;
   background: linear-gradient(135deg, var(--rk-green-dark), var(--rk-green));
@@ -1068,6 +1086,16 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.admin-brand-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
 }
 
 .admin-brand-icon {

@@ -49,7 +49,7 @@ resolve_postgrest_container() {
 read_jwt_secret() {
   local container="${1:-}"
   [ -n "$container" ] || return 0
-  local v
+  local v pg
   for key in PGRST_JWT_SECRET JWT_SECRET INSFORGE_JWT_SECRET; do
     v="$(docker_env "$container" "$key")"
     if [ -n "$v" ]; then
@@ -57,6 +57,16 @@ read_jwt_secret() {
       return 0
     fi
   done
+  pg="$(resolve_pg_container)"
+  if [ -n "$pg" ]; then
+    for key in PGRST_JWT_SECRET JWT_SECRET INSFORGE_JWT_SECRET; do
+      v="$(docker_env "$pg" "$key")"
+      if [ -n "$v" ]; then
+        echo "$v"
+        return 0
+      fi
+    done
+  fi
 }
 
 read_service_key_from_container() {

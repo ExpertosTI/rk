@@ -52,7 +52,7 @@ if is_vps_with_docker; then
     svc="$(read_service_key_from_container "$postgrest")"
     if [ -n "$svc" ]; then
       SERVICE_KEY="$svc"
-      green "   SERVICE_KEY leída del contenedor"
+      green "   Clave de servicio leída"
     else
       jwt_secret="$(read_jwt_secret "$postgrest")"
       if [ -n "$jwt_secret" ]; then
@@ -61,8 +61,12 @@ if is_vps_with_docker; then
           SERVICE_KEY="$minted"
           minted_anon="$(mint_jwt anon "$jwt_secret" "$ROOT")"
           [ -n "$minted_anon" ] && ANON_KEY="$minted_anon"
-          green "   JWT firmados desde PGRST_JWT_SECRET"
+          green "   Claves JWT generadas"
+        else
+          warn "   No se pudo firmar JWT — usando clave por defecto"
         fi
+      else
+        warn "   JWT secret no encontrado — usando clave por defecto"
       fi
     fi
   else

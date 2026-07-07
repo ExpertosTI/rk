@@ -116,8 +116,8 @@ export default function AdminInbox({ onLogout }: Props) {
     return map[code] ?? 'No se pudo completar la consulta.';
   }
 
-  async function load() {
-    setLoading(true);
+  async function load(opts?: { silent?: boolean }) {
+    if (!opts?.silent) setLoading(true);
     const data = await fetchAllSolicitudesAdmin();
     setItems(data.items);
     setDrafts(data.drafts);
@@ -126,10 +126,14 @@ export default function AdminInbox({ onLogout }: Props) {
       const all = [...data.items, ...data.drafts];
       setSelected(all.find((d) => d.id === selected.id) ?? null);
     }
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void load();
+    const timer = setInterval(() => { void load({ silent: true }); }, 12_000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!selected?.cedula_recibida) {
@@ -199,7 +203,7 @@ export default function AdminInbox({ onLogout }: Props) {
     <div className="admin-shell">
       <header className="admin-topbar">
         <div className="admin-brand">
-          <div className="admin-brand-icon"><Inbox size={22} /></div>
+          <img src="/brand/logo.jpeg" alt={BRAND.name} className="admin-brand-logo" />
           <div>
             <p className="admin-brand-eyebrow">{BRAND.name}</p>
             <h1>Bahía de solicitudes</h1>
