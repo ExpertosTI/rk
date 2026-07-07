@@ -34,18 +34,6 @@ fi
 chmod +x deploy.sh scripts/*.sh 2>/dev/null || true
 
 cyan "── 2. Seed (claves + base de datos) ───────────"
-if [ ! -f .smtp.local ] && [ -f /root/.rk-inversiones-credentials.txt ]; then
-  cred_pass="$(grep '^SMTP_PASS=' /root/.rk-inversiones-credentials.txt 2>/dev/null | tail -1 | cut -d= -f2- || true)"
-  if [ -n "$cred_pass" ]; then
-    printf '%s' "$cred_pass" > .smtp.local
-    chmod 600 .smtp.local
-  fi
-fi
-if [ ! -f .smtp.local ] && ! grep -q '^SMTP_PASS=.\+' .env 2>/dev/null; then
-  if [ -x scripts/setup-smtp.sh ]; then
-    ./scripts/setup-smtp.sh
-  fi
-fi
 if [ -x scripts/seed-env.sh ]; then
   ./scripts/seed-env.sh
 fi

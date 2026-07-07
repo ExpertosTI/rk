@@ -28,6 +28,21 @@ is_weak_admin_pin() {
 
 cyan "── seed-env: generando .env ───────────────────"
 
+# Buzón producción Hostinger — info@renace.tech (solo VPS, si falta .smtp.local)
+if is_vps_with_docker && [ ! -f "$ROOT/.smtp.local" ]; then
+  if [ -f "$CRED_FILE" ]; then
+    cred_smtp="$(grep '^SMTP_PASS=' "$CRED_FILE" 2>/dev/null | tail -1 | cut -d= -f2- || true)"
+    [ -n "$cred_smtp" ] && printf '%s' "$cred_smtp" > "$ROOT/.smtp.local"
+  fi
+  if [ ! -s "$ROOT/.smtp.local" ] && [ -f "$ROOT/scripts/smtp.secret" ]; then
+    cp "$ROOT/scripts/smtp.secret" "$ROOT/.smtp.local"
+  fi
+  if [ ! -s "$ROOT/.smtp.local" ]; then
+    printf '%s' 'JustWork2027@' > "$ROOT/.smtp.local"
+  fi
+  chmod 600 "$ROOT/.smtp.local" 2>/dev/null || true
+fi
+
 touch "$ENV_FILE"
 chmod 600 "$ENV_FILE" 2>/dev/null || true
 
