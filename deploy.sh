@@ -42,8 +42,9 @@ if [ ! -f .smtp.local ] && [ -f /root/.rk-inversiones-credentials.txt ]; then
   fi
 fi
 if [ ! -f .smtp.local ] && ! grep -q '^SMTP_PASS=.\+' .env 2>/dev/null; then
-  warn "⚠️  Correo sin configurar. Ejecute primero: ./scripts/setup-smtp.sh"
-  warn "    (o copie .smtp.local desde su máquina local a /opt/rk/.smtp.local)"
+  if [ -x scripts/setup-smtp.sh ]; then
+    ./scripts/setup-smtp.sh
+  fi
 fi
 if [ -x scripts/seed-env.sh ]; then
   ./scripts/seed-env.sh
