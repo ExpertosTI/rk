@@ -33,6 +33,11 @@ else
 fi
 chmod +x deploy.sh scripts/*.sh 2>/dev/null || true
 
+# Tras git pull, re-ejecutar con el deploy.sh actualizado (evita script viejo en memoria)
+if [ "${RK_DEPLOY_REEXEC:-}" != "1" ]; then
+  RK_DEPLOY_REEXEC=1 exec "$PROJECT_DIR/deploy.sh"
+fi
+
 cyan "── 2. Seed (claves + base de datos) ───────────"
 if [ -x scripts/seed-env.sh ]; then
   ./scripts/seed-env.sh

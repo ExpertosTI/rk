@@ -8,15 +8,19 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON rk_solicitudes TO anon;
     GRANT SELECT, INSERT ON rk_form_events TO anon;
     GRANT SELECT, INSERT ON rk_documentos TO anon;
+    GRANT SELECT, INSERT, UPDATE ON rk_bureau_consultas TO anon;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
     GRANT ALL ON rk_solicitudes TO service_role;
     GRANT ALL ON rk_form_events TO service_role;
     GRANT ALL ON rk_documentos TO service_role;
+    GRANT ALL ON rk_bureau_consultas TO service_role;
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
     GRANT SELECT, INSERT, UPDATE ON rk_solicitudes TO authenticated;
     GRANT SELECT, INSERT ON rk_form_events TO authenticated;
+    GRANT SELECT, INSERT ON rk_documentos TO authenticated;
+    GRANT SELECT, INSERT, UPDATE ON rk_bureau_consultas TO authenticated;
   END IF;
 END $$;
 

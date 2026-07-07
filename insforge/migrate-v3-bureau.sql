@@ -17,5 +17,3 @@ create table if not exists rk_bureau_consultas (
 
 create index if not exists rk_bureau_solicitud_idx on rk_bureau_consultas (solicitud_id);
 create index if not exists rk_bureau_created_idx on rk_bureau_consultas (created_at desc);
-
-grant select, insert, update on rk_bureau_consultas to anon, authenticated, service_role;

@@ -145,7 +145,10 @@ upsert_env() {
     grep -v "^${key}=" "$file" > "${file}.tmp"
     mv "${file}.tmp" "$file"
   fi
-  printf '%s=%s\n' "$key" "$val" >> "$file"
+  local escaped="${val//\\/\\\\}"
+  escaped="${escaped//\"/\\\"}"
+  escaped="${escaped//\$/\\\$}"
+  printf '%s="%s"\n' "$key" "$escaped" >> "$file"
 }
 
 env_get() {

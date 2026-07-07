@@ -16,5 +16,3 @@ create table if not exists rk_documentos (
 );
 
 create index if not exists rk_documentos_solicitud_idx on rk_documentos (solicitud_id);
-
-grant select, insert on rk_documentos to anon, authenticated, service_role;

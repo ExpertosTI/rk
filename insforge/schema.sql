@@ -94,8 +94,4 @@ create table if not exists rk_bureau_consultas (
 
 create index if not exists rk_bureau_solicitud_idx on rk_bureau_consultas (solicitud_id);
 
--- Permisos PostgREST / Insforge (ajustar rol si aplica)
-grant select, insert, update on rk_solicitudes to anon, authenticated, service_role;
-grant select, insert on rk_form_events to anon, authenticated, service_role;
-grant select, insert on rk_documentos to anon, authenticated, service_role;
-grant select, insert, update on rk_bureau_consultas to anon, authenticated, service_role;
+-- Permisos: ver insforge/seed.sql (roles condicionales)
