@@ -1,0 +1,56 @@
+# RK Inversiones — Docker Swarm + Traefik (Renace stack)
+# Stack: rk  ·  Domain: rk.renace.tech
+
+services:
+  web:
+    image: rk-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - RenaceNet
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        order: start-first
+        parallelism: 1
+        failure_action: rollback
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=RenaceNet
+        - traefik.constraint-label=traefik-public
+
+        - traefik.http.routers.rk-http.rule=Host(`rk.renace.tech`)
+        - traefik.http.routers.rk-http.entrypoints=web
+        - traefik.http.routers.rk-http.middlewares=rk-redirect-https
+
+        - traefik.http.routers.rk.rule=Host(`rk.renace.tech`)
+        - traefik.http.routers.rk.entrypoints=websecure
+        - traefik.http.routers.rk.tls=true
+        - traefik.http.routers.rk.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.rk.service=rk-svc
+        - traefik.http.routers.rk.middlewares=rk-security
+
+        - traefik.http.services.rk-svc.loadbalancer.server.port=80
+        - traefik.http.services.rk-svc.loadbalancer.healthcheck.path=/healthz
+        - traefik.http.services.rk-svc.loadbalancer.healthcheck.interval=30s
+
+        - traefik.http.middlewares.rk-redirect-https.redirectscheme.scheme=https
+        - traefik.http.middlewares.rk-redirect-https.redirectscheme.permanent=true
+
+        - traefik.http.middlewares.rk-security.headers.stsSeconds=31536000
+        - traefik.http.middlewares.rk-security.headers.contentTypeNosniff=true
+        - traefik.http.middlewares.rk-security.headers.browserXssFilter=true
+
+networks:
+  RenaceNet:
+    external: true

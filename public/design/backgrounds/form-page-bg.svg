@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="formBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D3D18"/>
+      <stop offset="30%" stop-color="#1A6427"/>
+      <stop offset="65%" stop-color="#2E9A3D"/>
+      <stop offset="100%" stop-color="#39B54A"/>
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#4CCC5E" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#4CCC5E" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="80"/>
+    </filter>
+  </defs>
+  <rect width="1440" height="900" fill="url(#formBg)"/>
+  <rect width="1440" height="900" fill="url(#centerGlow)"/>
+  <!-- Soft blurred circles for depth -->
+  <circle cx="200" cy="150" r="200" fill="#6FD97E" opacity="0.08" filter="url(#blur)"/>
+  <circle cx="1200" cy="700" r="250" fill="#4CCC5E" opacity="0.06" filter="url(#blur)"/>
+  <circle cx="700" cy="800" r="180" fill="#9EE6A8" opacity="0.05" filter="url(#blur)"/>
+</svg>

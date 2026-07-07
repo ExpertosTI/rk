@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#121212"/>
+      <stop offset="60%" stop-color="#1A1A1A"/>
+      <stop offset="100%" stop-color="#1A6427"/>
+    </linearGradient>
+    <linearGradient id="greenOverlay" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#39B54A" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#39B54A" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#FFFFFF" stroke-width="0.5" opacity="0.04"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#darkGrad)"/>
+  <rect width="1920" height="1080" fill="url(#greenOverlay)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+  <!-- Side geometric accents -->
+  <polygon points="0,200 0,0 80,0" fill="#39B54A" opacity="0.4"/>
+  <polygon points="0,400 0,250 60,250" fill="#39B54A" opacity="0.25"/>
+  <polygon points="1920,680 1920,880 1840,880" fill="#39B54A" opacity="0.4"/>
+  <polygon points="1920,500 1920,650 1860,650" fill="#39B54A" opacity="0.25"/>
+  <!-- Bottom green line accent -->
+  <rect x="0" y="1070" width="1920" height="4" fill="#39B54A" opacity="0.6"/>
+</svg>

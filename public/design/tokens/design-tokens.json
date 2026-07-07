@@ -1,0 +1,97 @@
+{
+  "brand": {
+    "name": "RK Inversiones",
+    "slogan": "Dinero Rápido y Fácil",
+    "phone": "829-669-8958",
+    "whatsapp": "18296698958"
+  },
+  "colors": {
+    "primary": {
+      "50": "#E8F9EA",
+      "100": "#C5F0CA",
+      "200": "#9EE6A8",
+      "300": "#6FD97E",
+      "400": "#4CCC5E",
+      "500": "#39B54A",
+      "600": "#2E9A3D",
+      "700": "#247F32",
+      "800": "#1A6427",
+      "900": "#104A1C"
+    },
+    "neutral": {
+      "0": "#FFFFFF",
+      "50": "#F7F7F7",
+      "100": "#E8E8E8",
+      "200": "#D1D1D1",
+      "300": "#B0B0B0",
+      "400": "#888888",
+      "500": "#6B6B6B",
+      "600": "#4A4A4A",
+      "700": "#333333",
+      "800": "#1A1A1A",
+      "900": "#121212"
+    },
+    "accent": {
+      "orange": "#FF8C00",
+      "orangeLight": "#FFB347",
+      "yellow": "#F5C518",
+      "blue": "#1E88E5"
+    },
+    "semantic": {
+      "success": "#39B54A",
+      "warning": "#F5A623",
+      "error": "#E53935",
+      "info": "#1E88E5"
+    },
+    "status": {
+      "nueva": "#F5A623",
+      "revision": "#1E88E5",
+      "aprobada": "#39B54A",
+      "rechazada": "#E53935",
+      "cerrada": "#888888"
+    }
+  },
+  "gradients": {
+    "hero": "linear-gradient(135deg, #104A1C 0%, #247F32 40%, #39B54A 100%)",
+    "heroDark": "linear-gradient(180deg, #121212 0%, #1A6427 60%, #39B54A 100%)",
+    "card": "linear-gradient(145deg, #FFFFFF 0%, #F7F7F7 100%)",
+    "cta": "linear-gradient(90deg, #2E9A3D 0%, #39B54A 50%, #4CCC5E 100%)",
+    "formBg": "linear-gradient(160deg, #0D3D18 0%, #1A6427 35%, #2E9A3D 70%, #39B54A 100%)"
+  },
+  "typography": {
+    "fontFamily": {
+      "display": "'Montserrat', 'Inter', system-ui, sans-serif",
+      "body": "'Inter', system-ui, sans-serif"
+    },
+    "fontWeight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700,
+      "extrabold": 800
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px",
+    "2xl": "48px",
+    "3xl": "64px"
+  },
+  "radius": {
+    "sm": "6px",
+    "md": "12px",
+    "lg": "16px",
+    "xl": "24px",
+    "full": "9999px"
+  },
+  "shadows": {
+    "sm": "0 1px 3px rgba(0,0,0,0.12)",
+    "md": "0 4px 16px rgba(0,0,0,0.15)",
+    "lg": "0 8px 32px rgba(0,0,0,0.2)",
+    "card": "0 4px 24px rgba(18,18,18,0.12)",
+    "glow": "0 0 24px rgba(57,181,74,0.35)"
+  }
+}

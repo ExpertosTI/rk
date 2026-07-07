@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RK Inversiones — Design System Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens/colors.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--rk-font-body); background: var(--rk-gray-50); color: var(--rk-gray-800); }
+    .hero-preview { background: var(--rk-gradient-form-bg); padding: 48px 24px; text-align: center; color: white; }
+    .hero-preview h1 { font-family: var(--rk-font-display); font-size: 2rem; font-weight: 800; }
+    .hero-preview p { opacity: 0.85; margin-top: 8px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+    section { margin-bottom: 48px; }
+    h2 { font-family: var(--rk-font-display); font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; color: var(--rk-green-800); border-bottom: 3px solid var(--rk-green-500); padding-bottom: 8px; display: inline-block; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: var(--rk-radius-lg); padding: 20px; box-shadow: var(--rk-shadow-card); text-align: center; }
+    .card img, .card svg { max-width: 100%; height: auto; }
+    .card p { font-size: 12px; color: var(--rk-gray-500); margin-top: 8px; }
+    .swatch { height: 64px; border-radius: var(--rk-radius-md); display: flex; align-items: flex-end; padding: 8px; }
+    .swatch span { font-size: 11px; font-weight: 600; }
+    .swatch.light span { color: var(--rk-gray-800); }
+    .swatch.dark span { color: white; }
+    .bg-preview { height: 120px; border-radius: var(--rk-radius-lg); overflow: hidden; margin-bottom: 8px; }
+    .bg-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img { width: 100%; border-radius: var(--rk-radius-lg); box-shadow: var(--rk-shadow-lg); }
+    .badges { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; background: var(--rk-green-50); border: 1px solid var(--rk-green-100); border-radius: var(--rk-radius-full); padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--rk-green-700); }
+    .badge::before { content: '✓'; background: var(--rk-green-500); color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .cta-demo { display: inline-block; background: var(--rk-gradient-cta); color: white; padding: 16px 40px; border-radius: var(--rk-radius-full); font-family: var(--rk-font-display); font-weight: 700; font-size: 16px; border: none; cursor: pointer; box-shadow: var(--rk-shadow-glow); text-decoration: none; }
+    .cta-wa { display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: white; padding: 14px 28px; border-radius: var(--rk-radius-full); font-weight: 700; text-decoration: none; margin-left: 16px; }
+    .progress-demo { margin: 16px 0; }
+    .progress-demo label { font-size: 12px; color: var(--rk-gray-500); display: block; margin-bottom: 6px; }
+    .form-card { background: white; border-radius: var(--rk-radius-xl); padding: 40px; max-width: 520px; margin: 32px auto; box-shadow: var(--rk-shadow-lg); text-align: left; }
+    .form-card h3 { font-family: var(--rk-font-display); color: var(--rk-green-800); font-size: 1.5rem; text-align: center; }
+    .form-card .sub { text-align: center; color: var(--rk-gray-500); font-size: 14px; margin: 8px 0 24px; }
+    .step-label { font-size: 12px; font-weight: 700; color: var(--rk-green-600); text-transform: uppercase; letter-spacing: 1px; }
+    .progress-bar { height: 8px; background: var(--rk-gray-100); border-radius: 4px; margin: 8px 0 24px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--rk-gradient-cta); border-radius: 4px; }
+    .field { margin-bottom: 16px; }
+    .field label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px; }
+    .field label .req { color: var(--rk-error); }
+    .field input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--rk-gray-200); border-radius: var(--rk-radius-md); font-size: 14px; }
+    .field .hint { font-size: 11px; color: var(--rk-gray-500); margin-top: 4px; }
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-back { flex: 0 0 auto; padding: 14px 24px; border: 1.5px solid var(--rk-gray-200); border-radius: var(--rk-radius-full); background: white; font-weight: 600; cursor: pointer; }
+    .btn-next { flex: 1; padding: 14px; background: var(--rk-gradient-cta); color: white; border: none; border-radius: var(--rk-radius-full); font-weight: 700; cursor: pointer; }
+    .logo-demo { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; padding: 24px; }
+    .logo-dark { background: var(--rk-gray-900); padding: 24px 40px; border-radius: var(--rk-radius-lg); }
+    .logo-light { background: white; padding: 24px 40px; border-radius: var(--rk-radius-lg); box-shadow: var(--rk-shadow-card); }
+  </style>
+</head>
+<body>
+
+  <div class="hero-preview">
+    <img src="logo/logo-rk-horizontal.svg" alt="RK Inversiones" style="height: 48px; margin-bottom: 16px; filter: brightness(0) invert(1);">
+    <h1>Design System — RK Inversiones</h1>
+    <p>Iconos · Fondos · Colores · Gráficos · UI Components</p>
+  </div>
+
+  <div class="container">
+
+    <!-- LOGO -->
+    <section>
+      <h2>Logo</h2>
+      <div class="logo-demo">
+        <div class="logo-dark"><img src="logo/logo-rk-horizontal.svg" alt="Logo dark" height="48"></div>
+        <div class="logo-light"><img src="logo/logo-rk-horizontal.svg" alt="Logo light" height="48"></div>
+        <div class="card"><img src="logo/logo-rk-shield.svg" alt="Shield" height="100"><p>Escudo</p></div>
+        <div class="card"><img src="logo/favicon.svg" alt="Favicon" height="64"><p>Favicon</p></div>
+      </div>
+    </section>
+
+    <!-- COLORES -->
+    <section>
+      <h2>Paleta de colores</h2>
+      <div class="grid">
+        <div class="card"><div class="swatch dark" style="background:#104A1C"><span>900 #104A1C</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#1A6427"><span>800 #1A6427</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#247F32"><span>700 #247F32</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#2E9A3D"><span>600 #2E9A3D</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#39B54A"><span>500 #39B54A ★</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#4CCC5E"><span>400 #4CCC5E</span></div></div>
+        <div class="card"><div class="swatch light" style="background:#E8F9EA"><span>50 #E8F9EA</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#121212"><span>Dark #121212</span></div></div>
+        <div class="card"><div class="swatch dark" style="background:#FF8C00"><span>Orange #FF8C00</span></div></div>
+        <div class="card"><div class="swatch light" style="background:#F5C518"><span>Yellow #F5C518</span></div></div>
+      </div>
+    </section>
+
+    <!-- ICONOS PRODUCTOS -->
+    <section>
+      <h2>Iconos de productos</h2>
+      <div class="grid">
+        <div class="card"><img src="icons/apartamentos.svg" width="64"><p>Apartamentos</p></div>
+        <div class="card"><img src="icons/casas.svg" width="64"><p>Casas</p></div>
+        <div class="card"><img src="icons/vehiculos.svg" width="64"><p>Vehículos</p></div>
+        <div class="card"><img src="icons/solares.svg" width="64"><p>Solares</p></div>
+      </div>
+    </section>
+
+    <!-- ICONOS UI -->
+    <section>
+      <h2>Iconos UI</h2>
+      <div class="grid">
+        <div class="card"><img src="icons/check-circle.svg" width="48"><p>Check</p></div>
+        <div class="card"><img src="icons/clock.svg" width="48"><p>Reloj</p></div>
+        <div class="card"><img src="icons/whatsapp.svg" width="48"><p>WhatsApp</p></div>
+        <div class="card"><img src="icons/shield.svg" width="48"><p>Escudo</p></div>
+        <div class="card"><img src="icons/user.svg" width="48"><p>Usuario</p></div>
+        <div class="card"><img src="icons/phone.svg" width="48"><p>Teléfono</p></div>
+        <div class="card"><img src="icons/email.svg" width="48"><p>Email</p></div>
+        <div class="card"><img src="icons/money.svg" width="48"><p>Dinero</p></div>
+        <div class="card"><img src="icons/calendar.svg" width="48"><p>Calendario</p></div>
+        <div class="card"><img src="icons/arrow-right.svg" width="32"><p>Flecha →</p></div>
+        <div class="card"><img src="icons/arrow-left.svg" width="32"><p>Flecha ←</p></div>
+      </div>
+    </section>
+
+    <!-- FONDOS -->
+    <section>
+      <h2>Fondos</h2>
+      <div class="grid-2">
+        <div class="card"><div class="bg-preview"><img src="backgrounds/hero-gradient.svg"></div><p>hero-gradient.svg</p></div>
+        <div class="card"><div class="bg-preview"><img src="backgrounds/hero-dark.svg"></div><p>hero-dark.svg</p></div>
+        <div class="card"><div class="bg-preview"><img src="backgrounds/form-page-bg.svg"></div><p>form-page-bg.svg</p></div>
+        <div class="card"><div class="bg-preview"><img src="backgrounds/pattern-concrete.svg"></div><p>pattern-concrete.svg</p></div>
+      </div>
+    </section>
+
+    <!-- HERO IMAGES -->
+    <section>
+      <h2>Imágenes Hero</h2>
+      <div class="grid-2">
+        <div class="card"><img src="images/hero-main.png" class="hero-img"><p>hero-main.png</p></div>
+        <div class="card"><img src="images/hero-vehiculos.png" class="hero-img"><p>hero-vehiculos.png</p></div>
+        <div class="card"><img src="images/hero-inmobiliario.png" class="hero-img"><p>hero-inmobiliario.png</p></div>
+        <div class="card"><img src="images/hero-solares.png" class="hero-img"><p>hero-solares.png</p></div>
+      </div>
+    </section>
+
+    <!-- CARDS PRODUCTO -->
+    <section>
+      <h2>Cards de producto</h2>
+      <div class="grid-2">
+        <div class="card" style="padding:0;overflow:hidden"><img src="ui/card-apartamentos.svg" width="100%"><p>Apartamentos</p></div>
+        <div class="card" style="padding:0;overflow:hidden"><img src="ui/card-casas.svg" width="100%"><p>Casas</p></div>
+        <div class="card" style="padding:0;overflow:hidden"><img src="ui/card-vehiculos.svg" width="100%"><p>Vehículos</p></div>
+        <div class="card" style="padding:0;overflow:hidden"><img src="ui/card-solares.svg" width="100%"><p>Solares</p></div>
+      </div>
+    </section>
+
+    <!-- UI COMPONENTS -->
+    <section>
+      <h2>Componentes UI</h2>
+      <div class="badges">
+        <span class="badge">Respuesta rápida</span>
+        <span class="badge">100% confidencial</span>
+        <span class="badge">Sin compromiso</span>
+      </div>
+      <div style="margin: 24px 0">
+        <a class="cta-demo" href="#">Solicitar Crédito →</a>
+        <a class="cta-wa" href="#">💬 829-669-8958</a>
+      </div>
+      <div class="progress-demo">
+        <label>Paso 1 de 3 (33%)</label>
+        <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+        <label>Paso 2 de 3 (66%)</label>
+        <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+        <label>Paso 3 de 3 (100%)</label>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+      </div>
+    </section>
+
+    <!-- FORM PREVIEW -->
+    <section>
+      <h2>Preview del formulario</h2>
+      <div style="background: var(--rk-gradient-form-bg); padding: 40px 24px; border-radius: var(--rk-radius-xl);">
+        <div class="form-card">
+          <img src="logo/logo-rk-horizontal.svg" alt="RK" height="36" style="display:block;margin:0 auto 16px">
+          <h3>Solicita Tu Crédito En Minutos</h3>
+          <p class="sub">Financiamiento de vehículos, casas, apartamentos y solares.</p>
+          <div class="badges" style="justify-content:center;margin-bottom:24px">
+            <span class="badge">Respuesta rápida</span>
+            <span class="badge">100% confidencial</span>
+            <span class="badge">Sin compromiso</span>
+          </div>
+          <div class="step-label">Paso 2 de 3 — Tus datos</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+          <div class="field">
+            <label>¿Cómo te llamas? <span class="req">*</span></label>
+            <input type="text" placeholder="Nombre y apellido">
+          </div>
+          <div class="field">
+            <label>Tu WhatsApp <span class="req">*</span></label>
+            <input type="tel" placeholder="(809) 000-0000">
+            <div class="hint">Te contactaremos por aquí.</div>
+          </div>
+          <div class="field">
+            <label>Ingresos mensuales (RD$) <span class="req">*</span></label>
+            <input type="text" placeholder="Ej. RD$45,000">
+            <div class="hint">Aproximado, lo que recibes al mes.</div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-back">← Atrás</button>
+            <button class="btn-next">Continuar →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

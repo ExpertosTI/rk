@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Assets grandes (no versionar)
+*.pdf
+WhatsApp*.jpeg
+
+# Duplicado local del design system (usar public/design)
+/design/
