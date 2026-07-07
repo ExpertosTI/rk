@@ -1040,12 +1040,6 @@ body {
 
 .admin-login-card form { text-align: left; }
 
-.admin-hint {
-  margin-top: 16px;
-  font-size: 12px;
-  color: var(--rk-text-light);
-}
-
 .admin-panel {
   max-width: 1100px;
   margin: 0 auto;
