@@ -1,0 +1,30 @@
+:root {
+  /* RK Inversiones — marca oficial */
+  --rk-green: #3AAA35;
+  --rk-green-dark: #2D8A28;
+  --rk-green-light: #E8F5E7;
+  --rk-navy: #04121E;
+  --rk-navy-mid: #0C2235;
+
+  /* UI (estilo Guimanfer adaptado) */
+  --rk-bg-page: #04121E;
+  --rk-bg-card: #FFFFFF;
+  --rk-bg-input: #F4F6F8;
+  --rk-text: #04121E;
+  --rk-text-muted: #6B7B8C;
+  --rk-text-light: #8E9AAB;
+  --rk-border: #E2E8F0;
+  --rk-error: #E53E3E;
+
+  --rk-gradient-btn: linear-gradient(90deg, #2D8A28 0%, #3AAA35 50%, #4FC449 100%);
+
+  --rk-font: 'Inter', system-ui, sans-serif;
+
+  --rk-radius-card: 20px;
+  --rk-radius-input: 10px;
+  --rk-radius-btn: 12px;
+  --rk-radius-pill: 999px;
+
+  --rk-shadow-card: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --rk-shadow-btn: 0 4px 14px rgba(58, 170, 53, 0.35);
+}

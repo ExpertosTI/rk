@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 36" fill="none">
-  <rect width="180" height="36" rx="18" fill="#E8F9EA" stroke="#C5F0CA" stroke-width="1"/>
-  <circle cx="18" cy="18" r="12" fill="#39B54A"/>
-  <path d="M14 18L17 21L23 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="36" y="22" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="#247F32">Sin compromiso</text>
-</svg>

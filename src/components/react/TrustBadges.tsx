@@ -1,17 +1,19 @@
-import { Zap, ShieldCheck, Handshake } from 'lucide-react';
-
 const BADGES = [
-  { icon: Zap, label: 'Respuesta rápida' },
-  { icon: ShieldCheck, label: '100% confidencial' },
-  { icon: Handshake, label: 'Sin compromiso' },
+  'Respuesta rápida',
+  '100% confidencial',
+  'Sin compromiso',
 ] as const;
 
 export default function TrustBadges() {
   return (
     <div className="badges" aria-label="Beneficios">
-      {BADGES.map(({ icon: Icon, label }) => (
+      {BADGES.map((label) => (
         <span className="badge" key={label}>
-          <Icon size={15} strokeWidth={2} />
+          <span className="badge-check">
+            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
           {label}
         </span>
       ))}

@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  CircleCheck,
-  MessageCircle,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, CircleCheck, MessageCircle } from 'lucide-react';
 import {
   BRAND,
   PRODUCTS,
@@ -16,7 +10,7 @@ import {
   GARANTIA_LABELS,
   type ProductKey,
 } from '../../lib/constants';
-import { PRODUCT_ICONS } from '../../lib/icons';
+import { STEP_TITLES } from '../../lib/form-ui';
 import {
   creditFormSchema,
   step1Fields,
@@ -34,11 +28,7 @@ interface Submission extends CreditFormData {
   estado: string;
 }
 
-const STEPS = [
-  { label: 'Tu crédito', sub: 'Producto y monto' },
-  { label: 'Tus datos', sub: 'Información personal' },
-  { label: 'Confirmación', sub: 'Listo para enviar' },
-];
+const TOTAL_STEPS = 3;
 
 export default function CreditForm({ initialProduct }: Props) {
   const [step, setStep] = useState(1);
@@ -48,7 +38,6 @@ export default function CreditForm({ initialProduct }: Props) {
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     trigger,
     reset,
@@ -70,8 +59,6 @@ export default function CreditForm({ initialProduct }: Props) {
     },
   });
 
-  const producto = watch('producto');
-
   useEffect(() => {
     if (initialProduct) setValue('producto', initialProduct);
   }, [initialProduct, setValue]);
@@ -90,7 +77,7 @@ export default function CreditForm({ initialProduct }: Props) {
     if (data.website) return;
 
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1000));
 
     const result: Submission = {
       ...data,
@@ -114,14 +101,11 @@ export default function CreditForm({ initialProduct }: Props) {
     setStep(1);
   }
 
-  function selectProduct(key: ProductKey) {
-    setValue('producto', key, { shouldValidate: true });
-  }
-
   const firstName = submission?.nombre.split(' ')[0] ?? '';
+  const progress = (step / TOTAL_STEPS) * 100;
   const waMessage = submission
     ? encodeURIComponent(
-        `Hola, soy ${submission.nombre}. Acabo de enviar una solicitud de financiamiento de ${PRODUCTS[submission.producto].label} por ${submission.monto}. Referencia: ${submission.id}`,
+        `Hola, soy ${submission.nombre}. Acabo de enviar una solicitud de financiamiento de ${PRODUCTS[submission.producto]} por ${submission.monto}. Referencia: ${submission.id}`,
       )
     : '';
 
@@ -129,30 +113,12 @@ export default function CreditForm({ initialProduct }: Props) {
     <>
       {step < 3 && (
         <div className="step-header">
-          <div className="step-dots">
-            {STEPS.map((s, i) => {
-              const n = i + 1;
-              const done = n < step;
-              const active = n === step;
-              return (
-                <div key={s.label} style={{ display: 'contents' }}>
-                  {i > 0 && (
-                    <div className="step-line">
-                      <div
-                        className="step-line-fill"
-                        style={{ width: done || active ? '100%' : '0%' }}
-                      />
-                    </div>
-                  )}
-                  <div className={`step-dot${active ? ' active' : ''}${done ? ' done' : ''}`}>
-                    {done ? <Check size={13} strokeWidth={2.5} /> : n}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="step-label">
+            Paso {step} de {TOTAL_STEPS} — {STEP_TITLES[step - 1]}
           </div>
-          <div className="step-label">{STEPS[step - 1].label}</div>
-          <div className="step-sublabel">{STEPS[step - 1].sub}</div>
+          <div className="progress-track" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={TOTAL_STEPS}>
+            <div className="progress-fill" style={{ width: `${progress}%` }} />
+          </div>
         </div>
       )}
 
@@ -163,50 +129,28 @@ export default function CreditForm({ initialProduct }: Props) {
       {step === 1 && (
         <div className="step">
           <div className="field">
-            <label>Tipo de financiamiento <span className="req">*</span></label>
-            <div className="product-grid" role="group" aria-label="Tipo de financiamiento">
-              {(Object.entries(PRODUCTS) as [ProductKey, (typeof PRODUCTS)[ProductKey]][]).map(
-                ([key, p]) => {
-                  const Icon = PRODUCT_ICONS[key];
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      className={`product-card${producto === key ? ' selected' : ''}`}
-                      onClick={() => selectProduct(key)}
-                      aria-pressed={producto === key}
-                    >
-                      <div className="product-check">
-                        <Check size={11} strokeWidth={3} />
-                      </div>
-                      <div className="product-icon-wrap">
-                        <Icon strokeWidth={1.75} />
-                      </div>
-                      <div className="product-card-text">
-                        <span>{p.label}</span>
-                        <small>{p.desc}</small>
-                      </div>
-                    </button>
-                  );
-                },
-              )}
-            </div>
+            <label htmlFor="producto">Tipo de financiamiento <span className="req">*</span></label>
+            <select id="producto" className={errors.producto ? 'error' : ''} {...register('producto')}>
+              <option value="">Selecciona una opción</option>
+              {(Object.entries(PRODUCTS) as [ProductKey, string][]).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
             {errors.producto && <div className="error-msg">{errors.producto.message}</div>}
           </div>
 
           <div className="field">
-            <label htmlFor="monto">Monto aproximado <span className="req">*</span></label>
+            <label htmlFor="monto">Monto aproximado (RD$) <span className="req">*</span></label>
             <input
               id="monto"
               type="text"
               inputMode="numeric"
-              placeholder="RD$800,000"
+              placeholder="Ej. RD$1,200,000"
               className={errors.monto ? 'error' : ''}
               {...register('monto', {
                 onChange: (e) => { e.target.value = formatCurrency(e.target.value); },
               })}
             />
-            <div className="hint">Mínimo RD${BRAND.minAmount.toLocaleString('es-DO')}</div>
             {errors.monto && <div className="error-msg">{errors.monto.message}</div>}
           </div>
 
@@ -240,14 +184,6 @@ export default function CreditForm({ initialProduct }: Props) {
 
       {step === 2 && (
         <div className="step">
-          <div className="assistant">
-            <div className="assistant-avatar">RK</div>
-            <div className="assistant-text">
-              <strong>Te asiste el equipo RK</strong>
-              Completa tus datos y te contactamos por WhatsApp en breve.
-            </div>
-          </div>
-
           <div className="field">
             <label htmlFor="nombre">Nombre completo <span className="req">*</span></label>
             <input
@@ -291,18 +227,17 @@ export default function CreditForm({ initialProduct }: Props) {
           </div>
 
           <div className="field">
-            <label htmlFor="ingresos">Ingresos mensuales <span className="req">*</span></label>
+            <label htmlFor="ingresos">Ingresos mensuales (RD$) <span className="req">*</span></label>
             <input
               id="ingresos"
               type="text"
               inputMode="numeric"
-              placeholder="RD$45,000"
+              placeholder="Ej. RD$45,000"
               className={errors.ingresos ? 'error' : ''}
               {...register('ingresos', {
                 onChange: (e) => { e.target.value = formatCurrency(e.target.value); },
               })}
             />
-            <div className="hint">Aproximado, lo que recibes al mes</div>
             {errors.ingresos && <div className="error-msg">{errors.ingresos.message}</div>}
           </div>
 
@@ -321,7 +256,7 @@ export default function CreditForm({ initialProduct }: Props) {
             <label htmlFor="comentarios">Comentarios adicionales</label>
             <textarea
               id="comentarios"
-              placeholder="Cuéntanos más sobre lo que necesitas (opcional)"
+              placeholder="Opcional"
               {...register('comentarios')}
             />
           </div>
@@ -329,9 +264,9 @@ export default function CreditForm({ initialProduct }: Props) {
       )}
 
       {step === 3 && submission && (
-        <div className="step">
+        <div className="step success-wrap">
           <div className="success-icon">
-            <CircleCheck size={36} color="#3AAA35" strokeWidth={1.75} />
+            <CircleCheck size={32} color="#3AAA35" strokeWidth={1.75} />
           </div>
           <h2 className="confirm-title">¡Solicitud enviada!</h2>
           <p className="confirm-text">
@@ -340,7 +275,7 @@ export default function CreditForm({ initialProduct }: Props) {
 
           <div className="summary">
             {[
-              ['Producto', PRODUCTS[submission.producto].label],
+              ['Producto', PRODUCTS[submission.producto]],
               ['Monto', submission.monto],
               ['Plazo', `${submission.plazo} meses`],
               ['Garantía', GARANTIA_LABELS[submission.garantia]],
@@ -365,7 +300,7 @@ export default function CreditForm({ initialProduct }: Props) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <MessageCircle size={20} />
+              <MessageCircle size={18} />
               Hablar con un asesor
             </a>
             <button type="button" className="btn-secondary" onClick={handleNewRequest}>
@@ -379,14 +314,14 @@ export default function CreditForm({ initialProduct }: Props) {
         <div className="form-actions">
           {step > 1 && (
             <button type="button" className="btn-back" onClick={() => goToStep(step - 1)}>
-              <ArrowLeft size={16} strokeWidth={2} />
+              <ArrowLeft size={16} />
               Atrás
             </button>
           )}
           {step === 1 && (
             <button type="button" className="btn-next" onClick={onStep1}>
               Continuar
-              <ArrowRight size={16} strokeWidth={2} />
+              <ArrowRight size={16} />
             </button>
           )}
           {step === 2 && (
@@ -396,12 +331,10 @@ export default function CreditForm({ initialProduct }: Props) {
               disabled={submitting}
               onClick={handleSubmit(onSubmit)}
             >
-              {submitting ? (
-                <span className="spinner" />
-              ) : (
+              {submitting ? <span className="spinner" /> : (
                 <>
                   Enviar solicitud
-                  <ArrowRight size={16} strokeWidth={2} />
+                  <ArrowRight size={16} />
                 </>
               )}
             </button>

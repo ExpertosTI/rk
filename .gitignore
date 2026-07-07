@@ -6,9 +6,7 @@ dist/
 !.env.example
 .DS_Store
 
-# Assets grandes (no versionar)
+# Assets grandes
 *.pdf
 WhatsApp*.jpeg
-
-# Duplicado local del design system (usar public/design)
-/design/
+778B6294*.jpeg

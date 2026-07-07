@@ -4,13 +4,14 @@ export const BRAND = {
   phone: '829-669-8958',
   whatsapp: '18296698958',
   minAmount: 50_000,
+  advisor: 'Equipo RK',
 } as const;
 
 export const PRODUCTS = {
-  apartamentos: { label: 'Apartamentos', desc: 'Financia tu apartamento' },
-  casas:        { label: 'Casas',        desc: 'Tu casa propia' },
-  vehiculos:    { label: 'Vehículos',    desc: 'Hasta 60 meses' },
-  solares:      { label: 'Solares',      desc: 'Invierte en terreno' },
+  apartamentos: 'Apartamentos',
+  casas: 'Casas',
+  vehiculos: 'Vehículos',
+  solares: 'Solares',
 } as const;
 
 export type ProductKey = keyof typeof PRODUCTS;
