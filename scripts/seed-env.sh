@@ -47,28 +47,10 @@ if is_vps_with_docker; then
   if [ -n "$postgrest" ]; then
     INSFORGE_URL="/api/insforge"
     INSFORGE_MODE="postgrest"
-    cyan "   Claves de base de datos leídas"
-
-    svc="$(read_service_key_from_container "$postgrest")"
-    if [ -n "$svc" ]; then
-      SERVICE_KEY="$svc"
-      green "   Clave de servicio leída"
-    else
-      jwt_secret="$(read_jwt_secret "$postgrest")"
-      if [ -n "$jwt_secret" ]; then
-        minted="$(mint_jwt service_role "$jwt_secret" "$ROOT")"
-        if [ -n "$minted" ]; then
-          SERVICE_KEY="$minted"
-          minted_anon="$(mint_jwt anon "$jwt_secret" "$ROOT")"
-          [ -n "$minted_anon" ] && ANON_KEY="$minted_anon"
-          green "   Claves JWT generadas"
-        else
-          warn "   No se pudo firmar JWT — usando clave por defecto"
-        fi
-      else
-        warn "   JWT secret no encontrado — usando clave por defecto"
-      fi
-    fi
+    # Clave compartida del stack Renace — válida en PostgREST (no mintear JWT)
+    ANON_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
+    SERVICE_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
+    green "   Claves PostgREST (Renace)"
   else
     warn "   Base de datos no detectada — modo desarrollo"
   fi

@@ -111,6 +111,17 @@ green "✅ Producción activa: https://${DOMAIN}"
 green "   Commit: $(git rev-parse --short HEAD)"
 if [ "$api_ok" -eq 1 ]; then
   green "   Base de datos: conectada"
+  anon_key="$(grep -E '^PUBLIC_INSFORGE_ANON_KEY=' .env 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '"' || true)"
+  if [ -n "$anon_key" ]; then
+  auth_head="$(curl -fsS "https://${DOMAIN}/api/insforge/rk_solicitudes?limit=1" \
+    -H 'Accept: application/json' \
+    -H "apikey: ${anon_key}" -H "Authorization: Bearer ${anon_key}" 2>/dev/null | head -c 1 || true)"
+  if [ "$auth_head" = "[" ] || [ "$auth_head" = "{" ]; then
+    green "   Panel admin: claves OK"
+  else
+    warn "⚠️  API con auth falló — rehacer deploy tras seed-env"
+  fi
+  fi
   if api_returns_json "https://${DOMAIN}/api/bureau/healthz"; then
     green "   Bureau: ok"
   fi

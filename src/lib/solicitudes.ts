@@ -221,7 +221,7 @@ export async function fetchDocumentoCedula(solicitudId: string) {
   return insforgeQuery<DocumentoRow>(
     'rk_documentos',
     `solicitud_id=eq.${encodeURIComponent(solicitudId)}&tipo=eq.cedula&limit=1`,
-    'service',
+    'anon',
   );
 }
 
@@ -297,7 +297,7 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
   const remote = await insforgeQuery<SolicitudRow>(
     'rk_solicitudes',
     'order=created_at.desc&limit=500',
-    'service',
+    'anon',
   );
 
   if (remote.ok && remote.data) {
@@ -317,7 +317,7 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
 
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
   const patch = { estado, updated_at: nowIso() };
-  return insforgePatch('rk_solicitudes', id, patch, 'service');
+  return insforgePatch('rk_solicitudes', id, patch, 'anon');
 }
 
 export async function checkInsforgeConnection() {
