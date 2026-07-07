@@ -446,6 +446,161 @@ body {
   color: var(--rk-border);
 }
 
+/* ── Cédula upload ── */
+.cedula-upload { margin-bottom: 18px; }
+
+.cedula-upload-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rk-text);
+  margin-bottom: 6px;
+}
+
+.cedula-upload-hint {
+  font-size: 12px;
+  color: var(--rk-text-muted);
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.cedula-dropzone {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 16px;
+  border: 2px dashed #C5D4C4;
+  border-radius: 12px;
+  background: #F8FAF8;
+  cursor: pointer;
+  font-family: var(--rk-font);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cedula-dropzone:hover {
+  border-color: var(--rk-green);
+  background: var(--rk-green-light);
+}
+
+.cedula-dropzone strong {
+  font-size: 14px;
+  color: var(--rk-navy);
+}
+
+.cedula-dropzone span {
+  font-size: 12px;
+  color: var(--rk-text-muted);
+}
+
+.cedula-dropzone-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: white;
+  color: var(--rk-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(4, 18, 30, 0.06);
+}
+
+.cedula-input-hidden {
+  display: none;
+}
+
+.cedula-preview-card {
+  border: 1.5px solid var(--rk-green);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--rk-green-light);
+}
+
+.cedula-preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.cedula-preview-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 16px;
+  color: var(--rk-green-dark);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.cedula-clear {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border: none;
+  border-top: 1px solid #C8E8C6;
+  background: white;
+  color: var(--rk-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--rk-font);
+}
+
+.cedula-upload.has-error .cedula-dropzone {
+  border-color: var(--rk-error);
+}
+
+/* ── Autorizaciones ── */
+.auth-block {
+  margin-top: 8px;
+  padding: 14px;
+  background: #F8FAFB;
+  border: 1px solid var(--rk-border);
+  border-radius: 12px;
+}
+
+.auth-block-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--rk-text-muted);
+  margin-bottom: 12px;
+}
+
+.auth-block .terms-field {
+  margin-bottom: 10px;
+}
+
+.auth-block .terms-field:last-child {
+  margin-bottom: 0;
+}
+
+.btn-cedula {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--rk-navy);
+  color: white;
+  border-radius: var(--rk-radius-btn);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.btn-cedula:hover {
+  background: #0a2438;
+}
+
 @media (max-width: 400px) {
   .product-grid-list { grid-template-columns: 1fr; }
 }

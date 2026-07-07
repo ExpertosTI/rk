@@ -38,6 +38,12 @@ cyan "   DB: $user@$db"
 docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_SCHEMA"
 green "   schema.sql aplicado"
 
+SQL_MIGRATE="${ROOT}/insforge/migrate-v2-cedula.sql"
+if [ -f "$SQL_MIGRATE" ]; then
+  docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_MIGRATE"
+  green "   migrate-v2-cedula.sql aplicado"
+fi
+
 if [ -f "$SQL_SEED" ]; then
   docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_SEED"
   green "   seed.sql aplicado"

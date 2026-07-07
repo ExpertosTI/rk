@@ -10,7 +10,16 @@ export const STEP_TITLES = [
 
 export const STEP_FIELDS: Record<number, (keyof CreditFormData)[]> = {
   1: ['producto', 'monto', 'plazo', 'garantia'],
-  2: ['nombre', 'whatsapp', 'ingresos', 'provincia', 'aceptaTerminos'],
+  2: [
+    'nombre',
+    'whatsapp',
+    'ingresos',
+    'provincia',
+    'cedulaData',
+    'autorizaDatos',
+    'aceptaPrivacidad',
+    'aceptaTerminos',
+  ],
 };
 
 const FIELD_LABELS: Partial<Record<keyof CreditFormData, string>> = {
@@ -22,11 +31,17 @@ const FIELD_LABELS: Partial<Record<keyof CreditFormData, string>> = {
   whatsapp: 'WhatsApp',
   ingresos: 'Ingresos',
   provincia: 'Ubicación',
+  cedulaData: 'Cédula subida',
+  autorizaDatos: 'Autorización de datos',
+  aceptaPrivacidad: 'Política de privacidad',
   aceptaTerminos: 'Términos aceptados',
 };
 
 function isFieldFilled(field: keyof CreditFormData, value: unknown): boolean {
-  if (field === 'aceptaTerminos') return value === true;
+  if (field === 'aceptaTerminos' || field === 'aceptaPrivacidad' || field === 'autorizaDatos') {
+    return value === true;
+  }
+  if (field === 'cedulaData') return typeof value === 'string' && value.length >= 80;
   if (field === 'monto') return parseCurrency(String(value ?? '')) >= BRAND.minAmount;
   if (field === 'ingresos') return parseCurrency(String(value ?? '')) > 0;
   if (field === 'producto' || field === 'garantia') return value != null && value !== '';

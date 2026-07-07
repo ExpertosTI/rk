@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Cloud, CloudOff, LogOut, MessageCircle, RefreshCw } from 'lucide-react';
+import { Cloud, CloudOff, FileImage, LogOut, MessageCircle, RefreshCw } from 'lucide-react';
 import { PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
+import { base64ToBlobUrl } from '../../lib/upload';
 import {
   checkInsforgeConnection,
   fetchAllSolicitudesAdmin,
+  fetchDocumentoCedula,
   updateSolicitudEstado,
   type Solicitud,
   type SolicitudEstado,
@@ -31,6 +33,16 @@ export default function AdminInbox({ onLogout }: Props) {
   const [source, setSource] = useState<'insforge' | 'local'>('local');
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [cedulaUrl, setCedulaUrl] = useState<string | null>(null);
+
+  async function loadCedula(solicitudId: string) {
+    const res = await fetchDocumentoCedula(solicitudId);
+    if (res.ok && res.data?.[0]?.data_base64 && res.data[0].mime) {
+      setCedulaUrl(base64ToBlobUrl(res.data[0].data_base64, res.data[0].mime));
+    } else {
+      setCedulaUrl(null);
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -51,6 +63,15 @@ export default function AdminInbox({ onLogout }: Props) {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!selected?.cedula_recibida) {
+      setCedulaUrl(null);
+      return;
+    }
+    void loadCedula(selected.id);
+    return () => setCedulaUrl(null);
+  }, [selected?.id, selected?.cedula_recibida]);
 
   async function updateStatus(id: string, estado: SolicitudEstado) {
     await updateSolicitudEstado(id, estado);
@@ -187,7 +208,26 @@ export default function AdminInbox({ onLogout }: Props) {
                   <dt>Comentarios</dt><dd>{selected.comentarios}</dd>
                 </>
               )}
+              {selected.completada && (
+                <>
+                  <dt>Autoriza datos</dt><dd>{selected.autoriza_datos ? 'Sí' : 'No'}</dd>
+                  <dt>Privacidad</dt><dd>{selected.acepta_privacidad ? 'Aceptada' : 'No'}</dd>
+                  <dt>Cédula</dt><dd>{selected.cedula_recibida ? 'Recibida' : 'Pendiente'}</dd>
+                </>
+              )}
             </dl>
+
+            {cedulaUrl && (
+              <a
+                className="btn-cedula"
+                href={cedulaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FileImage size={18} />
+                Ver cédula subida
+              </a>
+            )}
 
             {selected.completada && (
               <div className="admin-status-actions">

@@ -31,6 +31,15 @@ export const creditFormSchema = z.object({
   ingresos: z.string().min(1, 'Ingresa tus ingresos mensuales'),
   provincia: z.string().min(1, 'Selecciona tu provincia o ciudad'),
   comentarios: z.string().optional(),
+  cedulaData: z.string().min(80, 'Sube una foto clara de tu cédula'),
+  cedulaNombre: z.string().min(1),
+  cedulaMime: z.string().min(1),
+  autorizaDatos: z.boolean().refine((v) => v === true, {
+    message: 'Debes autorizar la verificación de tus datos',
+  }),
+  aceptaPrivacidad: z.boolean().refine((v) => v === true, {
+    message: 'Debes aceptar la política de privacidad',
+  }),
   aceptaTerminos: z.boolean().refine((v) => v === true, {
     message: 'Debes aceptar los términos y condiciones',
   }),

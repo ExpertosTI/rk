@@ -17,6 +17,10 @@ create table if not exists rk_solicitudes (
   ingresos text,
   provincia text,
   comentarios text,
+  autoriza_datos boolean default false,
+  acepta_privacidad boolean default false,
+  acepta_terminos boolean default false,
+  cedula_recibida boolean default false,
   paso_actual integer not null default 1,
   progreso_pct integer not null default 0,
   progreso_campos jsonb,
@@ -58,6 +62,21 @@ create index if not exists rk_form_events_session_idx
 create index if not exists rk_form_events_created_at_idx
   on rk_form_events (created_at desc);
 
+create table if not exists rk_documentos (
+  id text primary key,
+  solicitud_id text not null,
+  tipo text not null default 'cedula',
+  nombre text,
+  mime text,
+  tamano integer,
+  data_base64 text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rk_documentos_solicitud_idx
+  on rk_documentos (solicitud_id);
+
 -- Permisos PostgREST / Insforge (ajustar rol si aplica)
 grant select, insert, update on rk_solicitudes to anon, authenticated, service_role;
 grant select, insert on rk_form_events to anon, authenticated, service_role;
+grant select, insert on rk_documentos to anon, authenticated, service_role;

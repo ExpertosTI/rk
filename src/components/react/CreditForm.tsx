@@ -25,6 +25,7 @@ import {
 } from '../../lib/solicitudes';
 import ModernSelect from './ModernSelect';
 import ProductStack from './ProductStack';
+import CedulaUpload from './CedulaUpload';
 import StepProgress from './StepProgress';
 
 interface Props {
@@ -74,6 +75,11 @@ export default function CreditForm({ initialProduct }: Props) {
       ingresos: '',
       provincia: '',
       comentarios: '',
+      cedulaData: '',
+      cedulaNombre: '',
+      cedulaMime: '',
+      autorizaDatos: false,
+      aceptaPrivacidad: false,
       aceptaTerminos: false,
       website: '',
     },
@@ -108,7 +114,8 @@ export default function CreditForm({ initialProduct }: Props) {
 
     if (draftTimer.current) clearTimeout(draftTimer.current);
     draftTimer.current = setTimeout(() => {
-      saveDraft(watched, step, overallPct, progresoCampos);
+      const { cedulaData: _c, cedulaNombre: _n, cedulaMime: _m, ...draftSafe } = watched;
+      saveDraft(draftSafe, step, overallPct, progresoCampos);
       logFormEvent('draft_save', {
         paso: step,
         progresoPct: overallPct,
@@ -176,6 +183,11 @@ export default function CreditForm({ initialProduct }: Props) {
       ingresos: '',
       provincia: '',
       comentarios: '',
+      cedulaData: '',
+      cedulaNombre: '',
+      cedulaMime: '',
+      autorizaDatos: false,
+      aceptaPrivacidad: false,
       aceptaTerminos: false,
       website: '',
     });
@@ -363,19 +375,79 @@ export default function CreditForm({ initialProduct }: Props) {
               />
             </div>
 
-            <div className="field terms-field">
-              <label className="terms-check">
-                <input type="checkbox" {...register('aceptaTerminos')} />
-                <span>
-                  Acepto los{' '}
-                  <a href="/terminos" target="_blank" rel="noopener noreferrer">términos y condiciones</a>
-                  {' '}y la{' '}
-                  <a href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</a>
-                </span>
-              </label>
-              {errors.aceptaTerminos && (
-                <div className="error-msg">{errors.aceptaTerminos.message}</div>
-              )}
+            <div className="field">
+              <Controller
+                name="cedulaData"
+                control={control}
+                render={() => (
+                  <CedulaUpload
+                    value={
+                      watched.cedulaData
+                        ? {
+                            data: watched.cedulaData,
+                            nombre: watched.cedulaNombre,
+                            mime: watched.cedulaMime,
+                          }
+                        : null
+                    }
+                    onChange={(v) => {
+                      setValue('cedulaData', v?.data ?? '', { shouldValidate: true });
+                      setValue('cedulaNombre', v?.nombre ?? '');
+                      setValue('cedulaMime', v?.mime ?? '');
+                    }}
+                    error={errors.cedulaData?.message}
+                  />
+                )}
+              />
+            </div>
+
+            <div className="auth-block">
+              <p className="auth-block-title">Autorizaciones requeridas</p>
+
+              <div className="field terms-field">
+                <label className="terms-check">
+                  <input type="checkbox" {...register('autorizaDatos')} />
+                  <span>
+                    Autorizo a {BRAND.name} a <strong>verificar mi identidad</strong> con la cédula
+                    subida y a consultar o reportar mis datos en centrales de riesgo (DATACRÉDITO),
+                    conforme a la ley dominicana.
+                  </span>
+                </label>
+                {errors.autorizaDatos && (
+                  <div className="error-msg">{errors.autorizaDatos.message}</div>
+                )}
+              </div>
+
+              <div className="field terms-field">
+                <label className="terms-check">
+                  <input type="checkbox" {...register('aceptaPrivacidad')} />
+                  <span>
+                    He leído y acepto la{' '}
+                    <a href="/privacidad" target="_blank" rel="noopener noreferrer">
+                      política de privacidad
+                    </a>
+                    , incluyendo el tratamiento de mi cédula y datos personales.
+                  </span>
+                </label>
+                {errors.aceptaPrivacidad && (
+                  <div className="error-msg">{errors.aceptaPrivacidad.message}</div>
+                )}
+              </div>
+
+              <div className="field terms-field">
+                <label className="terms-check">
+                  <input type="checkbox" {...register('aceptaTerminos')} />
+                  <span>
+                    Acepto los{' '}
+                    <a href="/terminos" target="_blank" rel="noopener noreferrer">
+                      términos y condiciones de servicio
+                    </a>.
+                  </span>
+                </label>
+                {errors.aceptaTerminos && (
+                  <div className="error-msg">{errors.aceptaTerminos.message}</div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -411,6 +483,7 @@ export default function CreditForm({ initialProduct }: Props) {
                 ...(submission.email ? [['Email', submission.email]] : []),
                 ['Ingresos', submission.ingresos],
                 ['Ubicación', submission.provincia],
+                ['Cédula', 'Recibida ✓'],
                 ['Referencia', submission.id],
               ].map(([label, value]) => (
                 <div className="summary-row" key={label}>

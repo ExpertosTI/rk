@@ -26,6 +26,10 @@ export interface SolicitudRow {
   ingresos: string | null;
   provincia: string | null;
   comentarios: string | null;
+  autoriza_datos?: boolean;
+  acepta_privacidad?: boolean;
+  acepta_terminos?: boolean;
+  cedula_recibida?: boolean;
   paso_actual: number;
   progreso_pct: number;
   progreso_campos: Record<string, boolean> | null;
@@ -33,6 +37,17 @@ export interface SolicitudRow {
   session_id: string | null;
   origen: string;
   user_agent?: string | null;
+}
+
+export interface DocumentoRow {
+  id: string;
+  solicitud_id: string;
+  tipo: string;
+  nombre: string | null;
+  mime: string | null;
+  tamano: number | null;
+  data_base64: string | null;
+  created_at: string;
 }
 
 export interface Solicitud extends Omit<SolicitudRow, 'created_at' | 'updated_at'> {
@@ -109,6 +124,10 @@ function formToRow(
     ingresos: data.ingresos || null,
     provincia: data.provincia || null,
     comentarios: data.comentarios || null,
+    autoriza_datos: data.autorizaDatos ?? false,
+    acepta_privacidad: data.aceptaPrivacidad ?? false,
+    acepta_terminos: data.aceptaTerminos ?? false,
+    cedula_recibida: Boolean(data.cedulaData && data.cedulaData.length > 80),
     paso_actual: opts.paso,
     progreso_pct: opts.progresoPct,
     progreso_campos: opts.progresoCampos,
@@ -173,6 +192,36 @@ export async function saveDraft(
   return result;
 }
 
+export async function saveCedulaDocument(
+  solicitudId: string,
+  data: Pick<CreditFormData, 'cedulaData' | 'cedulaNombre' | 'cedulaMime'>,
+) {
+  const id = `DOC-${solicitudId}`;
+  const tamano = Math.ceil((data.cedulaData.length * 3) / 4);
+  return insforgeUpsert(
+    'rk_documentos',
+    {
+      id,
+      solicitud_id: solicitudId,
+      tipo: 'cedula',
+      nombre: data.cedulaNombre,
+      mime: data.cedulaMime,
+      tamano,
+      data_base64: data.cedulaData,
+      created_at: nowIso(),
+    },
+    'id',
+  );
+}
+
+export async function fetchDocumentoCedula(solicitudId: string) {
+  return insforgeQuery<DocumentoRow>(
+    'rk_documentos',
+    `solicitud_id=eq.${encodeURIComponent(solicitudId)}&tipo=eq.cedula&limit=1`,
+    'service',
+  );
+}
+
 export async function submitSolicitud(data: CreditFormData, progresoPct: number) {
   const id = getSolicitudId();
   const sessionId = getSessionId();
@@ -191,6 +240,11 @@ export async function submitSolicitud(data: CreditFormData, progresoPct: number)
   };
 
   const result = await insforgeUpsert('rk_solicitudes', row);
+
+  if (result.ok && data.cedulaData) {
+    await saveCedulaDocument(id, data);
+  }
+
   const solicitud: Solicitud = rowToSolicitud(row as unknown as SolicitudRow);
 
   if (result.ok) {
