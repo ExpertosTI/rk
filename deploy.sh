@@ -14,6 +14,7 @@ DEPLOY_BRANCH="${DEPLOY_BRANCH:-main}"
 cyan()  { printf "\033[36m%s\033[0m\n" "$*"; }
 green() { printf "\033[32m%s\033[0m\n" "$*"; }
 red()   { printf "\033[31m%s\033[0m\n" "$*" >&2; }
+warn()  { printf "\033[33m%s\033[0m\n" "$*" >&2; }
 
 cyan "══════════════════════════════════════════════"
 cyan "  RK INVERSIONES — DESPLIEGUE PRODUCCIÓN"
@@ -43,8 +44,11 @@ fi
 if [ ! -f .smtp.local ] && ! grep -q '^SMTP_PASS=.\+' .env 2>/dev/null; then
   warn "⚠️  Correo: coloque .smtp.local en $PROJECT_DIR antes del seed (Hostinger)"
 fi
-if [ -x scripts/seed.sh ]; then
-  ./scripts/seed.sh
+if [ -x scripts/seed-env.sh ]; then
+  ./scripts/seed-env.sh
+fi
+if [ -x scripts/seed-db.sh ]; then
+  ./scripts/seed-db.sh || warn "⚠️  seed-db falló — el deploy continúa; reintente: ./scripts/seed-db.sh"
 fi
 
 set -a
@@ -82,6 +86,11 @@ for i in 1 2 3 4 5; do
     green "   Stack:   ${STACK_NAME}"
     green "   Service: ${SERVICE_NAME}"
     green "   Commit:  $(git rev-parse --short HEAD)"
+    if curl -fsS "https://${DOMAIN}/api/notify/healthz" 2>/dev/null | grep -q '"ok":true'; then
+      green "   Notify:  correo activo"
+    else
+      warn "⚠️  Notify: verifique servicio rk_notify y .smtp.local"
+    fi
     docker image prune -f >/dev/null
     exit 0
   fi

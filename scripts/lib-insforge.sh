@@ -10,20 +10,40 @@ rk_root() {
 }
 
 resolve_pg_container() {
-  local hint="${1:-}"
+  local hint="${1:-}" name
   if [ -n "$hint" ]; then
-    docker ps --format '{{.Names}}' | grep -E "^${hint}\\.[0-9]+\\.|^${hint}$" | head -1 && return 0
+    name="$(docker ps --format '{{.Names}}' | grep -E "^${hint}\\.[0-9]+\\.|^${hint}$" | head -1 || true)"
+    if [ -n "$name" ] && container_has_psql "$name"; then
+      echo "$name"
+      return 0
+    fi
   fi
-  docker ps --format '{{.Names}}' | grep -Ei 'insforge.*postgres|postgres.*insforge' | head -1 || true
+  # postgrest contiene la subcadena "postgres" — excluir siempre
+  while IFS= read -r name; do
+    [ -z "$name" ] && continue
+    echo "$name" | grep -qi 'postgrest' && continue
+    echo "$name" | grep -qi 'postgres' || continue
+    container_has_psql "$name" || continue
+    echo "$name"
+    return 0
+  done < <(docker ps --format '{{.Names}}' | grep -Ei 'insforge|postgres' || true)
+  true
 }
 
-resolve_postgrest_container() {
-  docker ps --format '{{.Names}}' | grep -Ei 'insforge.*postgrest|postgrest.*insforge' | head -1 || true
+container_has_psql() {
+  local container="${1:-}"
+  [ -n "$container" ] || return 1
+  docker exec "$container" sh -c 'command -v psql >/dev/null 2>&1' 2>/dev/null
 }
 
 docker_env() {
   local container="$1" key="$2"
-  docker exec "$container" printenv "$key" 2>/dev/null | tr -d '\r' || true
+  docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$container" 2>/dev/null \
+    | grep "^${key}=" | head -1 | cut -d= -f2- | tr -d '\r' || true
+}
+
+resolve_postgrest_container() {
+  docker ps --format '{{.Names}}' | grep -Ei 'insforge.*postgrest|postgrest.*insforge' | head -1 || true
 }
 
 read_jwt_secret() {

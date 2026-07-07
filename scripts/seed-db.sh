@@ -37,6 +37,12 @@ if [ -z "$container" ]; then
   exit 0
 fi
 
+if ! container_has_psql "$container"; then
+  red "❌ Contenedor sin psql (¿postgrest?): $container"
+  red "   Ejecute: ./scripts/seed-db.sh discover"
+  exit 1
+fi
+
 if ! creds="$(discover_pg_credentials "$container")"; then
   red "❌ No se pudieron detectar credenciales PostgreSQL."
   red "   Ejecute: POSTGRES_USER=postgres POSTGRES_DB=insforge ./scripts/seed-db.sh"
