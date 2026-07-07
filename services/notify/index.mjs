@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 
 const PORT = Number(process.env.PORT || 8788);
 const INSFORGE_URL = (process.env.INSFORGE_URL || 'http://insforge_postgrest:3000').replace(/\/$/, '');
-const SERVICE_KEY = process.env.INSFORGE_SERVICE_KEY || '';
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET || '';
 const ADMIN_URL = (process.env.ADMIN_URL || 'https://rk.renace.tech/admin').replace(/\/$/, '');
 
@@ -27,7 +26,7 @@ const PRODUCTS = {
 
 const rateMap = new Map();
 const MAX_PER_MIN = 8;
-const SOLICITUD_MAX_AGE_MS = 15 * 60 * 1000;
+const SOLICITUD_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 let transporter = null;
 
@@ -75,8 +74,6 @@ async function insforgeFetch(path, opts = {}) {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
-      apikey: SERVICE_KEY,
-      Authorization: `Bearer ${SERVICE_KEY}`,
       Prefer: opts.prefer || 'return=representation',
       ...(opts.headers || {}),
     },
@@ -193,7 +190,7 @@ async function handleSolicitud(req, res) {
   }
 
   const body = await readBody(req);
-  if (NOTIFY_SECRET && body.secret !== NOTIFY_SECRET) {
+  if (NOTIFY_SECRET && body.secret && body.secret !== NOTIFY_SECRET) {
     return json(res, 401, { ok: false, error: 'unauthorized' });
   }
 

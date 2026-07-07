@@ -1157,6 +1157,17 @@ body {
 
 .admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.admin-btn-danger {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.admin-btn-danger:hover:not(:disabled) {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+}
+
 .admin-main {
   flex: 1;
   max-width: 1280px;

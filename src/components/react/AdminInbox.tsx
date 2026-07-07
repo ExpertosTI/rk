@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  FileImage, Inbox, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck,
+  FileImage, Inbox, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck, Trash2,
 } from 'lucide-react';
 import { BRAND, PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
@@ -15,6 +15,7 @@ import {
   fetchAllSolicitudesAdmin,
   fetchDocumentoCedula,
   updateSolicitudEstado,
+  deleteSolicitud,
   type Solicitud,
   type SolicitudEstado,
 } from '../../lib/solicitudes';
@@ -61,6 +62,7 @@ export default function AdminInbox({ onLogout }: Props) {
   const [bureauConsultas, setBureauConsultas] = useState<BureauConsulta[]>([]);
   const [bureauLoading, setBureauLoading] = useState(false);
   const [bureauError, setBureauError] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [filter, setFilter] = useState<FilterKey>('todas');
   const [search, setSearch] = useState('');
 
@@ -166,6 +168,21 @@ export default function AdminInbox({ onLogout }: Props) {
     setItems(nextItems);
     setDrafts(nextDrafts);
     if (selected?.id === id) setSelected({ ...selected, ...patch });
+  }
+
+  async function handleDelete() {
+    if (!selected) return;
+    const label = displayName(selected);
+    if (!window.confirm(`¿Eliminar ${selected.id} (${label})? No se puede deshacer.`)) return;
+    setDeleteLoading(true);
+    const res = await deleteSolicitud(selected.id);
+    setDeleteLoading(false);
+    if (!res.ok) {
+      window.alert('No se pudo eliminar la solicitud.');
+      return;
+    }
+    setSelected(null);
+    await load();
   }
 
   const nuevas = items.filter((i) => i.estado === 'nueva').length;
@@ -485,6 +502,15 @@ export default function AdminInbox({ onLogout }: Props) {
                     Correo
                   </a>
                 )}
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-danger"
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                >
+                  <Trash2 size={16} />
+                  {deleteLoading ? 'Eliminando…' : 'Eliminar'}
+                </button>
               </div>
             </section>
           ) : (

@@ -85,9 +85,9 @@ cyan "── 5. Stack (Traefik) ────────────────
 docker service rm "${STACK_NAME}_insforge-proxy" >/dev/null 2>&1 || true
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 6. Aplicar imagen web ──────────────────────"
-# Solo web necesita force (imagen local :latest). --detach=false espera el rollout.
+cyan "── 6. Aplicar imágenes ────────────────────────"
 docker service update --force --detach=false "${STACK_NAME}_web" >/dev/null
+docker service update --force --detach=true "${STACK_NAME}_notify" >/dev/null
 
 cyan "── 7. Verificar ───────────────────────────────"
 if ! wait_http_ok "https://${DOMAIN}/healthz" "Sitio iniciando"; then
@@ -124,6 +124,12 @@ if [ "$api_ok" -eq 1 ]; then
   fi
   if api_returns_json "https://${DOMAIN}/api/bureau/healthz"; then
     green "   Bureau: ok"
+  fi
+  notify_smtp="$(curl -fsS "https://${DOMAIN}/api/notify/healthz" 2>/dev/null | grep -o '"smtp":true' || true)"
+  if [ -n "$notify_smtp" ]; then
+    green "   Correo SMTP: configurado"
+  else
+    warn "⚠️  SMTP sin clave — revisa .smtp.local en el VPS"
   fi
 else
   red "❌ API no responde JSON — revisa:"

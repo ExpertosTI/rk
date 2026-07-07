@@ -183,3 +183,23 @@ export async function insforgeInsert(
     return { ok: false, error: err instanceof Error ? err.message : 'network' };
   }
 }
+
+export async function insforgeDelete(
+  table: string,
+  filter: string,
+): Promise<InsforgeResult> {
+  if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
+  try {
+    const res = await insforgeFetch(buildUrl(table, filter), {
+      method: 'DELETE',
+      headers: headers('return=minimal'),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return { ok: false, error: `http_${res.status}`, detail: text.slice(0, 300) };
+    }
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'network' };
+  }
+}

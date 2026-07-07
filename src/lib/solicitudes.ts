@@ -6,8 +6,10 @@ import {
   insforgePatch,
   insforgeQuery,
   insforgeUpsert,
+  insforgeDelete,
   probeInsforge,
 } from './insforge';
+import { notifyNuevaSolicitud } from './notify';
 
 export type SolicitudEstado = 'nueva' | 'revision' | 'aprobada' | 'rechazada' | 'cerrada' | 'borrador';
 
@@ -257,8 +259,7 @@ export async function submitSolicitud(data: CreditFormData, progresoPct: number)
       progresoPct: 100,
       payload: { producto: data.producto, monto: data.monto },
     });
-    // Correo desactivado temporalmente
-    // void notifyNuevaSolicitud(id);
+    void notifyNuevaSolicitud(id);
   } else {
     console.warn('[RK] submit sync failed, saving locally:', result.error);
     saveLocal(solicitud);
@@ -318,6 +319,22 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
   const patch = { estado, updated_at: nowIso() };
   return insforgePatch('rk_solicitudes', id, patch, 'anon');
+}
+
+export async function deleteSolicitud(id: string) {
+  const enc = encodeURIComponent(id);
+  const tables = [
+    `rk_form_events?solicitud_id=eq.${enc}`,
+    `rk_documentos?solicitud_id=eq.${enc}`,
+    `rk_bureau_consultas?solicitud_id=eq.${enc}`,
+  ];
+  for (const filter of tables) {
+    const table = filter.split('?')[0];
+    const qs = filter.split('?')[1];
+    const res = await insforgeDelete(table, qs);
+    if (!res.ok) return res;
+  }
+  return insforgeDelete('rk_solicitudes', `id=eq.${enc}`);
 }
 
 export async function checkInsforgeConnection() {
