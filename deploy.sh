@@ -41,9 +41,9 @@ set -a
 [ -f .env ] && source .env
 set +a
 
-cyan "── 3. Build imagen Docker ─────────────────────"
+cyan "── 3. Build imágenes Docker ─────────────────────"
 export DOCKER_BUILDKIT=1
-nice -n 19 ionice -c 3 docker compose build --pull
+nice -n 19 ionice -c 3 docker compose build --pull web bureau
 
 cyan "── 4. Red RenaceNet ───────────────────────────"
 if ! docker network ls --format '{{.Name}}' | grep -qx "RenaceNet"; then
@@ -53,13 +53,15 @@ fi
 cyan "── 5. Stack Swarm + Traefik ───────────────────"
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 6. Reiniciar servicio ──────────────────────"
-for i in 1 2 3 4 5 6 7 8 9 10; do
-  if docker service ls --format '{{.Name}}' | grep -qx "$SERVICE_NAME"; then
-    docker service update --force "$SERVICE_NAME" >/dev/null 2>&1 || true
-    break
-  fi
-  sleep 3
+cyan "── 6. Reiniciar servicios ──────────────────────"
+for svc in "${SERVICE_NAME}" "${STACK_NAME}_bureau"; do
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    if docker service ls --format '{{.Name}}' | grep -qx "$svc"; then
+      docker service update --force "$svc" >/dev/null 2>&1 || true
+      break
+    fi
+    sleep 3
+  done
 done
 
 cyan "── 7. Esperar healthcheck ─────────────────────"

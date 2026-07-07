@@ -26,6 +26,7 @@ export interface SolicitudRow {
   ingresos: string | null;
   provincia: string | null;
   comentarios: string | null;
+  numero_cedula?: string | null;
   autoriza_datos?: boolean;
   acepta_privacidad?: boolean;
   acepta_terminos?: boolean;
@@ -124,6 +125,7 @@ function formToRow(
     ingresos: data.ingresos || null,
     provincia: data.provincia || null,
     comentarios: data.comentarios || null,
+    numero_cedula: data.numeroCedula ? data.numeroCedula.replace(/\D/g, '') : null,
     autoriza_datos: data.autorizaDatos ?? false,
     acepta_privacidad: data.aceptaPrivacidad ?? false,
     acepta_terminos: data.aceptaTerminos ?? false,

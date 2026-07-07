@@ -15,7 +15,7 @@ import {
   step1Fields,
   type CreditFormData,
 } from '../../lib/schema';
-import { formatCurrency, formatPhone } from '../../lib/formatters';
+import { formatCurrency, formatPhone, formatCedula } from '../../lib/formatters';
 import { overallCompletion, stepCompletion } from '../../lib/form-ui';
 import {
   logFormEvent,
@@ -74,6 +74,7 @@ export default function CreditForm({ initialProduct }: Props) {
       email: '',
       ingresos: '',
       provincia: '',
+      numeroCedula: '',
       comentarios: '',
       cedulaData: '',
       cedulaNombre: '',
@@ -182,6 +183,7 @@ export default function CreditForm({ initialProduct }: Props) {
       email: '',
       ingresos: '',
       provincia: '',
+      numeroCedula: '',
       comentarios: '',
       cedulaData: '',
       cedulaNombre: '',
@@ -373,6 +375,22 @@ export default function CreditForm({ initialProduct }: Props) {
                 placeholder="Opcional"
                 {...register('comentarios')}
               />
+            </div>
+
+            <div className="field">
+              <label htmlFor="numeroCedula">Número de cédula <span className="req">*</span></label>
+              <input
+                id="numeroCedula"
+                type="text"
+                inputMode="numeric"
+                placeholder="000-0000000-0"
+                className={`input-modern${errors.numeroCedula ? ' error' : ''}`}
+                {...register('numeroCedula', {
+                  onChange: (e) => { e.target.value = formatCedula(e.target.value); },
+                })}
+              />
+              <div className="hint">Requerido para consulta en DATACRÉDITO / TransUnion</div>
+              {errors.numeroCedula && <div className="error-msg">{errors.numeroCedula.message}</div>}
             </div>
 
             <div className="field">

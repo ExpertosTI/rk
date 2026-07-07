@@ -82,6 +82,15 @@ upsert_env "PUBLIC_INSFORGE_MODE" "$INSFORGE_MODE" "$ENV_FILE"
 upsert_env "INSFORGE_ANON_KEY" "$ANON_KEY" "$ENV_FILE"
 upsert_env "INSFORGE_SERVICE_KEY" "$SERVICE_KEY" "$ENV_FILE"
 
+# TransUnion / DATACRÉDITO — mock hasta activar suscripción ICS
+if [ -z "$(env_get TRANSUNION_MODE "$ENV_FILE")" ]; then
+  upsert_env "TRANSUNION_MODE" "mock" "$ENV_FILE"
+fi
+for key in TRANSUNION_CLIENT_ID TRANSUNION_CLIENT_SECRET TRANSUNION_TOKEN_URL TRANSUNION_API_URL TRANSUNION_SUBSCRIBER_CODE; do
+  val="$(env_get "$key" "$ENV_FILE")"
+  [ -n "$val" ] && upsert_env "$key" "$val" "$ENV_FILE"
+done
+
 if [ -n "$NEW_PIN" ] && [ -w "$(dirname "$CRED_FILE")" ] 2>/dev/null; then
   {
     echo "RK Inversiones — credenciales $(date -Iseconds)"

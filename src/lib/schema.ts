@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { BRAND } from './constants';
-import { parseCurrency, phoneDigits } from './formatters';
+import { parseCurrency, phoneDigits, cedulaDigits } from './formatters';
 
 export const creditFormSchema = z.object({
   producto: z.enum(['apartamentos', 'casas', 'vehiculos', 'solares'], {
@@ -30,6 +30,12 @@ export const creditFormSchema = z.object({
     }),
   ingresos: z.string().min(1, 'Ingresa tus ingresos mensuales'),
   provincia: z.string().min(1, 'Selecciona tu provincia o ciudad'),
+  numeroCedula: z
+    .string()
+    .min(1, 'Ingresa tu número de cédula')
+    .refine((v) => /^\d{11}$/.test(cedulaDigits(v)), {
+      message: 'La cédula debe tener 11 dígitos',
+    }),
   comentarios: z.string().optional(),
   cedulaData: z.string().min(80, 'Sube una foto clara de tu cédula'),
   cedulaNombre: z.string().min(1),

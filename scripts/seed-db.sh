@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Aplica schema + permisos RK en Insforge/PostgreSQL
-# Uso: ./scripts/seed-db.sh   o   npm run seed:db
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -13,6 +12,17 @@ source "$ROOT/scripts/lib-insforge.sh"
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
 cyan()  { printf '\033[36m%s\033[0m\n' "$*"; }
 warn()  { printf '\033[33m%s\033[0m\n' "$*" >&2; }
+red()   { printf '\033[31m%s\033[0m\n' "$*" >&2; }
+
+if [ "${1:-}" = "discover" ]; then
+  discover_pg_print
+  exit $?
+fi
+
+run_sql() {
+  local file="$1"
+  docker exec -i "$container" psql -U "$user" -d "$db" < "$file"
+}
 
 cyan "── seed-db: tablas Insforge ───────────────────"
 
@@ -24,28 +34,38 @@ fi
 container="$(resolve_pg_container "${POSTGRES_CONTAINER:-}")"
 if [ -z "$container" ]; then
   warn "⚠️  Postgres Insforge no encontrado — omitiendo schema"
-  warn "   En el VPS ejecute de nuevo: npm run seed"
   exit 0
 fi
 
-creds="$(discover_pg_credentials "$container")"
+if ! creds="$(discover_pg_credentials "$container")"; then
+  red "❌ No se pudieron detectar credenciales PostgreSQL."
+  red "   Ejecute: POSTGRES_USER=postgres POSTGRES_DB=insforge ./scripts/seed-db.sh"
+  red "   O: ./scripts/seed-db.sh discover"
+  exit 1
+fi
+
 user="${creds%%|*}"
 db="${creds#*|}"
+
+if [ -z "$user" ] || [ -z "$db" ]; then
+  red "❌ Credenciales vacías (user/db). Use discover o defina POSTGRES_USER/POSTGRES_DB."
+  exit 1
+fi
 
 cyan "   Contenedor: $container"
 cyan "   DB: $user@$db"
 
-docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_SCHEMA"
+run_sql "$SQL_SCHEMA"
 green "   schema.sql aplicado"
 
-SQL_MIGRATE="${ROOT}/insforge/migrate-v2-cedula.sql"
-if [ -f "$SQL_MIGRATE" ]; then
-  docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_MIGRATE"
-  green "   migrate-v2-cedula.sql aplicado"
-fi
+for migrate in "$ROOT"/insforge/migrate-*.sql; do
+  [ -f "$migrate" ] || continue
+  run_sql "$migrate"
+  green "   $(basename "$migrate") aplicado"
+done
 
 if [ -f "$SQL_SEED" ]; then
-  docker exec -i "$container" psql -U "$user" -d "$db" < "$SQL_SEED"
+  run_sql "$SQL_SEED"
   green "   seed.sql aplicado"
 fi
 

@@ -57,7 +57,21 @@ discover_pg_credentials() {
   local user="${POSTGRES_USER:-}" db="${POSTGRES_DB:-}"
 
   if [ -z "$user" ]; then
-    for candidate in insforge admin postgres supabase; do
+    for key in POSTGRES_USER PGUSER POSTGRESQL_USER; do
+      user="$(docker_env "$container" "$key")"
+      [ -n "$user" ] && break
+    done
+  fi
+
+  if [ -z "$db" ]; then
+    for key in POSTGRES_DB PGDATABASE POSTGRESQL_DB; do
+      db="$(docker_env "$container" "$key")"
+      [ -n "$db" ] && break
+    done
+  fi
+
+  if [ -z "$user" ]; then
+    for candidate in postgres insforge supabase admin; do
       if docker exec "$container" psql -U "$candidate" -d postgres -c 'SELECT 1' >/dev/null 2>&1; then
         user="$candidate"
         break
@@ -66,7 +80,7 @@ discover_pg_credentials() {
   fi
 
   if [ -z "$db" ] && [ -n "$user" ]; then
-    for candidate in "$user" postgres insforge; do
+    for candidate in "$user" postgres insforge supabase; do
       if docker exec "$container" psql -U "$user" -d "$candidate" -c 'SELECT 1' >/dev/null 2>&1; then
         db="$candidate"
         break
@@ -74,7 +88,33 @@ discover_pg_credentials() {
     done
   fi
 
+  if [ -z "$user" ] || [ -z "$db" ]; then
+    return 1
+  fi
+
   echo "${user}|${db}"
+}
+
+discover_pg_print() {
+  local container
+  container="$(resolve_pg_container "${POSTGRES_CONTAINER:-}")"
+  echo "=== Postgres containers ==="
+  docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' | grep -Ei 'postgres|NAMES' || true
+  echo ""
+  if [ -z "$container" ]; then
+    echo "No hay contenedor postgres"
+    return 1
+  fi
+  echo "Seleccionado: $container"
+  echo "POSTGRES_USER=$(docker_env "$container" POSTGRES_USER)"
+  echo "POSTGRES_DB=$(docker_env "$container" POSTGRES_DB)"
+  echo "PGUSER=$(docker_env "$container" PGUSER)"
+  echo "PGDATABASE=$(docker_env "$container" PGDATABASE)"
+  if creds="$(discover_pg_credentials "$container" 2>/dev/null)"; then
+    echo "Credenciales: ${creds%%|*}@${creds#*|}"
+  else
+    echo "Credenciales: no detectadas"
+  fi
 }
 
 upsert_env() {

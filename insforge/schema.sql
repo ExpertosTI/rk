@@ -17,6 +17,7 @@ create table if not exists rk_solicitudes (
   ingresos text,
   provincia text,
   comentarios text,
+  numero_cedula text,
   autoriza_datos boolean default false,
   acepta_privacidad boolean default false,
   acepta_terminos boolean default false,
@@ -76,7 +77,24 @@ create table if not exists rk_documentos (
 create index if not exists rk_documentos_solicitud_idx
   on rk_documentos (solicitud_id);
 
+create table if not exists rk_bureau_consultas (
+  id text primary key,
+  solicitud_id text not null,
+  numero_cedula text not null,
+  proveedor text not null default 'transunion',
+  estado text not null default 'pendiente',
+  score integer,
+  resumen text,
+  recomendacion text,
+  payload jsonb,
+  error_msg text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rk_bureau_solicitud_idx on rk_bureau_consultas (solicitud_id);
+
 -- Permisos PostgREST / Insforge (ajustar rol si aplica)
 grant select, insert, update on rk_solicitudes to anon, authenticated, service_role;
 grant select, insert on rk_form_events to anon, authenticated, service_role;
 grant select, insert on rk_documentos to anon, authenticated, service_role;
+grant select, insert, update on rk_bureau_consultas to anon, authenticated, service_role;

@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Cloud, CloudOff, FileImage, LogOut, MessageCircle, RefreshCw } from 'lucide-react';
+import { Cloud, CloudOff, FileImage, LogOut, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
 import { base64ToBlobUrl } from '../../lib/upload';
+import { formatCedula } from '../../lib/formatters';
+import {
+  consultarBuro,
+  fetchConsultasBuro,
+  type BureauConsulta,
+} from '../../lib/bureau';
 import {
   checkInsforgeConnection,
   fetchAllSolicitudesAdmin,
@@ -34,6 +40,42 @@ export default function AdminInbox({ onLogout }: Props) {
   const [dbConnected, setDbConnected] = useState<boolean | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [cedulaUrl, setCedulaUrl] = useState<string | null>(null);
+  const [bureauConsultas, setBureauConsultas] = useState<BureauConsulta[]>([]);
+  const [bureauLoading, setBureauLoading] = useState(false);
+  const [bureauError, setBureauError] = useState<string | null>(null);
+
+  async function loadBureau(solicitudId: string) {
+    const res = await fetchConsultasBuro(solicitudId);
+    if (res.ok && res.data) {
+      setBureauConsultas(res.data);
+      setBureauError(null);
+    } else {
+      setBureauConsultas([]);
+      setBureauError(res.error ?? 'sin_datos');
+    }
+  }
+
+  async function runBureauConsulta() {
+    if (!selected) return;
+    const cedula = selected.numero_cedula?.replace(/\D/g, '') ?? '';
+    if (!/^\d{11}$/.test(cedula)) {
+      setBureauError('La solicitud no tiene número de cédula válido (11 dígitos).');
+      return;
+    }
+    setBureauLoading(true);
+    setBureauError(null);
+    const res = await consultarBuro({
+      solicitudId: selected.id,
+      numeroCedula: cedula,
+      nombre: selected.nombre?.trim() || 'Solicitante',
+    });
+    setBureauLoading(false);
+    if (!res.ok) {
+      setBureauError(res.error ?? 'consulta_fallida');
+      return;
+    }
+    await loadBureau(selected.id);
+  }
 
   async function loadCedula(solicitudId: string) {
     const res = await fetchDocumentoCedula(solicitudId);
@@ -72,6 +114,15 @@ export default function AdminInbox({ onLogout }: Props) {
     void loadCedula(selected.id);
     return () => setCedulaUrl(null);
   }, [selected?.id, selected?.cedula_recibida]);
+
+  useEffect(() => {
+    if (!selected?.completada) {
+      setBureauConsultas([]);
+      setBureauError(null);
+      return;
+    }
+    void loadBureau(selected.id);
+  }, [selected?.id, selected?.completada]);
 
   async function updateStatus(id: string, estado: SolicitudEstado) {
     await updateSolicitudEstado(id, estado);
@@ -203,6 +254,11 @@ export default function AdminInbox({ onLogout }: Props) {
                   <dt>Ubicación</dt><dd>{selected.provincia}</dd>
                 </>
               )}
+              {selected.numero_cedula && (
+                <>
+                  <dt>Cédula (número)</dt><dd>{formatCedula(selected.numero_cedula)}</dd>
+                </>
+              )}
               {selected.comentarios && (
                 <>
                   <dt>Comentarios</dt><dd>{selected.comentarios}</dd>
@@ -227,6 +283,42 @@ export default function AdminInbox({ onLogout }: Props) {
                 <FileImage size={18} />
                 Ver cédula subida
               </a>
+            )}
+
+            {selected.completada && selected.autoriza_datos && (
+              <div className="admin-bureau">
+                <div className="admin-bureau-head">
+                  <h3><ShieldCheck size={18} /> DATACRÉDITO / TransUnion</h3>
+                  <button
+                    type="button"
+                    className="btn-bureau"
+                    onClick={runBureauConsulta}
+                    disabled={bureauLoading || !selected.numero_cedula}
+                  >
+                    {bureauLoading ? 'Consultando…' : 'Consultar buró'}
+                  </button>
+                </div>
+                {!selected.numero_cedula && (
+                  <p className="admin-bureau-hint">Falta el número de cédula en la solicitud.</p>
+                )}
+                {bureauError && <p className="admin-bureau-err">{bureauError}</p>}
+                {bureauConsultas.length > 0 && (
+                  <ul className="admin-bureau-list">
+                    {bureauConsultas.map((c) => (
+                      <li key={c.id} className={`bureau-item bureau-${c.estado}`}>
+                        <div className="bureau-item-top">
+                          <strong>{c.score != null ? `Score ${c.score}` : c.estado}</strong>
+                          <span>{new Date(c.created_at).toLocaleString('es-DO')}</span>
+                        </div>
+                        <p>{c.resumen}</p>
+                        {c.recomendacion && (
+                          <span className="bureau-rec">{c.recomendacion.replace(/_/g, ' ')}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
 
             {selected.completada && (

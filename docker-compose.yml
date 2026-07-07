@@ -57,6 +57,34 @@ services:
         - traefik.http.middlewares.rk-security.headers.contentTypeNosniff=true
         - traefik.http.middlewares.rk-security.headers.browserXssFilter=true
 
+  bureau:
+    image: rk-bureau:latest
+    build:
+      context: ./services/bureau
+      dockerfile: Dockerfile
+    environment:
+      PORT: "8787"
+      TRANSUNION_MODE: ${TRANSUNION_MODE:-mock}
+      TRANSUNION_CLIENT_ID: ${TRANSUNION_CLIENT_ID:-}
+      TRANSUNION_CLIENT_SECRET: ${TRANSUNION_CLIENT_SECRET:-}
+      TRANSUNION_TOKEN_URL: ${TRANSUNION_TOKEN_URL:-}
+      TRANSUNION_API_URL: ${TRANSUNION_API_URL:-}
+      TRANSUNION_SUBSCRIBER_CODE: ${TRANSUNION_SUBSCRIBER_CODE:-}
+      BUREAU_ADMIN_PIN: ${PUBLIC_ADMIN_PIN:-RK2026}
+      INSFORGE_URL: http://insforge_postgrest:3000
+      INSFORGE_SERVICE_KEY: ${INSFORGE_SERVICE_KEY:-}
+    networks:
+      - RenaceNet
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+
 networks:
   RenaceNet:
     external: true

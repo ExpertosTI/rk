@@ -18,3 +18,14 @@ export function formatPhone(value: string): string {
 export function phoneDigits(phone: string): string {
   return phone.replace(/\D/g, '');
 }
+
+export function cedulaDigits(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 11);
+}
+
+export function formatCedula(value: string): string {
+  const d = cedulaDigits(value);
+  if (d.length <= 3) return d;
+  if (d.length <= 10) return `${d.slice(0, 3)}-${d.slice(3, 10)}-${d.slice(10)}`;
+  return `${d.slice(0, 3)}-${d.slice(3, 10)}-${d.slice(10, 11)}`;
+}
