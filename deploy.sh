@@ -60,10 +60,25 @@ if ! docker network ls --format '{{.Name}}' | grep -qx "RenaceNet"; then
   docker network create --driver overlay --attachable RenaceNet
 fi
 
-# PostgREST debe estar en RenaceNet para que nginx llegue a la base de datos
+# PostgREST en RenaceNet + ruta Traefik /api/insforge (sin pasar por nginx)
 postgrest_svc="$(docker service ls --format '{{.Name}}' | grep -Ei 'insforge.*postgrest|postgrest.*insforge' | head -1 || true)"
 if [ -n "$postgrest_svc" ]; then
-  docker service update --network-add RenaceNet "$postgrest_svc" >/dev/null 2>&1 || true
+  docker service update \
+    --network-add RenaceNet \
+    --label-add 'traefik.enable=true' \
+    --label-add 'traefik.docker.network=RenaceNet' \
+    --label-add 'traefik.constraint-label=traefik-public' \
+    --label-add "traefik.http.routers.rk-insforge.rule=Host(\`${DOMAIN}\`) && PathPrefix(\`/api/insforge\`)" \
+    --label-add 'traefik.http.routers.rk-insforge.entrypoints=websecure' \
+    --label-add 'traefik.http.routers.rk-insforge.tls=true' \
+    --label-add 'traefik.http.routers.rk-insforge.tls.certresolver=letsencryptresolver' \
+    --label-add 'traefik.http.routers.rk-insforge.priority=100' \
+    --label-add 'traefik.http.middlewares.rk-insforge-strip.stripprefix.prefixes=/api/insforge' \
+    --label-add 'traefik.http.routers.rk-insforge.middlewares=rk-insforge-strip' \
+    --label-add 'traefik.http.routers.rk-insforge.service=rk-insforge-svc' \
+    --label-add 'traefik.http.services.rk-insforge-svc.loadbalancer.server.port=3000' \
+    "$postgrest_svc" >/dev/null 2>&1 || true
+  cyan "   Traefik: /api/insforge → ${postgrest_svc}"
 fi
 
 cyan "── 5. Stack Swarm + Traefik ───────────────────"

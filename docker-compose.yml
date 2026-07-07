@@ -88,6 +88,19 @@ services:
         limits:
           cpus: "0.25"
           memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=RenaceNet
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.rk-bureau.rule=Host(`rk.renace.tech`) && PathPrefix(`/api/bureau`)
+        - traefik.http.routers.rk-bureau.entrypoints=websecure
+        - traefik.http.routers.rk-bureau.tls=true
+        - traefik.http.routers.rk-bureau.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.rk-bureau.priority=100
+        - traefik.http.routers.rk-bureau.middlewares=rk-bureau-strip
+        - traefik.http.middlewares.rk-bureau-strip.stripprefix.prefixes=/api/bureau
+        - traefik.http.routers.rk-bureau.service=rk-bureau-svc
+        - traefik.http.services.rk-bureau-svc.loadbalancer.server.port=8787
 
   notify:
     image: rk-notify:latest
@@ -121,6 +134,19 @@ services:
         limits:
           cpus: "0.25"
           memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=RenaceNet
+        - traefik.constraint-label=traefik-public
+        - traefik.http.routers.rk-notify.rule=Host(`rk.renace.tech`) && PathPrefix(`/api/notify`)
+        - traefik.http.routers.rk-notify.entrypoints=websecure
+        - traefik.http.routers.rk-notify.tls=true
+        - traefik.http.routers.rk-notify.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.rk-notify.priority=100
+        - traefik.http.routers.rk-notify.middlewares=rk-notify-strip
+        - traefik.http.middlewares.rk-notify-strip.stripprefix.prefixes=/api/notify
+        - traefik.http.routers.rk-notify.service=rk-notify-svc
+        - traefik.http.services.rk-notify-svc.loadbalancer.server.port=8788
 
 networks:
   RenaceNet:
