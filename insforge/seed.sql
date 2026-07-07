@@ -22,6 +22,12 @@ BEGIN
     GRANT SELECT, INSERT ON rk_documentos TO authenticated;
     GRANT SELECT, INSERT, UPDATE ON rk_bureau_consultas TO authenticated;
   END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'insforge_admin') THEN
+    GRANT ALL ON rk_solicitudes TO insforge_admin;
+    GRANT ALL ON rk_form_events TO insforge_admin;
+    GRANT ALL ON rk_documentos TO insforge_admin;
+    GRANT ALL ON rk_bureau_consultas TO insforge_admin;
+  END IF;
 END $$;
 
 -- Refrescar cache de esquema PostgREST (si existe la función)

@@ -8,7 +8,6 @@ import {
   insforgeUpsert,
   probeInsforge,
 } from './insforge';
-import { notifyNuevaSolicitud } from './notify';
 
 export type SolicitudEstado = 'nueva' | 'revision' | 'aprobada' | 'rechazada' | 'cerrada' | 'borrador';
 
@@ -222,7 +221,7 @@ export async function fetchDocumentoCedula(solicitudId: string) {
   return insforgeQuery<DocumentoRow>(
     'rk_documentos',
     `solicitud_id=eq.${encodeURIComponent(solicitudId)}&tipo=eq.cedula&limit=1`,
-    'service',
+    'anon',
   );
 }
 
@@ -258,7 +257,8 @@ export async function submitSolicitud(data: CreditFormData, progresoPct: number)
       progresoPct: 100,
       payload: { producto: data.producto, monto: data.monto },
     });
-    void notifyNuevaSolicitud(id);
+    // Correo desactivado temporalmente
+    // void notifyNuevaSolicitud(id);
   } else {
     console.warn('[RK] submit sync failed, saving locally:', result.error);
     saveLocal(solicitud);
@@ -271,7 +271,7 @@ export async function fetchSolicitudes(): Promise<{ items: Solicitud[]; source: 
   const remote = await insforgeQuery<SolicitudRow>(
     'rk_solicitudes',
     'completada=eq.true&order=created_at.desc',
-    'service',
+    'anon',
   );
 
   if (remote.ok && remote.data) {
@@ -298,7 +298,7 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
   const remote = await insforgeQuery<SolicitudRow>(
     'rk_solicitudes',
     'order=created_at.desc',
-    'service',
+    'anon',
   );
 
   if (remote.ok && remote.data) {
@@ -321,7 +321,7 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
 
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
   const patch = { estado, updated_at: nowIso() };
-  const result = await insforgePatch('rk_solicitudes', id, patch, 'service');
+  const result = await insforgePatch('rk_solicitudes', id, patch, 'anon');
 
   if (!result.ok) {
     const local = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]') as Solicitud[];

@@ -81,6 +81,7 @@ for i in 1 2 3 4 5; do
     green "   Stack:   ${STACK_NAME}"
     green "   Service: ${SERVICE_NAME}"
     green "   Commit:  $(git rev-parse --short HEAD)"
+    cyan "   Admin PIN: /root/.rk-inversiones-credentials.txt"
     if curl -fsS "https://${DOMAIN}/api/notify/healthz" 2>/dev/null | grep -q '"ok":true'; then
       green "   Notify:  correo activo"
     else

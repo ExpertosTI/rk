@@ -95,8 +95,12 @@ fi
 
 upsert_env "PUBLIC_INSFORGE_URL" "$INSFORGE_URL" "$ENV_FILE"
 upsert_env "PUBLIC_INSFORGE_MODE" "$INSFORGE_MODE" "$ENV_FILE"
+upsert_env "PUBLIC_INSFORGE_ANON_KEY" "$ANON_KEY" "$ENV_FILE"
+upsert_env "PUBLIC_INSFORGE_SERVICE_KEY" "$SERVICE_KEY" "$ENV_FILE"
 upsert_env "INSFORGE_ANON_KEY" "$ANON_KEY" "$ENV_FILE"
 upsert_env "INSFORGE_SERVICE_KEY" "$SERVICE_KEY" "$ENV_FILE"
+existing_pin="$(env_get PUBLIC_ADMIN_PIN "$ENV_FILE")"
+[ -n "$existing_pin" ] && upsert_env "PUBLIC_ADMIN_PIN" "$existing_pin" "$ENV_FILE"
 
 # TransUnion / DATACRÉDITO — mock hasta activar suscripción ICS
 if [ -z "$(env_get TRANSUNION_MODE "$ENV_FILE")" ]; then
@@ -168,3 +172,6 @@ if [ -n "$NEW_PIN" ]; then
   cyan "   PIN admin (solo esta vez): $NEW_PIN"
 fi
 green "   Correo: $(env_get SMTP_USER "$ENV_FILE") → $(env_get NOTIFY_TO "$ENV_FILE")"
+if [ -n "$(env_get PUBLIC_ADMIN_PIN "$ENV_FILE")" ]; then
+  cyan "   Admin PIN: ver /root/.rk-inversiones-credentials.txt"
+fi
