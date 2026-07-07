@@ -7,6 +7,12 @@ export const BRAND = {
   advisor: 'Equipo RK',
 } as const;
 
+export const ADMIN = {
+  pin: import.meta.env.PUBLIC_ADMIN_PIN ?? 'RK2026',
+  maxAttempts: 5,
+  lockoutMs: 5 * 60 * 1000,
+} as const;
+
 export const PRODUCTS = {
   apartamentos: 'Apartamentos',
   casas: 'Casas',

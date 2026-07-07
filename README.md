@@ -17,7 +17,13 @@ ssh root@45.9.191.18
 cd /opt/rk && ./deploy.sh
 ```
 
-## Stack técnico
+## Admin
+
+| URL | Clave por defecto |
+|-----|-------------------|
+| `/admin` | `RK2026` (cambiar con `PUBLIC_ADMIN_PIN` en build) |
+
+Seguridad MVP: honeypot anti-spam, lockout 5 intentos en admin, headers nginx, `noindex` en `/admin`.
 
 | Capa | Tecnología |
 |------|------------|
