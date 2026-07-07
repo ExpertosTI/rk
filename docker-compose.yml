@@ -1,5 +1,5 @@
-# RK Inversiones — Docker Swarm + Traefik (Renace stack)
-# Stack: rk  ·  Domain: rk.renace.tech
+# RK Inversiones — Docker Swarm + Traefik (Renace)
+# Un router Traefik → rk_web · nginx enruta /api/* a servicios internos
 
 services:
   web:
@@ -35,26 +35,20 @@ services:
         - traefik.enable=true
         - traefik.docker.network=RenaceNet
         - traefik.constraint-label=traefik-public
-
-        - traefik.http.routers.rk-http.rule=Host(`rk.renace.tech`) && !PathPrefix(`/api`)
+        - traefik.http.routers.rk-http.rule=Host(`rk.renace.tech`)
         - traefik.http.routers.rk-http.entrypoints=web
         - traefik.http.routers.rk-http.middlewares=rk-redirect-https
-
-        - traefik.http.routers.rk.rule=Host(`rk.renace.tech`) && !PathPrefix(`/api`)
+        - traefik.http.routers.rk.rule=Host(`rk.renace.tech`)
         - traefik.http.routers.rk.entrypoints=websecure
         - traefik.http.routers.rk.tls=true
         - traefik.http.routers.rk.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk.priority=1
         - traefik.http.routers.rk.service=rk-svc
         - traefik.http.routers.rk.middlewares=rk-security
-
         - traefik.http.services.rk-svc.loadbalancer.server.port=80
         - traefik.http.services.rk-svc.loadbalancer.healthcheck.path=/healthz
         - traefik.http.services.rk-svc.loadbalancer.healthcheck.interval=30s
-
         - traefik.http.middlewares.rk-redirect-https.redirectscheme.scheme=https
         - traefik.http.middlewares.rk-redirect-https.redirectscheme.permanent=true
-
         - traefik.http.middlewares.rk-security.headers.stsSeconds=31536000
         - traefik.http.middlewares.rk-security.headers.contentTypeNosniff=true
         - traefik.http.middlewares.rk-security.headers.browserXssFilter=true
@@ -79,7 +73,6 @@ services:
       RenaceNet:
         aliases:
           - bureau
-          - rk-bureau
     deploy:
       mode: replicated
       replicas: 1
@@ -89,19 +82,6 @@ services:
         limits:
           cpus: "0.25"
           memory: 128M
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=RenaceNet
-        - traefik.constraint-label=traefik-public
-        - traefik.http.routers.rk-bureau.rule=Host(`rk.renace.tech`) && PathPrefix(`/api/bureau`)
-        - traefik.http.routers.rk-bureau.entrypoints=websecure
-        - traefik.http.routers.rk-bureau.tls=true
-        - traefik.http.routers.rk-bureau.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-bureau.priority=200
-        - traefik.http.routers.rk-bureau.middlewares=rk-bureau-strip
-        - traefik.http.middlewares.rk-bureau-strip.stripprefix.prefixes=/api/bureau
-        - traefik.http.routers.rk-bureau.service=rk-bureau-svc
-        - traefik.http.services.rk-bureau-svc.loadbalancer.server.port=8787
 
   notify:
     image: rk-notify:latest
@@ -125,7 +105,6 @@ services:
       RenaceNet:
         aliases:
           - notify
-          - rk-notify
     deploy:
       mode: replicated
       replicas: 1
@@ -135,49 +114,6 @@ services:
         limits:
           cpus: "0.25"
           memory: 128M
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=RenaceNet
-        - traefik.constraint-label=traefik-public
-        - traefik.http.routers.rk-notify.rule=Host(`rk.renace.tech`) && PathPrefix(`/api/notify`)
-        - traefik.http.routers.rk-notify.entrypoints=websecure
-        - traefik.http.routers.rk-notify.tls=true
-        - traefik.http.routers.rk-notify.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-notify.priority=200
-        - traefik.http.routers.rk-notify.middlewares=rk-notify-strip
-        - traefik.http.middlewares.rk-notify-strip.stripprefix.prefixes=/api/notify
-        - traefik.http.routers.rk-notify.service=rk-notify-svc
-        - traefik.http.services.rk-notify-svc.loadbalancer.server.port=8788
-
-  insforge-proxy:
-    image: rk-insforge-proxy:latest
-    build:
-      context: ./services/insforge-proxy
-      dockerfile: Dockerfile
-    networks:
-      - RenaceNet
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      resources:
-        limits:
-          cpus: "0.10"
-          memory: 64M
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=RenaceNet
-        - traefik.constraint-label=traefik-public
-        - traefik.http.routers.rk-insforge.rule=Host(`rk.renace.tech`) && PathPrefix(`/api/insforge`)
-        - traefik.http.routers.rk-insforge.entrypoints=websecure
-        - traefik.http.routers.rk-insforge.tls=true
-        - traefik.http.routers.rk-insforge.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.rk-insforge.priority=200
-        - traefik.http.routers.rk-insforge.middlewares=rk-insforge-strip
-        - traefik.http.middlewares.rk-insforge-strip.stripprefix.prefixes=/api/insforge
-        - traefik.http.routers.rk-insforge.service=rk-insforge-svc
-        - traefik.http.services.rk-insforge-svc.loadbalancer.server.port=80
 
 networks:
   RenaceNet:

@@ -52,10 +52,13 @@ docker service logs rk_web --tail 50
 | Componente | Tecnología |
 |------------|------------|
 | App | Astro 7 + React 19 |
-| Servidor | nginx (contenedor) |
+| Servidor | nginx (estáticos + proxy `/api/*`) |
 | Orquestación | Docker Swarm |
-| Proxy / SSL | Traefik + Let's Encrypt |
+| Proxy / SSL | Traefik → `rk_web` |
+| Base de datos | PostgREST (`insforge_postgrest`) en RenaceNet |
 | Red | RenaceNet |
+
+**Rutas:** Traefik envía todo `rk.renace.tech` a `rk_web`. Nginx enruta internamente `/api/insforge`, `/api/bureau` y `/api/notify`.
 
 ---
 
@@ -90,13 +93,7 @@ npm run seed:db     # solo tablas Insforge
 
 ### PIN del admin
 
-Se genera solo la primera vez y se guarda en:
-
-```
-/root/.rk-inversiones-credentials.txt
-```
-
-El script también lo muestra **una vez** en consola al generarlo.
+Fijo: **RK2026** (panel en `/admin`). Credenciales SMTP en `/root/.rk-inversiones-credentials.txt`.
 
 ### Tablas creadas
 
