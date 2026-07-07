@@ -23,6 +23,18 @@ api_returns_json() {
   esac
 }
 
+wait_http_ok() {
+  local url="$1" label="$2" tries="${3:-24}" i
+  for i in $(seq 1 "$tries"); do
+    if curl -fsS "$url" >/dev/null 2>&1; then
+      return 0
+    fi
+    warn "   ${label}… (${i}/${tries})"
+    sleep 5
+  done
+  return 1
+}
+
 cyan "══════════════════════════════════════════════"
 cyan "  RK INVERSIONES — DESPLIEGUE PRODUCCIÓN"
 cyan "  https://${DOMAIN}"
@@ -70,18 +82,20 @@ if [ -n "$postgrest_svc" ]; then
 fi
 
 cyan "── 5. Stack (Traefik) ───────────────────────────"
-# Quitar servicio legacy si quedó de despliegues anteriores
 docker service rm "${STACK_NAME}_insforge-proxy" >/dev/null 2>&1 || true
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 6. Aplicar imágenes ────────────────────────"
-for svc in web bureau notify; do
-  docker service update --force --detach=true "${STACK_NAME}_${svc}" >/dev/null
-done
+cyan "── 6. Aplicar imagen web ──────────────────────"
+# Solo web necesita force (imagen local :latest). --detach=false espera el rollout.
+docker service update --force --detach=false "${STACK_NAME}_web" >/dev/null
 
 cyan "── 7. Verificar ───────────────────────────────"
-sleep 10
-curl -fsS "https://${DOMAIN}/healthz" >/dev/null
+if ! wait_http_ok "https://${DOMAIN}/healthz" "Sitio iniciando"; then
+  red "❌ /healthz no responde — revisa:"
+  red "   docker service ps ${STACK_NAME}_web"
+  red "   docker service logs ${STACK_NAME}_web --tail 40"
+  exit 1
+fi
 
 api_ok=0
 for i in $(seq 1 12); do
