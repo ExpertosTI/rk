@@ -14,17 +14,7 @@ green() { printf '\033[32m%s\033[0m\n' "$*"; }
 cyan()  { printf '\033[36m%s\033[0m\n' "$*"; }
 warn()  { printf '\033[33m%s\033[0m\n' "$*" >&2; }
 
-gen_admin_pin() {
-  printf 'RK%s' "$(openssl rand -hex 3 | tr 'a-f' 'A-F')"
-}
-
-is_weak_admin_pin() {
-  local pin="${1:-}"
-  [ -z "$pin" ] && return 0
-  [ "$pin" = "RK2026" ] && return 0
-  [ "${#pin}" -lt 6 ] && return 0
-  return 1
-}
+ADMIN_PIN_DEFAULT="RK2026"
 
 cyan "── seed-env: generando .env ───────────────────"
 
@@ -51,7 +41,6 @@ ANON_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
 SERVICE_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
 INSFORGE_URL="https://insforge.renace.tech"
 INSFORGE_MODE="insforge"
-NEW_PIN=""
 
 if is_vps_with_docker; then
   postgrest="$(resolve_postgrest_container)"
@@ -83,15 +72,7 @@ else
   warn "   Sin Docker — modo desarrollo (API pública)"
 fi
 
-EXISTING_PIN="$(env_get PUBLIC_ADMIN_PIN "$ENV_FILE")"
-if is_weak_admin_pin "$EXISTING_PIN"; then
-  NEW_PIN="$(gen_admin_pin)"
-  upsert_env "PUBLIC_ADMIN_PIN" "$NEW_PIN" "$ENV_FILE"
-  green "   PUBLIC_ADMIN_PIN generado"
-else
-  NEW_PIN=""
-  green "   PUBLIC_ADMIN_PIN existente conservado"
-fi
+upsert_env "PUBLIC_ADMIN_PIN" "$ADMIN_PIN_DEFAULT" "$ENV_FILE"
 
 upsert_env "PUBLIC_INSFORGE_URL" "$INSFORGE_URL" "$ENV_FILE"
 upsert_env "PUBLIC_INSFORGE_MODE" "$INSFORGE_MODE" "$ENV_FILE"
@@ -99,8 +80,6 @@ upsert_env "PUBLIC_INSFORGE_ANON_KEY" "$ANON_KEY" "$ENV_FILE"
 upsert_env "PUBLIC_INSFORGE_SERVICE_KEY" "$SERVICE_KEY" "$ENV_FILE"
 upsert_env "INSFORGE_ANON_KEY" "$ANON_KEY" "$ENV_FILE"
 upsert_env "INSFORGE_SERVICE_KEY" "$SERVICE_KEY" "$ENV_FILE"
-existing_pin="$(env_get PUBLIC_ADMIN_PIN "$ENV_FILE")"
-[ -n "$existing_pin" ] && upsert_env "PUBLIC_ADMIN_PIN" "$existing_pin" "$ENV_FILE"
 
 # TransUnion / DATACRÉDITO — mock hasta activar suscripción ICS
 if [ -z "$(env_get TRANSUNION_MODE "$ENV_FILE")" ]; then
@@ -146,12 +125,10 @@ normalize_env_file "$ENV_FILE"
 
 write_credentials_file() {
   [ -w "$(dirname "$CRED_FILE")" ] 2>/dev/null || return 0
-  local pin_line=""
-  [ -n "$NEW_PIN" ] && pin_line="PUBLIC_ADMIN_PIN=$NEW_PIN"
   {
     echo "RK Inversiones — credenciales $(date -Iseconds)"
     echo "Admin panel: https://rk.renace.tech/admin"
-    [ -n "$pin_line" ] && echo "$pin_line"
+    echo "PUBLIC_ADMIN_PIN=$ADMIN_PIN_DEFAULT"
     echo "SMTP_USER=$(env_get SMTP_USER "$ENV_FILE")"
     echo "SMTP_PASS=$(env_get SMTP_PASS "$ENV_FILE")"
     echo "NOTIFY_TO=$(env_get NOTIFY_TO "$ENV_FILE")"
@@ -162,13 +139,10 @@ write_credentials_file() {
   chmod 600 "$CRED_FILE"
 }
 
-if [ -n "$NEW_PIN" ] || [ -n "$(env_get SMTP_PASS "$ENV_FILE")" ]; then
+if [ -n "$(env_get SMTP_PASS "$ENV_FILE")" ]; then
   write_credentials_file
   green "   Credenciales guardadas en $CRED_FILE"
 fi
 
 green "✅ .env listo ($(wc -l < "$ENV_FILE" | tr -d ' ') variables)"
-if [ -n "$NEW_PIN" ]; then
-  cyan "   PIN admin (solo esta vez): $NEW_PIN"
-fi
 green "   Correo: $(env_get SMTP_USER "$ENV_FILE") → $(env_get NOTIFY_TO "$ENV_FILE")"
