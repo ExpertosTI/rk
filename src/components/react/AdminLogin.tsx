@@ -70,7 +70,6 @@ export default function AdminLogin() {
         <div className="admin-login-icon"><Lock size={28} /></div>
         <h1>Bahía de solicitudes</h1>
         <p>RK Inversiones — Panel administrador</p>
-        <p className="admin-hint">La clave está en el servidor: /root/.rk-inversiones-credentials.txt</p>
         <form onSubmit={login}>
           <div className="field">
             <label htmlFor="pin">Clave de acceso</label>

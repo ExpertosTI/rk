@@ -62,35 +62,16 @@ fi
 cyan "── 5. Stack Swarm + Traefik ───────────────────"
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 6. Reiniciar servicios ──────────────────────"
-for svc in "${SERVICE_NAME}" "${STACK_NAME}_bureau" "${STACK_NAME}_notify"; do
-  for i in 1 2 3 4 5 6 7 8 9 10; do
-    if docker service ls --format '{{.Name}}' | grep -qx "$svc"; then
-      docker service update --force "$svc" >/dev/null 2>&1 || true
-      break
-    fi
-    sleep 3
-  done
-done
-
-cyan "── 7. Esperar healthcheck ─────────────────────"
-sleep 8
+cyan "── 6. Esperar healthcheck ─────────────────────"
+sleep 3
 for i in 1 2 3 4 5; do
   if curl -fsS "https://${DOMAIN}/healthz" >/dev/null 2>&1; then
     green "✅ Producción activa: https://${DOMAIN}"
-    green "   Stack:   ${STACK_NAME}"
-    green "   Service: ${SERVICE_NAME}"
     green "   Commit:  $(git rev-parse --short HEAD)"
-    cyan "   Admin PIN: /root/.rk-inversiones-credentials.txt"
-    if curl -fsS "https://${DOMAIN}/api/notify/healthz" 2>/dev/null | grep -q '"ok":true'; then
-      green "   Notify:  correo activo"
-    else
-      warn "⚠️  Notify: verifique servicio rk_notify y .smtp.local"
-    fi
     docker image prune -f >/dev/null
     exit 0
   fi
-  sleep 5
+  sleep 2
 done
 
 red "⚠️  Stack desplegado pero healthcheck aún no responde."

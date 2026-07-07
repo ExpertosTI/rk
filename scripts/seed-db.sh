@@ -24,7 +24,7 @@ run_sql() {
   docker exec -i "$container" psql -U "$user" -d "$db" < "$file"
 }
 
-cyan "── seed-db: tablas Insforge ───────────────────"
+cyan "── seed-db: tablas RK ─────────────────────────"
 
 if ! is_vps_with_docker; then
   warn "⚠️  Sin Docker — schema se aplicará en el VPS con deploy"
@@ -33,7 +33,7 @@ fi
 
 container="$(resolve_pg_container "${POSTGRES_CONTAINER:-}")"
 if [ -z "$container" ]; then
-  warn "⚠️  Postgres Insforge no encontrado — omitiendo schema"
+  warn "⚠️  Base de datos no encontrada — omitiendo schema"
   exit 0
 fi
 

@@ -58,7 +58,7 @@ if is_vps_with_docker; then
   if [ -n "$postgrest" ]; then
     INSFORGE_URL="/api/insforge"
     INSFORGE_MODE="postgrest"
-    cyan "   Detectado PostgREST: $postgrest"
+    cyan "   Claves de base de datos leídas"
 
     svc="$(read_service_key_from_container "$postgrest")"
     if [ -n "$svc" ]; then
@@ -77,7 +77,7 @@ if is_vps_with_docker; then
       fi
     fi
   else
-    warn "   PostgREST no encontrado — usando API pública Insforge"
+    warn "   Base de datos no detectada — modo desarrollo"
   fi
 else
   warn "   Sin Docker — modo desarrollo (API pública)"
@@ -172,6 +172,3 @@ if [ -n "$NEW_PIN" ]; then
   cyan "   PIN admin (solo esta vez): $NEW_PIN"
 fi
 green "   Correo: $(env_get SMTP_USER "$ENV_FILE") → $(env_get NOTIFY_TO "$ENV_FILE")"
-if [ -n "$(env_get PUBLIC_ADMIN_PIN "$ENV_FILE")" ]; then
-  cyan "   Admin PIN: ver /root/.rk-inversiones-credentials.txt"
-fi

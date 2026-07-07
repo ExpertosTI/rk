@@ -389,7 +389,7 @@ export default function CreditForm({ initialProduct }: Props) {
                   onChange: (e) => { e.target.value = formatCedula(e.target.value); },
                 })}
               />
-              <div className="hint">Requerido para consulta en DATACRÉDITO / TransUnion</div>
+              <div className="hint">Necesario para verificar tu identidad</div>
               {errors.numeroCedula && <div className="error-msg">{errors.numeroCedula.message}</div>}
             </div>
 

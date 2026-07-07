@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Cloud, CloudOff, FileImage, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck,
+  FileImage, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck,
 } from 'lucide-react';
 import { PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
@@ -12,7 +12,6 @@ import {
   type BureauConsulta,
 } from '../../lib/bureau';
 import {
-  checkInsforgeConnection,
   fetchAllSolicitudesAdmin,
   fetchDocumentoCedula,
   updateSolicitudEstado,
@@ -48,9 +47,7 @@ export default function AdminInbox({ onLogout }: Props) {
   const [drafts, setDrafts] = useState<Solicitud[]>([]);
   const [selected, setSelected] = useState<Solicitud | null>(null);
   const [loading, setLoading] = useState(true);
-  const [source, setSource] = useState<'insforge' | 'local'>('local');
-  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
-  const [syncError, setSyncError] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [cedulaUrl, setCedulaUrl] = useState<string | null>(null);
   const [bureauConsultas, setBureauConsultas] = useState<BureauConsulta[]>([]);
   const [bureauLoading, setBureauLoading] = useState(false);
@@ -100,17 +97,22 @@ export default function AdminInbox({ onLogout }: Props) {
     }
   }
 
+  function friendlyBureauError(code: string) {
+    const map: Record<string, string> = {
+      cedula_invalida: 'El número de cédula no es válido.',
+      consulta_fallida: 'No se pudo completar la consulta. Intenta de nuevo.',
+      unauthorized: 'No autorizado para esta consulta.',
+      sin_datos: 'Aún no hay consultas registradas.',
+    };
+    return map[code] ?? 'No se pudo completar la consulta.';
+  }
+
   async function load() {
     setLoading(true);
-    const [conn, data] = await Promise.all([
-      checkInsforgeConnection(),
-      fetchAllSolicitudesAdmin(),
-    ]);
-    setDbConnected(conn.connected);
+    const data = await fetchAllSolicitudesAdmin();
     setItems(data.items);
     setDrafts(data.drafts);
-    setSource(data.source);
-    setSyncError(data.error ?? null);
+    setLoadFailed(Boolean(data.error) && data.items.length === 0 && data.drafts.length === 0);
     if (selected) {
       const all = [...data.items, ...data.drafts];
       setSelected(all.find((d) => d.id === selected.id) ?? null);
@@ -190,14 +192,9 @@ export default function AdminInbox({ onLogout }: Props) {
             {items.length} enviadas · <strong>{nuevas} nuevas</strong>
             {drafts.length > 0 && <> · {drafts.length} en progreso</>}
           </p>
-          <p className="admin-sync-meta">
-            {dbConnected ? (
-              <span className="admin-sync-ok"><Cloud size={14} /> Insforge conectado</span>
-            ) : (
-              <span className="admin-sync-warn"><CloudOff size={14} /> {source === 'local' ? 'Modo local' : 'Sin conexión DB'}</span>
-            )}
-            {syncError && <span className="admin-sync-err"> · {syncError}</span>}
-          </p>
+          {loadFailed && (
+            <p className="admin-sync-warn">No se pudieron cargar las solicitudes. Pulsa Actualizar.</p>
+          )}
         </div>
         <div className="admin-header-actions">
           <button type="button" className="btn-back" onClick={load} disabled={loading}>
@@ -258,7 +255,7 @@ export default function AdminInbox({ onLogout }: Props) {
             <p className="admin-empty">No hay solicitudes con este filtro.</p>
           )}
           {loading && filteredRows.length === 0 && (
-            <p className="admin-empty">Cargando desde Insforge...</p>
+            <p className="admin-empty">Cargando solicitudes…</p>
           )}
           {filteredRows.map((item) => (
             <button
@@ -352,8 +349,6 @@ export default function AdminInbox({ onLogout }: Props) {
                   <dt>Autoriza datos</dt><dd>{selected.autoriza_datos ? 'Sí' : 'No'}</dd>
                   <dt>Privacidad</dt><dd>{selected.acepta_privacidad ? 'Aceptada' : 'No'}</dd>
                   <dt>Cédula</dt><dd>{selected.cedula_recibida ? 'Recibida' : 'Pendiente'}</dd>
-                  <dt>Correo enviado</dt>
-                  <dd>{selected.notificada_email_at ? new Date(selected.notificada_email_at).toLocaleString('es-DO') : 'Pendiente'}</dd>
                 </>
               )}
             </dl>
@@ -373,7 +368,7 @@ export default function AdminInbox({ onLogout }: Props) {
             {selected.completada && selected.autoriza_datos && (
               <div className="admin-bureau">
                 <div className="admin-bureau-head">
-                  <h3><ShieldCheck size={18} /> DATACRÉDITO / TransUnion</h3>
+                  <h3><ShieldCheck size={18} /> Verificación crediticia</h3>
                   <button
                     type="button"
                     className="btn-bureau"
@@ -386,7 +381,7 @@ export default function AdminInbox({ onLogout }: Props) {
                 {!selected.numero_cedula && (
                   <p className="admin-bureau-hint">Falta el número de cédula en la solicitud.</p>
                 )}
-                {bureauError && <p className="admin-bureau-err">{bureauError}</p>}
+                {bureauError && <p className="admin-bureau-err">{friendlyBureauError(bureauError)}</p>}
                 {bureauConsultas.length > 0 && (
                   <ul className="admin-bureau-list">
                     {bureauConsultas.map((c) => (
