@@ -45,6 +45,7 @@ fi
 
 touch "$ENV_FILE"
 chmod 600 "$ENV_FILE" 2>/dev/null || true
+normalize_env_file "$ENV_FILE"
 
 ANON_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
 SERVICE_KEY="$RENACE_INSFORGE_ANON_DEFAULT"
@@ -129,15 +130,15 @@ for pair in \
 done
 [ -n "$SMTP_PASS" ] && upsert_env "SMTP_PASS" "$SMTP_PASS" "$ENV_FILE"
 
-if [ -z "$(env_get NOTIFY_TO "$ENV_FILE")" ]; then
-  upsert_env "NOTIFY_TO" "jcamacho-gomez@hotmail.com" "$ENV_FILE"
-fi
-if [ -z "$(env_get NOTIFY_FROM "$ENV_FILE")" ]; then
-  upsert_env "NOTIFY_FROM" "RK Inversiones <info@renace.tech>" "$ENV_FILE"
-fi
+notify_to="$(env_get NOTIFY_TO "$ENV_FILE")"
+[ -z "$notify_to" ] && notify_to="jcamacho-gomez@hotmail.com"
+upsert_env "NOTIFY_TO" "$notify_to" "$ENV_FILE"
+upsert_env "NOTIFY_FROM" "RK Inversiones <info@renace.tech>" "$ENV_FILE"
 if [ -z "$(env_get NOTIFY_SECRET "$ENV_FILE")" ]; then
   upsert_env "NOTIFY_SECRET" "$(openssl rand -hex 24)" "$ENV_FILE"
 fi
+
+normalize_env_file "$ENV_FILE"
 
 write_credentials_file() {
   [ -w "$(dirname "$CRED_FILE")" ] 2>/dev/null || return 0

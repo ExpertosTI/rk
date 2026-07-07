@@ -141,8 +141,8 @@ upsert_env() {
   local key="$1" val="$2" file="$3"
   [ -n "$val" ] || return 0
   touch "$file"
-  if grep -q "^${key}=" "$file" 2>/dev/null; then
-    grep -v "^${key}=" "$file" > "${file}.tmp"
+  if grep -qE "^${key}=" "$file" 2>/dev/null; then
+    grep -vE "^${key}=" "$file" > "${file}.tmp"
     mv "${file}.tmp" "$file"
   fi
   local escaped="${val//\\/\\\\}"
@@ -153,8 +153,34 @@ upsert_env() {
 
 env_get() {
   local key="$1" file="${2:-}"
+  local val
   [ -f "$file" ] || return 0
-  grep "^${key}=" "$file" 2>/dev/null | tail -1 | cut -d= -f2- || true
+  val="$(grep -E "^${key}=" "$file" 2>/dev/null | tail -1 | cut -d= -f2- || true)"
+  val="${val#\"}"
+  val="${val%\"}"
+  printf '%s' "$val"
+}
+
+normalize_env_file() {
+  local file="$1"
+  local tmp="${file}.norm" key val escaped line
+  [ -f "$file" ] || return 0
+  : > "$tmp"
+  while IFS= read -r line || [ -n "$line" ]; do
+  case "$line" in
+    \#*|'') printf '%s\n' "$line" >> "$tmp"; continue ;;
+  esac
+  [[ "$line" != *"="* ]] && continue
+  key="${line%%=*}"
+  val="${line#*=}"
+  val="${val#\"}"; val="${val%\"}"
+  escaped="${val//\\/\\\\}"
+  escaped="${escaped//\"/\\\"}"
+  escaped="${escaped//\$/\\\$}"
+  printf '%s="%s"\n' "$key" "$escaped" >> "$tmp"
+  done < "$file"
+  mv "$tmp" "$file"
+  chmod 600 "$file" 2>/dev/null || true
 }
 
 is_vps_with_docker() {
