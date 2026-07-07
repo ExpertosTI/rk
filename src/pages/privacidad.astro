@@ -1,0 +1,67 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import { BRAND } from '../lib/constants';
+---
+
+<LandingLayout title={`Política de privacidad — ${BRAND.name}`}>
+  <div class="legal-page">
+    <a href="/" class="legal-back">← Volver al inicio</a>
+    <h1>Política de privacidad</h1>
+    <p class="legal-updated">Última actualización: julio 2026</p>
+
+    <section>
+      <h2>1. Responsable</h2>
+      <p>
+        {BRAND.name} es responsable del tratamiento de los datos personales que usted proporciona a través
+        de nuestro formulario en línea y canales de contacto.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Datos que recopilamos</h2>
+      <p>
+        Nombre, número de WhatsApp, correo electrónico (opcional), ingresos declarados, provincia,
+        tipo de producto, monto solicitado, plazo y comentarios adicionales que usted decida compartir.
+      </p>
+    </section>
+
+    <section>
+      <h2>3. Finalidad</h2>
+      <p>
+        Evaluar su solicitud de financiamiento, contactarle, cumplir obligaciones legales y mejorar
+        nuestros servicios. No vendemos sus datos a terceros.
+      </p>
+    </section>
+
+    <section>
+      <h2>4. Conservación y seguridad</h2>
+      <p>
+        Conservamos la información el tiempo necesario para gestionar la solicitud y cumplir requisitos
+        regulatorios. Aplicamos medidas razonables de seguridad; ningún sistema en Internet es 100% infalible.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Centrales de riesgo</h2>
+      <p>
+        Con su consentimiento implícito al solicitar crédito, podemos consultar y reportar su historial
+        en centrales de información crediticia conforme a la ley dominicana.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Sus derechos</h2>
+      <p>
+        Puede solicitar acceso, corrección o eliminación de sus datos escribiéndonos por WhatsApp al
+        número publicado en el sitio, sujeto a obligaciones legales de retención.
+      </p>
+    </section>
+
+    <section>
+      <h2>7. Cambios</h2>
+      <p>
+        Podemos actualizar esta política. La versión vigente estará siempre publicada en esta página.
+      </p>
+    </section>
+  </div>
+</LandingLayout>

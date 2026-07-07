@@ -1,0 +1,69 @@
+---
+import LandingLayout from '../layouts/LandingLayout.astro';
+import { BRAND } from '../lib/constants';
+---
+
+<LandingLayout title={`Términos y condiciones — ${BRAND.name}`}>
+  <div class="legal-page">
+    <a href="/" class="legal-back">← Volver al inicio</a>
+    <h1>Términos y condiciones de servicio</h1>
+    <p class="legal-updated">Última actualización: julio 2026</p>
+
+    <section>
+      <h2>1. Aceptación</h2>
+      <p>
+        Al utilizar el sitio web de {BRAND.name} y enviar una solicitud de financiamiento, usted acepta
+        estos términos y condiciones. Si no está de acuerdo, no utilice nuestros servicios en línea.
+      </p>
+    </section>
+
+    <section>
+      <h2>2. Servicio</h2>
+      <p>
+        {BRAND.name} ofrece intermediación y gestión de solicitudes de crédito para vehículos, viviendas,
+        apartamentos y solares en la República Dominicana. El envío del formulario no constituye una
+        aprobación automática del crédito.
+      </p>
+    </section>
+
+    <section>
+      <h2>3. Evaluación crediticia</h2>
+      <p>
+        Toda solicitud está sujeta a verificación de identidad, capacidad de pago y políticas internas.
+        Las tasas de interés, montos y plazos se comunican de forma personalizada tras la evaluación.
+        Podemos consultar y reportar información a centrales de riesgo autorizadas en RD.
+      </p>
+    </section>
+
+    <section>
+      <h2>4. Información veraz</h2>
+      <p>
+        Usted declara que los datos proporcionados son veraces y actualizados. Información falsa puede
+        resultar en el rechazo de la solicitud y acciones legales según corresponda.
+      </p>
+    </section>
+
+    <section>
+      <h2>5. Comunicaciones</h2>
+      <p>
+        Autoriza a {BRAND.name} a contactarle por WhatsApp, teléfono o correo electrónico respecto a su
+        solicitud y productos relacionados.
+      </p>
+    </section>
+
+    <section>
+      <h2>6. Limitación de responsabilidad</h2>
+      <p>
+        El sitio se ofrece “tal cual”. No garantizamos disponibilidad ininterrumpida del servicio en línea.
+        Las decisiones de crédito son discrecionales y pueden variar según el perfil del solicitante.
+      </p>
+    </section>
+
+    <section>
+      <h2>7. Contacto</h2>
+      <p>
+        Para consultas: {BRAND.phone} · WhatsApp disponible en el sitio.
+      </p>
+    </section>
+  </div>
+</LandingLayout>

@@ -62,3 +62,43 @@ docker service logs rk_web --tail 50
 ## DNS
 
 `rk.renace.tech` debe apuntar al VPS `45.9.191.18` (o wildcard `*.renace.tech` si ya está configurado en Renace).
+
+---
+
+## Base de datos (Insforge)
+
+Todo es **automático**. No hay que escribir claves ni `.env` a mano.
+
+### Un solo comando en el VPS
+
+```bash
+ssh root@45.9.191.18
+cd /opt/rk && ./deploy.sh
+```
+
+`deploy.sh` ejecuta internamente:
+1. `scripts/seed.sh` — genera `.env`, claves Insforge y tablas PostgreSQL
+2. Build Docker + deploy Swarm
+
+### Solo seed (sin redeploy)
+
+```bash
+npm run seed        # claves + tablas
+npm run seed:env    # solo .env / claves
+npm run seed:db     # solo tablas Insforge
+```
+
+### PIN del admin
+
+Se genera solo la primera vez y se guarda en:
+
+```
+/root/.rk-inversiones-credentials.txt
+```
+
+El script también lo muestra **una vez** en consola al generarlo.
+
+### Tablas creadas
+
+- `rk_solicitudes` — solicitudes y borradores
+- `rk_form_events` — eventos del formulario (progreso, envíos)

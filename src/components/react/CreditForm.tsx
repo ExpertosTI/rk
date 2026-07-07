@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ArrowRight, CircleCheck, MessageCircle, Sparkles } from 'lucide-react';
@@ -16,7 +16,15 @@ import {
   type CreditFormData,
 } from '../../lib/schema';
 import { formatCurrency, formatPhone } from '../../lib/formatters';
+import { overallCompletion, stepCompletion } from '../../lib/form-ui';
+import {
+  logFormEvent,
+  resetSolicitudSession,
+  saveDraft,
+  submitSolicitud,
+} from '../../lib/solicitudes';
 import ModernSelect from './ModernSelect';
+import ProductStack from './ProductStack';
 import StepProgress from './StepProgress';
 
 interface Props {
@@ -32,9 +40,11 @@ interface Submission extends CreditFormData {
 const TOTAL_STEPS = 3;
 
 const TRANSITION_MSG: Record<number, string> = {
-  1: 'Preparando tu perfil crediticio...',
-  2: 'Enviando solicitud al equipo RK...',
+  1: 'El buró de crédito está verificando tu información...',
+  2: 'Analizando tu perfil — preparando la aprobación de tu préstamo...',
 };
+
+const SUBMIT_MSG = 'Verificando con el buró y confirmando tu préstamo...';
 
 export default function CreditForm({ initialProduct }: Props) {
   const [step, setStep] = useState(1);
@@ -49,6 +59,7 @@ export default function CreditForm({ initialProduct }: Props) {
     setValue,
     trigger,
     reset,
+    watch,
     formState: { errors },
   } = useForm<CreditFormData>({
     resolver: zodResolver(creditFormSchema),
@@ -63,16 +74,56 @@ export default function CreditForm({ initialProduct }: Props) {
       ingresos: '',
       provincia: '',
       comentarios: '',
+      aceptaTerminos: false,
       website: '',
     },
   });
+
+  const watched = watch();
+  const currentStepProgress = useMemo(
+    () => stepCompletion(step, watched),
+    [step, watched],
+  );
+  const overallPct = useMemo(
+    () => overallCompletion(step, TOTAL_STEPS, currentStepProgress.pct),
+    [step, currentStepProgress.pct],
+  );
 
   useEffect(() => {
     if (initialProduct) setValue('producto', initialProduct);
   }, [initialProduct, setValue]);
 
+  useEffect(() => {
+    logFormEvent('form_open', { paso: 1, progresoPct: 0 });
+  }, []);
+
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (step >= 3 || submission) return;
+
+    const progresoCampos = Object.fromEntries(
+      currentStepProgress.fields.map((f) => [f.key, f.done]),
+    );
+
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(() => {
+      saveDraft(watched, step, overallPct, progresoCampos);
+      logFormEvent('draft_save', {
+        paso: step,
+        progresoPct: overallPct,
+        payload: { campos: progresoCampos },
+      });
+    }, 900);
+
+    return () => {
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+    };
+  }, [watched, step, overallPct, currentStepProgress.fields, submission]);
+
   async function goToStep(next: number) {
     setTransitioning(true);
+    await logFormEvent('step_change', { paso: next, progresoPct: overallPct });
     await new Promise((r) => setTimeout(r, 650));
     setStep(next);
     setTransitioning(false);
@@ -91,16 +142,20 @@ export default function CreditForm({ initialProduct }: Props) {
     setTransitioning(true);
     await new Promise((r) => setTimeout(r, 1400));
 
+    const { solicitud, syncOk } = await submitSolicitud(data, 100);
+
     const result: Submission = {
       ...data,
-      id: 'RK-' + Date.now().toString(36).toUpperCase(),
-      fecha: new Date().toISOString(),
-      estado: 'nueva',
+      id: solicitud.id,
+      fecha: solicitud.fecha,
+      estado: solicitud.estado,
     };
 
-    const stored = JSON.parse(localStorage.getItem('rk_solicitudes') || '[]');
-    stored.unshift(result);
-    localStorage.setItem('rk_solicitudes', JSON.stringify(stored));
+    if (!syncOk) {
+      const stored = JSON.parse(localStorage.getItem('rk_solicitudes') || '[]');
+      stored.unshift(result);
+      localStorage.setItem('rk_solicitudes', JSON.stringify(stored));
+    }
 
     setSubmission(result);
     setSubmitting(false);
@@ -109,7 +164,21 @@ export default function CreditForm({ initialProduct }: Props) {
   }
 
   function handleNewRequest() {
-    reset();
+    resetSolicitudSession();
+    reset({
+      producto: undefined,
+      monto: '',
+      plazo: '',
+      garantia: undefined,
+      nombre: '',
+      whatsapp: '',
+      email: '',
+      ingresos: '',
+      provincia: '',
+      comentarios: '',
+      aceptaTerminos: false,
+      website: '',
+    });
     setSubmission(null);
     setStep(1);
   }
@@ -121,7 +190,6 @@ export default function CreditForm({ initialProduct }: Props) {
       )
     : '';
 
-  const productOptions = (Object.entries(PRODUCTS) as [ProductKey, string][]).map(([value, label]) => ({ value, label }));
   const plazoOptions = PLAZOS.map((p) => ({ value: String(p), label: `${p} meses` }));
   const provinciaOptions = PROVINCIAS.map((p) => ({ value: p, label: p }));
 
@@ -131,8 +199,13 @@ export default function CreditForm({ initialProduct }: Props) {
         <StepProgress
           step={step}
           total={TOTAL_STEPS}
+          stepPct={currentStepProgress.pct}
+          overallPct={overallPct}
+          filled={currentStepProgress.filled}
+          fieldTotal={currentStepProgress.total}
+          fields={currentStepProgress.fields}
           transitioning={transitioning || submitting}
-          transitionLabel={submitting ? TRANSITION_MSG[2] : TRANSITION_MSG[step]}
+          transitionLabel={submitting ? SUBMIT_MSG : TRANSITION_MSG[step]}
         />
       )}
 
@@ -147,12 +220,7 @@ export default function CreditForm({ initialProduct }: Props) {
               name="producto"
               control={control}
               render={({ field }) => (
-                <ModernSelect
-                  id="producto"
-                  label="Tipo de financiamiento"
-                  required
-                  placeholder="¿Qué deseas financiar?"
-                  options={productOptions}
+                <ProductStack
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   error={errors.producto?.message}
@@ -161,7 +229,7 @@ export default function CreditForm({ initialProduct }: Props) {
             />
 
             <div className="field">
-              <label htmlFor="monto">Monto aproximado (RD$) <span className="req">*</span></label>
+              <label htmlFor="monto">¿Cuánto necesitas? (RD$) <span className="req">*</span></label>
               <input
                 id="monto"
                 type="text"
@@ -172,6 +240,7 @@ export default function CreditForm({ initialProduct }: Props) {
                   onChange: (e) => { e.target.value = formatCurrency(e.target.value); },
                 })}
               />
+              <div className="hint">Monto mínimo: RD${BRAND.minAmount.toLocaleString('es-DO')}</div>
               {errors.monto && <div className="error-msg">{errors.monto.message}</div>}
             </div>
 
@@ -293,6 +362,21 @@ export default function CreditForm({ initialProduct }: Props) {
                 {...register('comentarios')}
               />
             </div>
+
+            <div className="field terms-field">
+              <label className="terms-check">
+                <input type="checkbox" {...register('aceptaTerminos')} />
+                <span>
+                  Acepto los{' '}
+                  <a href="/terminos" target="_blank" rel="noopener noreferrer">términos y condiciones</a>
+                  {' '}y la{' '}
+                  <a href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</a>
+                </span>
+              </label>
+              {errors.aceptaTerminos && (
+                <div className="error-msg">{errors.aceptaTerminos.message}</div>
+              )}
+            </div>
           </div>
         )}
 
@@ -301,9 +385,19 @@ export default function CreditForm({ initialProduct }: Props) {
             <div className="success-icon pulse-success">
               <CircleCheck size={36} color="#3AAA35" strokeWidth={1.75} />
             </div>
-            <h2 className="confirm-title">¡Solicitud enviada!</h2>
+            <h2 className="confirm-title">¡Tu préstamo va en camino!</h2>
+
+            <div className="bureau-banner">
+              <span className="bureau-banner-dot" />
+              <div>
+                <strong>Buró de crédito en verificación</strong>
+                <span>Tu solicitud fue recibida y estamos confirmando la aprobación de tu préstamo.</span>
+              </div>
+            </div>
+
             <p className="confirm-text">
-              Listo, {firstName}. Un asesor de RK Inversiones te contactará por WhatsApp en breve.
+              {firstName}, en breve te contactamos por WhatsApp con la respuesta de aprobación.
+              La mayoría de solicitudes se aprueban en menos de 2 horas.
             </p>
 
             <div className="summary">

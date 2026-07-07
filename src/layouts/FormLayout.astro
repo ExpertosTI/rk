@@ -30,7 +30,9 @@ const {
       <div class="page-inner">
         <div class="form-card" role="main">
           <header class="card-header">
-            <img src="/brand/logo.jpeg" alt={BRAND.name} class="brand-logo" />
+            <a href="/" class="brand-link">
+              <img src="/brand/logo.jpeg" alt={BRAND.name} class="brand-logo" />
+            </a>
             <div class="assist-badge">
               <div class="assist-avatar">RK</div>
               <div class="assist-text">
@@ -42,6 +44,8 @@ const {
 
           <slot />
         </div>
+
+        <slot name="footer" />
       </div>
     </div>
     <slot name="float" />

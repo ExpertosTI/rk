@@ -31,6 +31,9 @@ export const creditFormSchema = z.object({
   ingresos: z.string().min(1, 'Ingresa tus ingresos mensuales'),
   provincia: z.string().min(1, 'Selecciona tu provincia o ciudad'),
   comentarios: z.string().optional(),
+  aceptaTerminos: z.boolean().refine((v) => v === true, {
+    message: 'Debes aceptar los términos y condiciones',
+  }),
   website: z.string().max(0).optional(), // honeypot
 });
 

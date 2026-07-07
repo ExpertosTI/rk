@@ -7,6 +7,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        PUBLIC_INSFORGE_URL: ${PUBLIC_INSFORGE_URL:-/api/insforge}
+        PUBLIC_INSFORGE_MODE: ${PUBLIC_INSFORGE_MODE:-postgrest}
+        PUBLIC_INSFORGE_ANON_KEY: ${INSFORGE_ANON_KEY:-}
+        PUBLIC_INSFORGE_SERVICE_KEY: ${INSFORGE_SERVICE_KEY:-}
+        PUBLIC_ADMIN_PIN: ${PUBLIC_ADMIN_PIN:-RK2026}
     networks:
       - RenaceNet
     deploy:

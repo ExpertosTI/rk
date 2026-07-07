@@ -1,0 +1,29 @@
+---
+import FormLayout from '../layouts/FormLayout.astro';
+import CreditForm from '../components/react/CreditForm';
+import TrustBadges from '../components/react/TrustBadges';
+import LegalFooter from '../components/LegalFooter.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import type { ProductKey } from '../lib/constants';
+
+const producto = Astro.url.searchParams.get('producto');
+const validProducts = ['apartamentos', 'casas', 'vehiculos', 'solares'];
+const initialProduct = validProducts.includes(producto ?? '')
+  ? (producto as ProductKey)
+  : undefined;
+---
+
+<FormLayout>
+  <h1 class="form-title">Solicita tu crédito en minutos</h1>
+  <p class="form-subtitle">
+    Financiamiento de vehículos, casas, apartamentos y solares.
+    Completa lo que puedas y un asesor termina el proceso contigo.
+  </p>
+
+  <TrustBadges client:load />
+
+  <CreditForm client:load initialProduct={initialProduct} />
+
+  <LegalFooter slot="footer" />
+  <WhatsAppFloat slot="float" />
+</FormLayout>

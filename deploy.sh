@@ -30,21 +30,30 @@ else
   git clone --branch "$DEPLOY_BRANCH" "$REPO_URL" "$PROJECT_DIR"
   cd "$PROJECT_DIR"
 fi
-chmod +x deploy.sh
+chmod +x deploy.sh scripts/*.sh 2>/dev/null || true
 
-cyan "── 2. Build imagen Docker ─────────────────────"
+cyan "── 2. Seed (claves + base de datos) ───────────"
+if [ -x scripts/seed.sh ]; then
+  ./scripts/seed.sh
+fi
+
+set -a
+[ -f .env ] && source .env
+set +a
+
+cyan "── 3. Build imagen Docker ─────────────────────"
 export DOCKER_BUILDKIT=1
 nice -n 19 ionice -c 3 docker compose build --pull
 
-cyan "── 3. Red RenaceNet ───────────────────────────"
+cyan "── 4. Red RenaceNet ───────────────────────────"
 if ! docker network ls --format '{{.Name}}' | grep -qx "RenaceNet"; then
   docker network create --driver overlay --attachable RenaceNet
 fi
 
-cyan "── 4. Stack Swarm + Traefik ───────────────────"
+cyan "── 5. Stack Swarm + Traefik ───────────────────"
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
 
-cyan "── 5. Reiniciar servicio ──────────────────────"
+cyan "── 6. Reiniciar servicio ──────────────────────"
 for i in 1 2 3 4 5 6 7 8 9 10; do
   if docker service ls --format '{{.Name}}' | grep -qx "$SERVICE_NAME"; then
     docker service update --force "$SERVICE_NAME" >/dev/null 2>&1 || true
@@ -53,7 +62,7 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
   sleep 3
 done
 
-cyan "── 6. Esperar healthcheck ─────────────────────"
+cyan "── 7. Esperar healthcheck ─────────────────────"
 sleep 8
 for i in 1 2 3 4 5; do
   if curl -fsS "https://${DOMAIN}/healthz" >/dev/null 2>&1; then
