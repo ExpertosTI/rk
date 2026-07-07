@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  FileImage, Inbox, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck, Trash2,
+  FileImage, Inbox, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck, Terminal, Trash2,
 } from 'lucide-react';
 import { BRAND, PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
@@ -19,6 +19,8 @@ import {
   type Solicitud,
   type SolicitudEstado,
 } from '../../lib/solicitudes';
+import { colorPuntuacion, formatMontoRD } from '../../lib/scoring';
+import AdminTerminal from './AdminTerminal';
 
 interface Props {
   onLogout: () => void;
@@ -43,6 +45,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 type FilterKey = 'todas' | 'nuevas' | 'revision' | 'borradores' | 'cerradas';
+type AdminView = 'inbox' | 'terminal';
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'todas', label: 'Todas' },
@@ -51,6 +54,28 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'borradores', label: 'Borradores' },
   { key: 'cerradas', label: 'Cerradas' },
 ];
+
+const SCORE_LABELS: Record<string, string> = {
+  excelente: 'Excelente',
+  buena: 'Buena',
+  regular: 'Regular',
+  baja: 'Baja',
+  insuficiente: 'Sin datos',
+};
+
+function scoreBadge(item: Solicitud) {
+  const score = item.score;
+  if (!score || score.total <= 0) return null;
+  return (
+    <span
+      className="admin-score-badge"
+      style={{ background: colorPuntuacion(score.nivel) }}
+      title={score.resumen}
+    >
+      {score.total}
+    </span>
+  );
+}
 
 export default function AdminInbox({ onLogout }: Props) {
   const [items, setItems] = useState<Solicitud[]>([]);
@@ -65,6 +90,7 @@ export default function AdminInbox({ onLogout }: Props) {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [filter, setFilter] = useState<FilterKey>('todas');
   const [search, setSearch] = useState('');
+  const [view, setView] = useState<AdminView>('inbox');
 
   async function loadBureau(solicitudId: string) {
     const res = await fetchConsultasBuro(solicitudId);
@@ -161,13 +187,32 @@ export default function AdminInbox({ onLogout }: Props) {
   }, [selected?.id, selected?.completada]);
 
   async function updateStatus(id: string, estado: SolicitudEstado) {
-    await updateSolicitudEstado(id, estado);
+    const res = await updateSolicitudEstado(id, estado);
+    if (!res.ok) {
+      window.alert('No se pudo actualizar el estado.');
+      return;
+    }
     const patch = { estado };
     const nextItems = items.map((item) => (item.id === id ? { ...item, ...patch } : item));
     const nextDrafts = drafts.map((item) => (item.id === id ? { ...item, ...patch } : item));
     setItems(nextItems);
     setDrafts(nextDrafts);
     if (selected?.id === id) setSelected({ ...selected, ...patch });
+
+    if (res.notify && (estado === 'aprobada' || estado === 'rechazada')) {
+      const label = estado === 'aprobada' ? 'aprobación' : 'rechazo';
+      if (res.notify.ok) {
+        const parts = [];
+        if (res.notify.email) parts.push('correo');
+        if (res.notify.whatsapp) parts.push('WhatsApp');
+        const via = parts.length ? parts.join(' y ') : 'registro';
+        window.alert(`Estado actualizado. Notificación de ${label} enviada por ${via}.`);
+      } else if (res.notify.error === 'sin_contacto_solicitante') {
+        window.alert(`Estado actualizado, pero el solicitante no tiene email ni WhatsApp válido.`);
+      } else {
+        window.alert(`Estado actualizado. No se pudo enviar la notificación (${res.notify.error ?? 'error'}).`);
+      }
+    }
   }
 
   async function handleDelete() {
@@ -232,7 +277,25 @@ export default function AdminInbox({ onLogout }: Props) {
           </div>
         </div>
         <div className="admin-topbar-actions">
-          <button type="button" className="admin-btn admin-btn-ghost" onClick={load} disabled={loading}>
+          <div className="admin-view-tabs">
+            <button
+              type="button"
+              className={`admin-view-tab${view === 'inbox' ? ' active' : ''}`}
+              onClick={() => setView('inbox')}
+            >
+              <Inbox size={16} />
+              Solicitudes
+            </button>
+            <button
+              type="button"
+              className={`admin-view-tab${view === 'terminal' ? ' active' : ''}`}
+              onClick={() => setView('terminal')}
+            >
+              <Terminal size={16} />
+              Terminal
+            </button>
+          </div>
+          <button type="button" className="admin-btn admin-btn-ghost" onClick={() => load()} disabled={loading}>
             <RefreshCw size={16} className={loading ? 'spin-icon' : ''} />
             Actualizar
           </button>
@@ -244,6 +307,19 @@ export default function AdminInbox({ onLogout }: Props) {
       </header>
 
       <main className="admin-main">
+        {view === 'terminal' ? (
+          <AdminTerminal
+            items={items}
+            drafts={drafts}
+            onRefresh={() => { void load(); }}
+            onSelect={(item) => {
+              setSelected(item);
+              setView('inbox');
+            }}
+            onUpdateStatus={updateStatus}
+          />
+        ) : (
+          <>
         <div className="admin-kpis">
           <article className="admin-kpi">
             <span className="admin-kpi-value">{nuevas}</span>
@@ -314,12 +390,15 @@ export default function AdminInbox({ onLogout }: Props) {
                 >
                   <div className="admin-row-top">
                     <strong>{displayName(item)}</strong>
-                    <span
-                      className="admin-status"
-                      style={{ background: STATUS_COLORS[item.estado] ?? '#888' }}
-                    >
-                      {statusLabel(item)}
-                    </span>
+                    <div className="admin-row-badges">
+                      {scoreBadge(item)}
+                      <span
+                        className="admin-status"
+                        style={{ background: STATUS_COLORS[item.estado] ?? '#888' }}
+                      >
+                        {statusLabel(item)}
+                      </span>
+                    </div>
                   </div>
                   <div className="admin-row-meta">
                     {item.producto ? PRODUCTS[item.producto] : 'Sin producto'}
@@ -352,6 +431,66 @@ export default function AdminInbox({ onLogout }: Props) {
               {!selected.completada && (
                 <div className="admin-progress-banner">
                   Formulario al <strong>{selected.progreso_pct}%</strong> · Paso {selected.paso_actual}
+                </div>
+              )}
+
+              {selected.score && selected.score.total > 0 && (
+                <div className="admin-score-panel">
+                  <div className="admin-score-head">
+                    <div>
+                      <p className="admin-score-eyebrow">Puntuación preliminar</p>
+                      <strong
+                        className="admin-score-total"
+                        style={{ color: colorPuntuacion(selected.score.nivel) }}
+                      >
+                        {selected.score.total}/100
+                      </strong>
+                      <span className="admin-score-nivel">
+                        {SCORE_LABELS[selected.score.nivel] ?? selected.score.nivel}
+                      </span>
+                    </div>
+                    <p className="admin-score-resumen">{selected.score.resumen}</p>
+                  </div>
+                  <div className="admin-score-metrics">
+                    {selected.cuota_mensual && (
+                      <div>
+                        <span>Cuota declarada</span>
+                        <strong>{formatMontoRD(Number(selected.cuota_mensual))}</strong>
+                      </div>
+                    )}
+                    {selected.score.cuotaEstimada > 0 && (
+                      <div>
+                        <span>Cuota estimada</span>
+                        <strong>{formatMontoRD(selected.score.cuotaEstimada)}</strong>
+                      </div>
+                    )}
+                    {selected.score.ratioPagoPct > 0 && (
+                      <div>
+                        <span>Cuota / ingresos</span>
+                        <strong>{selected.score.ratioPagoPct}%</strong>
+                      </div>
+                    )}
+                  </div>
+                  <ul className="admin-score-breakdown">
+                    {[
+                      ['Completitud', selected.score.desglose.completitud, 25],
+                      ['Capacidad de pago', selected.score.desglose.capacidadPago, 30],
+                      ['Plazo y monto', selected.score.desglose.plazoMonto, 15],
+                      ['Garantía', selected.score.desglose.garantia, 15],
+                      ['Coherencia cuota', selected.score.desglose.coherenciaCuota, 15],
+                    ].map(([label, pts, max]) => (
+                      <li key={String(label)}>
+                        <span>{label}</span>
+                        <div className="admin-score-bar">
+                          <div
+                            className="admin-score-bar-fill"
+                            style={{ width: `${(Number(pts) / Number(max)) * 100}%` }}
+                          />
+                        </div>
+                        <strong>{pts}/{max}</strong>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
@@ -389,6 +528,12 @@ export default function AdminInbox({ onLogout }: Props) {
                 {selected.ingresos && (
                   <>
                     <dt>Ingresos</dt><dd>{selected.ingresos}</dd>
+                  </>
+                )}
+                {selected.cuota_mensual && (
+                  <>
+                    <dt>Pago mensual</dt>
+                    <dd>{formatMontoRD(Number(selected.cuota_mensual))}</dd>
                   </>
                 )}
                 {selected.provincia && (
@@ -521,6 +666,8 @@ export default function AdminInbox({ onLogout }: Props) {
             </section>
           )}
         </div>
+          </>
+        )}
       </main>
     </div>
   );

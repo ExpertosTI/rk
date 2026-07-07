@@ -1,115 +1,167 @@
 ---
 import LandingLayout from '../layouts/LandingLayout.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import CreditForm from '../components/react/CreditForm';
+import TrustBadges from '../components/react/TrustBadges';
 import { BRAND } from '../lib/constants';
-import { STATS, FEATURES, PRODUCT_CARDS } from '../lib/landing';
+import {
+  NAV_LINKS,
+  PROMO,
+  HERO,
+  FORM_SECTION,
+  STRIP,
+  PRODUCT_LINES,
+  PRODUCTS_SECTION,
+  ABOUT,
+  FOOTER,
+} from '../lib/landing';
+
+const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me gustaría información sobre RK Inversiones')}`;
+const telHref = `tel:${BRAND.phone.replace(/-/g, '')}`;
 ---
 
-<LandingLayout>
-  <header class="landing-header">
-    <a href="/" class="landing-brand">
-      <img src="/brand/logo.jpeg" alt={BRAND.name} class="landing-logo" />
-      <span>{BRAND.name}</span>
+<LandingLayout
+  title={`${BRAND.name} — Financiamiento en ${BRAND.country}`}
+  description="Aprobación inmediata. Financiamiento de apartamentos, casas, vehículos y solares en República Dominicana."
+>
+  <a class="zav-skip" href="#main">Ir al contenido</a>
+
+  <div class="zav-promo">{PROMO.text}</div>
+
+  <header class="zav-header">
+    <a href="/" class="zav-brand">
+      <img src="/brand/logo.jpeg" alt={BRAND.name} class="zav-logo" />
+      <span class="zav-brand-name">{BRAND.name}</span>
     </a>
-    <div class="landing-header-actions">
-      <a href={`tel:${BRAND.phone.replace(/-/g, '')}`} class="landing-phone">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        {BRAND.phone}
+
+    <nav class="zav-nav" aria-label="Principal">
+      {NAV_LINKS.map((link) => (
+        <a href={link.href}>{link.label}</a>
+      ))}
+    </nav>
+
+    <div class="zav-header-actions">
+      <a href={waUrl} class="zav-btn zav-btn-ghost" target="_blank" rel="noopener noreferrer">
+        WhatsApp
       </a>
-      <a href="/solicitar" class="landing-nav-cta">Solicitar crédito</a>
+      <a href="#solicitar" class="zav-btn zav-btn-primary">{HERO.ctaPrimary}</a>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge">
-        <span class="hero-badge-dot" />
-        FINANCIAMIENTO · REPÚBLICA DOMINICANA
-      </div>
-
-      <h1 class="hero-title">
-        Dinero rápido y fácil<br />
-        <em>a la medida de tu futuro.</em>
-      </h1>
-
-      <p class="hero-subtitle">
-        Préstamos para vehículos, casas, apartamentos y solares.
-        Un proceso simple, 100% en línea y con respaldo en cada paso.
-      </p>
-
-      <div class="hero-ctas">
-        <a href="/solicitar" class="btn-hero-primary">
-          Solicitar crédito
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        </a>
-        <a href={`https://wa.me/${BRAND.whatsapp}`} class="btn-hero-ghost" target="_blank" rel="noopener noreferrer">
-          Hablar con un asesor
-        </a>
-      </div>
-
-      <div class="hero-stats">
-        {STATS.map((s) => (
-          <div class="hero-stat">
-            <strong>{s.value}</strong>
-            <span>{s.label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    <div class="features-bar">
-      {FEATURES.map((f) => (
-        <div class="feature-item">
-          <span class="feature-check">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
-          </span>
-          <div>
-            <strong>{f.title}</strong>
-            <span>{f.desc}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="products-section">
-    <div class="products-inner">
-      <h2>¿Qué deseas financiar?</h2>
-      <p>Elige tu producto y comienza tu solicitud en menos de 3 minutos.</p>
-      <div class="products-grid">
-        {PRODUCT_CARDS.map((p) => (
-          <a href={`/solicitar?producto=${p.key}`} class="product-card">
-            <h3>{p.label}</h3>
-            <p>{p.desc}</p>
-            <span class="product-card-link">Comenzar →</span>
+  <main id="main">
+    <section class="zav-hero">
+      <div class="zav-hero-bg" aria-hidden="true" />
+      <div class="zav-hero-overlay" aria-hidden="true" />
+      <div class="zav-hero-inner">
+        <h1>{HERO.title}</h1>
+        <p class="zav-hero-lead">{HERO.subtitle}</p>
+        <div class="zav-hero-actions">
+          <a href="#solicitar" class="zav-btn zav-btn-primary zav-btn-lg">{HERO.ctaPrimary}</a>
+          <a href={waUrl} class="zav-btn zav-btn-outline zav-btn-lg" target="_blank" rel="noopener noreferrer">
+            {HERO.ctaWhatsApp}
           </a>
-        ))}
+        </div>
+        <p class="zav-hero-phone">
+          O llama al <a href={telHref}>{BRAND.phone}</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="zav-strip" aria-label="Presentación">
+      <div class="zav-strip-text">
+        <p class="zav-strip-title">{STRIP.title}</p>
+        <p class="zav-strip-caption">{STRIP.caption}</p>
+      </div>
+      <div class="zav-strip-visual" aria-hidden="true">
+        <img src="/brand/hero-bg.jpeg" alt="" loading="lazy" />
+      </div>
+    </section>
+
+    <section class="zav-form-section" id="solicitar">
+      <div class="zav-container zav-form-head">
+        <p class="zav-eyebrow">{FORM_SECTION.eyebrow}</p>
+        <h2>{FORM_SECTION.title}</h2>
+        <p class="zav-lead">{FORM_SECTION.lead}</p>
+      </div>
+      <div class="zav-container">
+        <div class="zav-form-card">
+          <TrustBadges client:load />
+          <CreditForm client:load />
+        </div>
+      </div>
+    </section>
+
+    <section class="zav-products" id="productos">
+      <div class="zav-container">
+        <p class="zav-eyebrow">{PRODUCTS_SECTION.eyebrow}</p>
+        <h2>{PRODUCTS_SECTION.title}</h2>
+        <p class="zav-lead zav-lead-muted">{PRODUCTS_SECTION.lead}</p>
+        <div class="zav-products-grid">
+          {PRODUCT_LINES.map((item) => (
+            <article class="zav-product-card">
+              <h3>{item.label}</h3>
+              <p>{item.desc}</p>
+              <a href={`#solicitar`} class="zav-product-link">Solicitar →</a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="zav-about" id="nosotros">
+      <div class="zav-container zav-about-grid">
+        <div>
+          <p class="zav-eyebrow">{ABOUT.eyebrow}</p>
+          <h2>{ABOUT.title}</h2>
+          <p class="zav-about-lead">{ABOUT.lead}</p>
+          <p class="zav-about-text">{ABOUT.text}</p>
+        </div>
+        <aside class="zav-contact-card">
+          <h3>Contacto</h3>
+          <ul>
+            <li>
+              <span>Teléfono</span>
+              <a href={telHref}>{FOOTER.phone}</a>
+            </li>
+            <li>
+              <span>WhatsApp</span>
+              <a href={waUrl} target="_blank" rel="noopener noreferrer">Escribir</a>
+            </li>
+            <li>
+              <span>Correo</span>
+              <a href={`mailto:${FOOTER.email}`}>{FOOTER.email}</a>
+            </li>
+            <li>
+              <span>Asesor</span>
+              <strong>{BRAND.advisor}</strong>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="zav-footer">
+    <div class="zav-container zav-footer-grid">
+      <div class="zav-footer-brand">
+        <img src="/brand/logo.jpeg" alt={BRAND.name} class="zav-footer-logo" />
+        <p>{FOOTER.tagline}</p>
+        <div class="zav-footer-cta">
+          <a href={waUrl} class="zav-btn zav-btn-outline zav-btn-sm" target="_blank" rel="noopener noreferrer">
+            WhatsApp
+          </a>
+          <a href="#solicitar" class="zav-btn zav-btn-primary zav-btn-sm">Solicitar</a>
+        </div>
+      </div>
+      <div class="zav-footer-contact">
+        <a href={telHref}>☎ {FOOTER.phone}</a>
+        <a href={waUrl} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href={`mailto:${FOOTER.email}`}>✉ {FOOTER.email}</a>
       </div>
     </div>
-  </section>
-
-  <section class="cta-section">
-    <div class="cta-inner">
-      <h2>Tu crédito, sin complicaciones</h2>
-      <p>Completa el formulario en línea. Un asesor de {BRAND.name} te contacta por WhatsApp para finalizar.</p>
-      <a href="/solicitar" class="btn-hero-primary">Empezar ahora</a>
-    </div>
-  </section>
-
-  <footer class="landing-footer">
-    <p>
-      Tasas y plazos sujetos a evaluación crediticia. Los datos pueden ser reportados a centrales de riesgo
-      conforme a la ley dominicana.
-    </p>
-    <p>
-      {BRAND.name} · Santo Domingo, República Dominicana · Tel. {BRAND.phone}
-    </p>
-    <p class="landing-footer-links">
-      <a href="/terminos">Términos y condiciones</a>
-      ·
-      <a href="/privacidad">Política de privacidad</a>
-      ·
-      <a href="/solicitar">Solicitar crédito</a>
+    <p class="zav-footer-legal">
+      Tasas y condiciones sujetas a evaluación crediticia conforme a la normativa dominicana.
+      © {new Date().getFullYear()} {BRAND.name}. Todos los derechos reservados.
     </p>
   </footer>
 

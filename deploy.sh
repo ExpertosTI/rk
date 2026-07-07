@@ -35,6 +35,32 @@ wait_http_ok() {
   return 1
 }
 
+refresh_notify_env() {
+  # Swarm a veces no aplica env nuevas tras stack deploy — forzar en notify
+  local svc="${STACK_NAME}_notify"
+  docker service update --detach=true "$svc" \
+    --env-rm SMTP_HOST,SMTP_PORT,SMTP_SECURE,SMTP_USER,SMTP_PASS \
+    --env-rm NOTIFY_FROM,NOTIFY_TO,NOTIFY_SECRET,NOTIFY_WHATSAPP_TO,BRAND_PHONE \
+    --env-rm EVOLUTION_API_URL,EVOLUTION_API_KEY,EVOLUTION_INSTANCE,WHATSAPP_NOTIFY_APPLICANT \
+    >/dev/null 2>&1 || true
+  docker service update --detach=true "$svc" \
+    --env-add "SMTP_HOST=${SMTP_HOST:-}" \
+    --env-add "SMTP_PORT=${SMTP_PORT:-465}" \
+    --env-add "SMTP_SECURE=${SMTP_SECURE:-true}" \
+    --env-add "SMTP_USER=${SMTP_USER:-}" \
+    --env-add "SMTP_PASS=${SMTP_PASS:-}" \
+    --env-add "NOTIFY_FROM=${NOTIFY_FROM:-}" \
+    --env-add "NOTIFY_TO=${NOTIFY_TO:-}" \
+    --env-add "NOTIFY_SECRET=${NOTIFY_SECRET:-}" \
+    --env-add "NOTIFY_WHATSAPP_TO=${NOTIFY_WHATSAPP_TO:-}" \
+    --env-add "BRAND_PHONE=${BRAND_PHONE:-}" \
+    --env-add "EVOLUTION_API_URL=${EVOLUTION_API_URL:-}" \
+    --env-add "EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-}" \
+    --env-add "EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-}" \
+    --env-add "WHATSAPP_NOTIFY_APPLICANT=${WHATSAPP_NOTIFY_APPLICANT:-false}" \
+    >/dev/null
+}
+
 cyan "══════════════════════════════════════════════"
 cyan "  RK INVERSIONES — DESPLIEGUE PRODUCCIÓN"
 cyan "  https://${DOMAIN}"
@@ -57,8 +83,7 @@ if [ "${RK_DEPLOY_REEXEC:-}" != "1" ]; then
 fi
 
 cyan "── 2. Seed ────────────────────────────────────"
-./scripts/seed-env.sh
-./scripts/seed-db.sh
+./scripts/seed.sh
 
 set -a
 # shellcheck disable=SC1091
@@ -66,11 +91,17 @@ source .env
 set +a
 export PUBLIC_BUILD_ID="$(git rev-parse --short HEAD)"
 
+if [ -n "${SMTP_PASS:-}" ]; then
+  green "   SMTP_PASS cargado en entorno de deploy"
+else
+  warn "⚠️  SMTP_PASS vacío — crea .smtp.local y vuelve a ejecutar ./deploy.sh"
+fi
+
 cyan "── 3. Build ───────────────────────────────────"
 export DOCKER_BUILDKIT=1
 # web sin caché: nginx.conf y claves JWT van embebidas en la imagen
 docker compose build --no-cache web
-docker compose build bureau notify
+docker compose build --no-cache bureau notify
 
 cyan "── 4. Red + PostgREST ─────────────────────────"
 docker network inspect RenaceNet >/dev/null 2>&1 \
@@ -84,10 +115,12 @@ fi
 cyan "── 5. Stack (Traefik) ───────────────────────────"
 docker service rm "${STACK_NAME}_insforge-proxy" >/dev/null 2>&1 || true
 docker stack deploy -c docker-compose.yml "$STACK_NAME"
+refresh_notify_env
 
 cyan "── 6. Aplicar imágenes ────────────────────────"
 docker service update --force --detach=false "${STACK_NAME}_web" >/dev/null
 docker service update --force --detach=true "${STACK_NAME}_notify" >/dev/null
+sleep 8
 
 cyan "── 7. Verificar ───────────────────────────────"
 if ! wait_http_ok "https://${DOMAIN}/healthz" "Sitio iniciando"; then
@@ -129,7 +162,13 @@ if [ "$api_ok" -eq 1 ]; then
   if [ -n "$notify_smtp" ]; then
     green "   Correo SMTP: configurado"
   else
-    warn "⚠️  SMTP sin clave — revisa .smtp.local en el VPS"
+    warn "⚠️  SMTP sin clave — echo 'CLAVE' > .smtp.local && ./deploy.sh"
+  fi
+  notify_wa="$(curl -fsS "https://${DOMAIN}/api/notify/healthz" 2>/dev/null | grep -o '"whatsapp":true' || true)"
+  if [ -n "$notify_wa" ]; then
+    green "   WhatsApp: configurado"
+  else
+    warn "⚠️  WhatsApp pendiente — Evolution API (.evolution.local)"
   fi
 else
   red "❌ API no responde JSON — revisa:"

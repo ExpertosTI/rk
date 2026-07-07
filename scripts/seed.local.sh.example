@@ -1,0 +1,5 @@
+# Copia a seed.local.sh en el VPS para overrides locales (opcional).
+# cp scripts/seed.local.sh.example scripts/seed.local.sh
+
+# SEED_NOTIFY_TO="otro@email.com"
+# SEED_NOTIFY_WHATSAPP_TO="18290000000"

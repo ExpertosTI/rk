@@ -5,7 +5,9 @@ dist/
 .env.*
 !.env.example
 .smtp.local
+.evolution.local
 scripts/smtp.secret
+scripts/seed.local.sh
 .DS_Store
 
 # Assets grandes

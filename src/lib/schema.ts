@@ -29,6 +29,12 @@ export const creditFormSchema = z.object({
       message: 'Correo electrónico no válido',
     }),
   ingresos: z.string().min(1, 'Ingresa tus ingresos mensuales'),
+  cuotaMensual: z
+    .string()
+    .min(1, 'Indica cuánto podrías pagar al mes')
+    .refine((v) => parseCurrency(v) >= 1_000, {
+      message: 'Ingresa un monto mensual válido (mín. RD$1,000)',
+    }),
   provincia: z.string().min(1, 'Selecciona tu provincia o ciudad'),
   numeroCedula: z
     .string()
@@ -55,4 +61,4 @@ export const creditFormSchema = z.object({
 export type CreditFormData = z.infer<typeof creditFormSchema>;
 
 export const step1Fields = ['producto', 'monto', 'plazo', 'garantia'] as const;
-export const step2Fields = ['nombre', 'whatsapp', 'email', 'ingresos', 'provincia'] as const;
+export const step2Fields = ['nombre', 'whatsapp', 'email', 'ingresos', 'cuotaMensual', 'provincia'] as const;

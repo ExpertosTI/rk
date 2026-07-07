@@ -1,26 +1,44 @@
-# Notificaciones por correo — RK Inversiones
+# Notificaciones — RK Inversiones
 
-## Remitente
-`info@renace.tech` vía SMTP Hostinger (`smtp.hostinger.com:465`).
+Correo vía **info@renace.tech** (Hostinger). WhatsApp automático cuando esté **Evolution API** en el VPS.
 
-## Destinatarios
-- **Equipo RK:** alerta por cada solicitud nueva completada
-- **Solicitante:** confirmación automática si dejó correo en el formulario
+Todo se configura con **seed** — no editar `.env` a mano.
 
-## Configuración en VPS
+## SMTP (activo)
 
-1. Crear `/opt/rk/.smtp.local` con la clave del buzón Hostinger (una línea, sin espacios extra).
-2. Ejecutar `./deploy.sh` — el seed lee `.smtp.local` y guarda todo en `/root/.rk-inversiones-credentials.txt`.
-3. En despliegues siguientes, si falta `.smtp.local`, se restaura desde el archivo de credenciales.
+```bash
+cd /opt/rk
+echo 'TU_CLAVE_SMTP' > .smtp.local
+chmod 600 .smtp.local
+npm run seed
+```
 
-## Seguridad
-- Clave SMTP **nunca** en git ni en variables `PUBLIC_*`
-- Servicio `notify` valida la solicitud en Insforge antes de enviar
-- Límite de peticiones por IP
-- Campo `notificada_email_at` evita correos duplicados
+El seed genera `.env` con `SMTP_USER=info@renace.tech` y la clave desde `.smtp.local`.
+
+## WhatsApp (Evolution API — próximo paso)
+
+Cuando tengas la instancia Evolution:
+
+```bash
+cp evolution.local.example .evolution.local
+# Editar URL, API key e instance
+npm run seed && ./deploy.sh
+```
+
+Variables: `EVOLUTION_API_URL`, `EVOLUTION_API_KEY`, `EVOLUTION_INSTANCE`.
+
+Mientras Evolution no esté lista, el landing usa enlaces `wa.me` para contacto manual. El servicio `notify` envía **solo correo**.
 
 ## Verificación
+
 ```bash
 curl -s https://rk.renace.tech/api/notify/healthz
 ```
-Debe responder `smtp: true` cuando la clave está configurada.
+
+- `"smtp":true` — correo listo
+- `"whatsapp":true` — Evolution conectada
+
+## Seguridad
+
+- Claves **nunca** en git
+- `.smtp.local` y `.evolution.local` solo en el VPS

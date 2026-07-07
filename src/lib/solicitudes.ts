@@ -1,6 +1,7 @@
 import type { ProductKey } from './constants';
 import type { CreditFormData } from './schema';
 import type { GARANTIA_LABELS } from './constants';
+import { parseCurrency } from './formatters';
 import {
   insforgeInsert,
   insforgePatch,
@@ -9,7 +10,8 @@ import {
   insforgeDelete,
   probeInsforge,
 } from './insforge';
-import { notifyNuevaSolicitud } from './notify';
+import { notifyNuevaSolicitud, notifyEstadoSolicitud } from './notify';
+import { calcularPuntuacion, calcularPuntuacionForm, type ResultadoPuntuacion } from './scoring';
 
 export type SolicitudEstado = 'nueva' | 'revision' | 'aprobada' | 'rechazada' | 'cerrada' | 'borrador';
 
@@ -26,6 +28,7 @@ export interface SolicitudRow {
   whatsapp: string | null;
   email: string | null;
   ingresos: string | null;
+  cuota_mensual?: string | null;
   provincia: string | null;
   comentarios: string | null;
   numero_cedula?: string | null;
@@ -38,6 +41,12 @@ export interface SolicitudRow {
   progreso_campos: Record<string, boolean> | null;
   completada: boolean;
   notificada_email_at?: string | null;
+  notificada_whatsapp_at?: string | null;
+  notificada_aprobada_at?: string | null;
+  notificada_rechazada_at?: string | null;
+  puntuacion?: number | null;
+  cuota_estimada?: number | null;
+  ratio_pago_pct?: number | null;
   session_id: string | null;
   origen: string;
   user_agent?: string | null;
@@ -56,6 +65,7 @@ export interface DocumentoRow {
 
 export interface Solicitud extends Omit<SolicitudRow, 'created_at' | 'updated_at'> {
   fecha: string;
+  score?: ResultadoPuntuacion;
 }
 
 const SESSION_KEY = 'rk_session';
@@ -92,12 +102,41 @@ export function resetSolicitudSession() {
 }
 
 function rowToSolicitud(row: SolicitudRow): Solicitud {
+  const score = calcularPuntuacion({
+    producto: row.producto,
+    monto: row.monto,
+    plazo: row.plazo,
+    garantia: row.garantia,
+    ingresos: row.ingresos,
+    cuotaMensual: row.cuota_mensual,
+    email: row.email,
+    numeroCedula: row.numero_cedula,
+    comentarios: row.comentarios,
+    completada: row.completada,
+    progreso_pct: row.progreso_pct,
+    paso_actual: row.paso_actual,
+    cedula_recibida: row.cedula_recibida,
+    autoriza_datos: row.autoriza_datos,
+    acepta_privacidad: row.acepta_privacidad,
+    acepta_terminos: row.acepta_terminos,
+    progreso_campos: row.progreso_campos,
+  });
   return {
     ...row,
     fecha: row.created_at,
     producto: row.producto,
     garantia: row.garantia,
     estado: row.estado,
+    puntuacion: row.puntuacion ?? score.total,
+    score,
+  };
+}
+
+function scoringToRow(score: ResultadoPuntuacion) {
+  return {
+    puntuacion: score.total,
+    cuota_estimada: score.cuotaEstimada,
+    ratio_pago_pct: score.ratioPagoPct,
   };
 }
 
@@ -114,6 +153,12 @@ function formToRow(
   },
 ): Record<string, unknown> {
   const ts = nowIso();
+  const score = calcularPuntuacionForm(data, {
+    completada: opts.completada,
+    progreso_pct: opts.progresoPct,
+    paso_actual: opts.paso,
+    cedula_recibida: Boolean(data.cedulaData && data.cedulaData.length > 80),
+  });
   return {
     id,
     updated_at: ts,
@@ -126,6 +171,7 @@ function formToRow(
     whatsapp: data.whatsapp || null,
     email: data.email || null,
     ingresos: data.ingresos || null,
+    cuota_mensual: data.cuotaMensual ? String(parseCurrency(data.cuotaMensual)) : null,
     provincia: data.provincia || null,
     comentarios: data.comentarios || null,
     numero_cedula: data.numeroCedula ? data.numeroCedula.replace(/\D/g, '') : null,
@@ -140,6 +186,7 @@ function formToRow(
     session_id: sessionId,
     origen: 'web',
     user_agent: typeof navigator !== 'undefined' ? navigator.userAgent.slice(0, 200) : null,
+    ...scoringToRow(score),
   };
 }
 
@@ -318,7 +365,12 @@ export async function fetchAllSolicitudesAdmin(): Promise<{
 
 export async function updateSolicitudEstado(id: string, estado: SolicitudEstado) {
   const patch = { estado, updated_at: nowIso() };
-  return insforgePatch('rk_solicitudes', id, patch, 'anon');
+  const result = await insforgePatch('rk_solicitudes', id, patch, 'anon');
+  let notify: { ok: boolean; error?: string; email?: boolean; whatsapp?: boolean } | undefined;
+  if (result.ok && (estado === 'aprobada' || estado === 'rechazada')) {
+    notify = await notifyEstadoSolicitud(id, estado);
+  }
+  return { ...result, notify };
 }
 
 export async function deleteSolicitud(id: string) {

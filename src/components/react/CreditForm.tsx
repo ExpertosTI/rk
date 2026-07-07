@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, ArrowRight, CircleCheck, MessageCircle } from 'lucide-react';
 import {
   BRAND,
+  MARKETING,
   PRODUCTS,
   PLAZOS,
   PROVINCIAS,
@@ -42,10 +43,10 @@ const TOTAL_STEPS = 3;
 
 const TRANSITION_MSG: Record<number, string> = {
   1: 'El buró de crédito está verificando tu información...',
-  2: 'Analizando tu perfil — preparando la aprobación de tu préstamo...',
+  2: 'Analizando tu perfil — aprobación inmediata en proceso...',
 };
 
-const SUBMIT_MSG = 'Verificando con el buró y confirmando tu préstamo...';
+const SUBMIT_MSG = 'Confirmando tu aprobación inmediata...';
 
 export default function CreditForm({ initialProduct }: Props) {
   const [step, setStep] = useState(1);
@@ -73,6 +74,7 @@ export default function CreditForm({ initialProduct }: Props) {
       whatsapp: '',
       email: '',
       ingresos: '',
+      cuotaMensual: '',
       provincia: '',
       numeroCedula: '',
       comentarios: '',
@@ -182,6 +184,7 @@ export default function CreditForm({ initialProduct }: Props) {
       whatsapp: '',
       email: '',
       ingresos: '',
+      cuotaMensual: '',
       provincia: '',
       numeroCedula: '',
       comentarios: '',
@@ -349,6 +352,24 @@ export default function CreditForm({ initialProduct }: Props) {
               {errors.ingresos && <div className="error-msg">{errors.ingresos.message}</div>}
             </div>
 
+            <div className="field">
+              <label htmlFor="cuotaMensual">
+                ¿Cuánto podrías pagar al mes? (RD$) <span className="req">*</span>
+              </label>
+              <input
+                id="cuotaMensual"
+                type="text"
+                inputMode="numeric"
+                placeholder="Ej. RD$12,000"
+                className={`input-modern${errors.cuotaMensual ? ' error' : ''}`}
+                {...register('cuotaMensual', {
+                  onChange: (e) => { e.target.value = formatCurrency(e.target.value); },
+                })}
+              />
+              <div className="hint">Cuota mensual que te resulta cómoda pagar</div>
+              {errors.cuotaMensual && <div className="error-msg">{errors.cuotaMensual.message}</div>}
+            </div>
+
             <Controller
               name="provincia"
               control={control}
@@ -480,14 +501,14 @@ export default function CreditForm({ initialProduct }: Props) {
             <div className="bureau-banner">
               <span className="bureau-banner-dot" />
               <div>
-                <strong>Buró de crédito en verificación</strong>
-                <span>Tu solicitud fue recibida y estamos confirmando la aprobación de tu préstamo.</span>
+                <strong>Aprobación inmediata en proceso</strong>
+                <span>Tu solicitud fue recibida. Estamos confirmando tu préstamo con respuesta rápida.</span>
               </div>
             </div>
 
             <p className="confirm-text">
-              {firstName}, en breve te contactamos por WhatsApp con la respuesta de aprobación.
-              La mayoría de solicitudes se aprueban en menos de 2 horas.
+              {firstName}, te contactamos por WhatsApp con tu respuesta.
+              {` ${MARKETING.approval}.`} {BRAND.slogan} — sin demoras ni procesos complicados.
             </p>
 
             <div className="summary">
@@ -500,6 +521,7 @@ export default function CreditForm({ initialProduct }: Props) {
                 ['WhatsApp', submission.whatsapp],
                 ...(submission.email ? [['Email', submission.email]] : []),
                 ['Ingresos', submission.ingresos],
+                ['Pago mensual', submission.cuotaMensual],
                 ['Ubicación', submission.provincia],
                 ['Cédula', 'Recibida ✓'],
                 ['Referencia', submission.id],

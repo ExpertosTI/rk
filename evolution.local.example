@@ -1,0 +1,6 @@
+# Evolution API — cuando esté lista la instancia en el VPS
+# cp evolution.local.example .evolution.local
+
+EVOLUTION_API_URL=https://tu-servidor-evolution.com
+EVOLUTION_API_KEY=tu-api-key
+EVOLUTION_INSTANCE=rk

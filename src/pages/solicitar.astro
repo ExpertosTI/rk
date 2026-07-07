@@ -4,7 +4,7 @@ import CreditForm from '../components/react/CreditForm';
 import TrustBadges from '../components/react/TrustBadges';
 import LegalFooter from '../components/LegalFooter.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
-import type { ProductKey } from '../lib/constants';
+import { MARKETING, type ProductKey } from '../lib/constants';
 
 const producto = Astro.url.searchParams.get('producto');
 const validProducts = ['apartamentos', 'casas', 'vehiculos', 'solares'];
@@ -16,7 +16,7 @@ const initialProduct = validProducts.includes(producto ?? '')
 <FormLayout>
   <h1 class="form-title">Tu solicitud de crédito</h1>
   <p class="form-subtitle">
-    Completa el formulario y un asesor de RK te contacta por WhatsApp.
+    {MARKETING.approval}. Completa el formulario y un asesor te contacta por WhatsApp.
   </p>
 
   <TrustBadges client:load />

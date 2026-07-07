@@ -3,8 +3,28 @@ export const BRAND = {
   slogan: 'Dinero Rápido y Fácil',
   phone: '829-669-8958',
   whatsapp: '18296698958',
+  email: 'info@renace.tech',
   minAmount: 50_000,
-  advisor: 'Equipo RK',
+  advisor: 'Juan Camacho',
+  advisorRole: 'Oficial de crédito',
+  city: 'Santo Domingo',
+  country: 'República Dominicana',
+} as const;
+
+/** Mensajes comerciales RK (landing, formulario, badges) */
+export const MARKETING = {
+  approval: 'Aprobación inmediata',
+  badges: [
+    'Aprobación inmediata',
+    'Dinero rápido y fácil',
+    'Sin importar tu historial',
+  ] as const,
+  highlights: [
+    'Aprobación inmediata',
+    'Dinero rápido y fácil',
+    'Sin importar tu historial',
+    'Hasta 60 meses para pagar',
+  ] as const,
 } as const;
 
 export const ADMIN = {
