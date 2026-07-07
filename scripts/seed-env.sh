@@ -91,15 +91,59 @@ for key in TRANSUNION_CLIENT_ID TRANSUNION_CLIENT_SECRET TRANSUNION_TOKEN_URL TR
   [ -n "$val" ] && upsert_env "$key" "$val" "$ENV_FILE"
 done
 
-if [ -n "$NEW_PIN" ] && [ -w "$(dirname "$CRED_FILE")" ] 2>/dev/null; then
+# Correo Hostinger — info@renace.tech (clave en .smtp.local, nunca en git)
+SMTP_LOCAL="$ROOT/.smtp.local"
+SMTP_PASS="$(env_get SMTP_PASS "$ENV_FILE")"
+if [ -z "$SMTP_PASS" ] && [ -f "$SMTP_LOCAL" ]; then
+  SMTP_PASS="$(tr -d '\r\n' < "$SMTP_LOCAL")"
+fi
+if [ -z "$SMTP_PASS" ] && [ -f "$CRED_FILE" ]; then
+  SMTP_PASS="$(grep '^SMTP_PASS=' "$CRED_FILE" 2>/dev/null | tail -1 | cut -d= -f2- || true)"
+fi
+
+for pair in \
+  "SMTP_HOST:smtp.hostinger.com" \
+  "SMTP_PORT:465" \
+  "SMTP_SECURE:true" \
+  "SMTP_USER:info@renace.tech"; do
+  key="${pair%%:*}"
+  default="${pair#*:}"
+  if [ -z "$(env_get "$key" "$ENV_FILE")" ]; then
+    upsert_env "$key" "$default" "$ENV_FILE"
+  fi
+done
+[ -n "$SMTP_PASS" ] && upsert_env "SMTP_PASS" "$SMTP_PASS" "$ENV_FILE"
+
+if [ -z "$(env_get NOTIFY_TO "$ENV_FILE")" ]; then
+  upsert_env "NOTIFY_TO" "jcamacho-gomez@hotmail.com" "$ENV_FILE"
+fi
+if [ -z "$(env_get NOTIFY_FROM "$ENV_FILE")" ]; then
+  upsert_env "NOTIFY_FROM" "RK Inversiones <info@renace.tech>" "$ENV_FILE"
+fi
+if [ -z "$(env_get NOTIFY_SECRET "$ENV_FILE")" ]; then
+  upsert_env "NOTIFY_SECRET" "$(openssl rand -hex 24)" "$ENV_FILE"
+fi
+
+write_credentials_file() {
+  [ -w "$(dirname "$CRED_FILE")" ] 2>/dev/null || return 0
+  local pin_line=""
+  [ -n "$NEW_PIN" ] && pin_line="PUBLIC_ADMIN_PIN=$NEW_PIN"
   {
     echo "RK Inversiones — credenciales $(date -Iseconds)"
     echo "Admin panel: https://rk.renace.tech/admin"
-    echo "PUBLIC_ADMIN_PIN=$NEW_PIN"
+    [ -n "$pin_line" ] && echo "$pin_line"
+    echo "SMTP_USER=$(env_get SMTP_USER "$ENV_FILE")"
+    echo "SMTP_PASS=$(env_get SMTP_PASS "$ENV_FILE")"
+    echo "NOTIFY_TO=$(env_get NOTIFY_TO "$ENV_FILE")"
+    echo "NOTIFY_FROM=$(env_get NOTIFY_FROM "$ENV_FILE")"
     echo ""
-    echo "Guarde en gestor de contraseñas. No se vuelve a mostrar en consola."
+    echo "Archivo confidencial. No compartir ni subir a repositorios."
   } > "$CRED_FILE"
   chmod 600 "$CRED_FILE"
+}
+
+if [ -n "$NEW_PIN" ] || [ -n "$(env_get SMTP_PASS "$ENV_FILE")" ]; then
+  write_credentials_file
   green "   Credenciales guardadas en $CRED_FILE"
 fi
 
@@ -107,3 +151,4 @@ green "✅ .env listo ($(wc -l < "$ENV_FILE" | tr -d ' ') variables)"
 if [ -n "$NEW_PIN" ]; then
   cyan "   PIN admin (solo esta vez): $NEW_PIN"
 fi
+green "   Correo: $(env_get SMTP_USER "$ENV_FILE") → $(env_get NOTIFY_TO "$ENV_FILE")"

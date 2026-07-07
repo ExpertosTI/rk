@@ -85,6 +85,36 @@ services:
           cpus: "0.25"
           memory: 128M
 
+  notify:
+    image: rk-notify:latest
+    build:
+      context: ./services/notify
+      dockerfile: Dockerfile
+    environment:
+      PORT: "8788"
+      SMTP_HOST: ${SMTP_HOST:-smtp.hostinger.com}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER:-info@renace.tech}
+      SMTP_PASS: ${SMTP_PASS:-}
+      NOTIFY_FROM: ${NOTIFY_FROM:-RK Inversiones <info@renace.tech>}
+      NOTIFY_TO: ${NOTIFY_TO:-jcamacho-gomez@hotmail.com}
+      NOTIFY_SECRET: ${NOTIFY_SECRET:-}
+      ADMIN_URL: https://rk.renace.tech/admin
+      INSFORGE_URL: http://insforge_postgrest:3000
+      INSFORGE_SERVICE_KEY: ${INSFORGE_SERVICE_KEY:-}
+    networks:
+      - RenaceNet
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+
 networks:
   RenaceNet:
     external: true

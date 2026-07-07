@@ -8,6 +8,7 @@ import {
   insforgeUpsert,
   probeInsforge,
 } from './insforge';
+import { notifyNuevaSolicitud } from './notify';
 
 export type SolicitudEstado = 'nueva' | 'revision' | 'aprobada' | 'rechazada' | 'cerrada' | 'borrador';
 
@@ -35,6 +36,7 @@ export interface SolicitudRow {
   progreso_pct: number;
   progreso_campos: Record<string, boolean> | null;
   completada: boolean;
+  notificada_email_at?: string | null;
   session_id: string | null;
   origen: string;
   user_agent?: string | null;
@@ -256,6 +258,7 @@ export async function submitSolicitud(data: CreditFormData, progresoPct: number)
       progresoPct: 100,
       payload: { producto: data.producto, monto: data.monto },
     });
+    void notifyNuevaSolicitud(id);
   } else {
     console.warn('[RK] submit sync failed, saving locally:', result.error);
     saveLocal(solicitud);

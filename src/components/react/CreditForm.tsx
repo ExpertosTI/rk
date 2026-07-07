@@ -488,6 +488,9 @@ export default function CreditForm({ initialProduct }: Props) {
             <p className="confirm-text">
               {firstName}, en breve te contactamos por WhatsApp con la respuesta de aprobación.
               La mayoría de solicitudes se aprueban en menos de 2 horas.
+              {submission.email && (
+                <> También enviamos confirmación a <strong>{submission.email}</strong>.</>
+              )}
             </p>
 
             <div className="summary">

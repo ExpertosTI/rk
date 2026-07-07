@@ -26,6 +26,7 @@ create table if not exists rk_solicitudes (
   progreso_pct integer not null default 0,
   progreso_campos jsonb,
   completada boolean not null default false,
+  notificada_email_at timestamptz,
   session_id text,
   origen text not null default 'web',
   user_agent text

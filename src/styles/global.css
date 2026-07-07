@@ -601,6 +601,28 @@ body {
   background: #0a2438;
 }
 
+.btn-mail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: white;
+  color: var(--rk-navy);
+  border: 1.5px solid var(--rk-border);
+  border-radius: var(--rk-radius-btn);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.btn-mail:hover {
+  border-color: var(--rk-navy);
+  background: #F8FAFC;
+}
+
 @media (max-width: 400px) {
   .product-grid-list { grid-template-columns: 1fr; }
 }
@@ -1041,6 +1063,88 @@ body {
 
 .admin-header-actions { display: flex; gap: 8px; }
 
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-stat-card {
+  background: white;
+  border: 1px solid var(--rk-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.admin-stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--rk-navy);
+  line-height: 1.1;
+}
+
+.admin-stat-label {
+  font-size: 12px;
+  color: var(--rk-text-muted);
+  font-weight: 600;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-filter-btn {
+  padding: 8px 14px;
+  border: 1.5px solid var(--rk-border);
+  border-radius: 999px;
+  background: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--rk-font);
+  color: var(--rk-text-muted);
+}
+
+.admin-filter-btn.active {
+  background: var(--rk-navy);
+  border-color: var(--rk-navy);
+  color: white;
+}
+
+.admin-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1.5px solid var(--rk-border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-width: min(100%, 280px);
+}
+
+.admin-search input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: var(--rk-font);
+  width: 100%;
+  background: transparent;
+}
+
 .admin-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1293,6 +1397,7 @@ body {
 @media (max-width: 768px) {
   .admin-layout { grid-template-columns: 1fr; }
   .admin-detail { position: static; }
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
   .segment-group { grid-template-columns: 1fr; }
 }
 

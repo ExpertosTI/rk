@@ -35,7 +35,9 @@ export default function StepProgress({
         <span className="step-label">
           Paso {step} de {total} — {STEP_TITLES[step - 1]}
         </span>
-        <span className="step-pct">{overallPct}%</span>
+        <span className="step-pct step-pct-total" aria-label="Progreso total">
+          Total {overallPct}%
+        </span>
       </div>
 
       <div
@@ -57,11 +59,11 @@ export default function StepProgress({
             <circle className="ring-bg" cx="18" cy="18" r="15.5" />
             <circle className="ring-fill" cx="18" cy="18" r="15.5" />
           </svg>
-          <span className="ring-label">{stepPct}%</span>
+          <span className="ring-label">{filled}/{fieldTotal}</span>
         </div>
         <div className="step-progress-copy">
           <strong>{filled} de {fieldTotal} campos</strong>
-          <span>completados en este paso</span>
+          <span>completados en este paso ({stepPct}%)</span>
         </div>
       </div>
 

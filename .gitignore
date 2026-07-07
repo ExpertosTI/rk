@@ -4,6 +4,7 @@ dist/
 .env
 .env.*
 !.env.example
+.smtp.local
 .DS_Store
 
 # Assets grandes

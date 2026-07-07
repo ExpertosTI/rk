@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Cloud, CloudOff, FileImage, LogOut, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Cloud, CloudOff, FileImage, LogOut, Mail, MessageCircle, RefreshCw, Search, ShieldCheck,
+} from 'lucide-react';
 import { PRODUCTS, GARANTIA_LABELS } from '../../lib/constants';
 import { whatsappLink } from '../../lib/whatsapp';
 import { base64ToBlobUrl } from '../../lib/upload';
@@ -31,6 +33,16 @@ const STATUS_COLORS: Record<string, string> = {
   cerrada: '#888',
 };
 
+type FilterKey = 'todas' | 'nuevas' | 'revision' | 'borradores' | 'cerradas';
+
+const FILTERS: { key: FilterKey; label: string }[] = [
+  { key: 'todas', label: 'Todas' },
+  { key: 'nuevas', label: 'Nuevas' },
+  { key: 'revision', label: 'En revisión' },
+  { key: 'borradores', label: 'Borradores' },
+  { key: 'cerradas', label: 'Cerradas' },
+];
+
 export default function AdminInbox({ onLogout }: Props) {
   const [items, setItems] = useState<Solicitud[]>([]);
   const [drafts, setDrafts] = useState<Solicitud[]>([]);
@@ -43,6 +55,8 @@ export default function AdminInbox({ onLogout }: Props) {
   const [bureauConsultas, setBureauConsultas] = useState<BureauConsulta[]>([]);
   const [bureauLoading, setBureauLoading] = useState(false);
   const [bureauError, setBureauError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterKey>('todas');
+  const [search, setSearch] = useState('');
 
   async function loadBureau(solicitudId: string) {
     const res = await fetchConsultasBuro(solicitudId);
@@ -135,10 +149,36 @@ export default function AdminInbox({ onLogout }: Props) {
   }
 
   const nuevas = items.filter((i) => i.estado === 'nueva').length;
+  const enRevision = items.filter((i) => i.estado === 'revision').length;
+  const aprobadas = items.filter((i) => i.estado === 'aprobada').length;
   const allRows = [...items, ...drafts];
 
+  const filteredRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return allRows.filter((item) => {
+      if (filter === 'nuevas' && (item.estado !== 'nueva' || !item.completada)) return false;
+      if (filter === 'revision' && item.estado !== 'revision') return false;
+      if (filter === 'borradores' && item.completada) return false;
+      if (filter === 'cerradas' && !['cerrada', 'rechazada'].includes(item.estado)) return false;
+      if (!q) return true;
+      const hay = [
+        item.nombre,
+        item.id,
+        item.whatsapp,
+        item.email,
+        item.producto ? PRODUCTS[item.producto] : '',
+        item.monto,
+      ].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }, [allRows, filter, search]);
+
   function displayName(item: Solicitud) {
-    return item.nombre?.trim() || `Borrador ${item.progreso_pct}%`;
+    return item.nombre?.trim() || 'Borrador sin nombre';
+  }
+
+  function draftBadge(item: Solicitud) {
+    return item.completada ? item.estado : `${item.progreso_pct}% · paso ${item.paso_actual}`;
   }
 
   return (
@@ -169,15 +209,58 @@ export default function AdminInbox({ onLogout }: Props) {
         </div>
       </header>
 
+      <div className="admin-stats">
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">{nuevas}</span>
+          <span className="admin-stat-label">Nuevas</span>
+        </div>
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">{enRevision}</span>
+          <span className="admin-stat-label">En revisión</span>
+        </div>
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">{aprobadas}</span>
+          <span className="admin-stat-label">Aprobadas</span>
+        </div>
+        <div className="admin-stat-card">
+          <span className="admin-stat-value">{drafts.length}</span>
+          <span className="admin-stat-label">Borradores</span>
+        </div>
+      </div>
+
+      <div className="admin-toolbar">
+        <div className="admin-filters">
+          {FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={`admin-filter-btn${filter === f.key ? ' active' : ''}`}
+              onClick={() => setFilter(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <label className="admin-search">
+          <Search size={16} />
+          <input
+            type="search"
+            placeholder="Buscar nombre, ref, teléfono…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </label>
+      </div>
+
       <div className="admin-layout">
         <div className="admin-list">
-          {allRows.length === 0 && !loading && (
-            <p className="admin-empty">No hay solicitudes aún. Envía una desde el formulario público.</p>
+          {filteredRows.length === 0 && !loading && (
+            <p className="admin-empty">No hay solicitudes con este filtro.</p>
           )}
-          {loading && allRows.length === 0 && (
+          {loading && filteredRows.length === 0 && (
             <p className="admin-empty">Cargando desde Insforge...</p>
           )}
-          {allRows.map((item) => (
+          {filteredRows.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -187,7 +270,7 @@ export default function AdminInbox({ onLogout }: Props) {
               <div className="admin-row-top">
                 <strong>{displayName(item)}</strong>
                 <span className="admin-status" style={{ background: STATUS_COLORS[item.estado] ?? '#888' }}>
-                  {item.completada ? item.estado : `borrador ${item.progreso_pct}%`}
+                  {draftBadge(item)}
                 </span>
               </div>
               <div className="admin-row-meta">
@@ -269,6 +352,8 @@ export default function AdminInbox({ onLogout }: Props) {
                   <dt>Autoriza datos</dt><dd>{selected.autoriza_datos ? 'Sí' : 'No'}</dd>
                   <dt>Privacidad</dt><dd>{selected.acepta_privacidad ? 'Aceptada' : 'No'}</dd>
                   <dt>Cédula</dt><dd>{selected.cedula_recibida ? 'Recibida' : 'Pendiente'}</dd>
+                  <dt>Correo enviado</dt>
+                  <dd>{selected.notificada_email_at ? new Date(selected.notificada_email_at).toLocaleString('es-DO') : 'Pendiente'}</dd>
                 </>
               )}
             </dl>
@@ -346,6 +431,16 @@ export default function AdminInbox({ onLogout }: Props) {
               >
                 <MessageCircle size={18} />
                 Abrir WhatsApp
+              </a>
+            )}
+
+            {selected.email && (
+              <a
+                className="btn-mail"
+                href={`mailto:${selected.email}?subject=${encodeURIComponent(`RK Inversiones — solicitud ${selected.id}`)}`}
+              >
+                <Mail size={18} />
+                Responder por correo
               </a>
             )}
           </div>
