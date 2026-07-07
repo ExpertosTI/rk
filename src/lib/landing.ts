@@ -44,7 +44,6 @@ export const VEHICULOS_PAGE = {
 
 export const FOOTER = {
   phone: BRAND.phone,
-  email: BRAND.email,
   whatsapp: BRAND.whatsapp,
   slogan: BRAND.slogan,
 } as const;

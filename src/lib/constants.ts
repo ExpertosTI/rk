@@ -3,7 +3,6 @@ export const BRAND = {
   slogan: 'Dinero Rápido y Fácil',
   phone: '829-669-8958',
   whatsapp: '18296698958',
-  email: 'info@renace.tech',
   minAmount: 50_000,
   advisor: 'Juan Camacho',
   advisorRole: 'Oficial de crédito',

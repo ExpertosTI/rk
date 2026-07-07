@@ -17,7 +17,12 @@ const SMTP = {
 const NOTIFY_TO = process.env.NOTIFY_TO || '';
 const NOTIFY_FROM = process.env.NOTIFY_FROM || 'RK Inversiones';
 const BRAND_PHONE = process.env.BRAND_PHONE || '';
-const BRAND_EMAIL = SMTP.user || NOTIFY_FROM.replace(/^.*<([^>]+)>.*$/, '$1').trim();
+
+const mailSignature = () => {
+  const lines = ['RK Inversiones'];
+  if (BRAND_PHONE) lines.push(`WhatsApp: ${BRAND_PHONE}`);
+  return lines.join('\n');
+};
 
 const WHATSAPP = {
   to: process.env.NOTIFY_WHATSAPP_TO || '',
@@ -184,7 +189,7 @@ function buildTeamMail(row) {
     '',
     `Panel admin: ${ADMIN_URL}`,
     '',
-    `— RK Inversiones (${BRAND_EMAIL || 'contacto'})`,
+    '— RK Inversiones',
   ];
 
   return {
@@ -232,8 +237,7 @@ function buildApplicantMail(row) {
     '',
     `Si tienes preguntas, escríbenos por WhatsApp al ${BRAND_PHONE || 'nuestro número'}.`,
     '',
-    'RK Inversiones',
-    BRAND_EMAIL,
+    mailSignature(),
   ].join('\n');
 
   return { subject, text };
@@ -278,8 +282,7 @@ function buildDecisionMail(row, estado) {
         '',
         BRAND_PHONE ? `Teléfono / WhatsApp: ${BRAND_PHONE}` : '',
         '',
-        'RK Inversiones',
-        BRAND_EMAIL,
+        mailSignature(),
       ].filter(Boolean).join('\n')
     : [
         `Hola ${nombre},`,
@@ -295,8 +298,7 @@ function buildDecisionMail(row, estado) {
           ? `Si deseas más información o evaluar otras opciones, escríbenos al ${BRAND_PHONE}.`
           : 'Si deseas más información, contáctanos por WhatsApp.',
         '',
-        'RK Inversiones',
-        BRAND_EMAIL,
+        mailSignature(),
       ].join('\n');
 
   return { subject, text };
@@ -359,11 +361,10 @@ function buildStatusMail(row, estado) {
         `Monto: ${row.monto || '—'}`,
         '',
         BRAND_PHONE
-          ? `Si tienes preguntas, escríbenos al ${BRAND_PHONE} o responde a este correo.`
-          : 'Si tienes preguntas, responde a este correo.',
+          ? `Si tienes preguntas, escríbenos por WhatsApp al ${BRAND_PHONE}.`
+          : 'Si tienes preguntas, contáctanos por WhatsApp.',
         '',
-        'RK Inversiones',
-        BRAND_EMAIL,
+        mailSignature(),
       ].join('\n'),
     };
   }
@@ -383,8 +384,7 @@ function buildStatusMail(row, estado) {
           ? `Para retomar el proceso o una nueva solicitud, contáctanos al ${BRAND_PHONE}.`
           : 'Para retomar el proceso, contáctanos por WhatsApp.',
         '',
-        'RK Inversiones',
-        BRAND_EMAIL,
+        mailSignature(),
       ].join('\n'),
     };
   }
