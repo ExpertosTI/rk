@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Lock, Inbox } from 'lucide-react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Inbox } from 'lucide-react';
 import { ADMIN, BRAND } from '../../lib/constants';
-import AdminInbox from './AdminInbox';
+
+const AdminInbox = lazy(() => import('./AdminInbox'));
 
 const LOCK_KEY = 'rk_admin_lock';
 const ATTEMPTS_KEY = 'rk_admin_attempts';
 
 export default function AdminLogin() {
   const [authed, setAuthed] = useState(false);
-  const [ready, setReady] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [lockedUntil, setLockedUntil] = useState(0);
@@ -16,7 +16,6 @@ export default function AdminLogin() {
   useEffect(() => {
     setAuthed(sessionStorage.getItem('rk_admin') === '1');
     setLockedUntil(Number(sessionStorage.getItem(LOCK_KEY) || 0));
-    setReady(true);
   }, []);
 
   function login(e: React.FormEvent) {
@@ -50,15 +49,22 @@ export default function AdminLogin() {
     }
   }
 
-  if (!ready) return null;
   if (authed) {
     return (
-      <AdminInbox
-        onLogout={() => {
-          sessionStorage.removeItem('rk_admin');
-          setAuthed(false);
-        }}
-      />
+      <Suspense
+        fallback={(
+          <div className="admin-login">
+            <p className="admin-empty">Cargando panel…</p>
+          </div>
+        )}
+      >
+        <AdminInbox
+          onLogout={() => {
+            sessionStorage.removeItem('rk_admin');
+            setAuthed(false);
+          }}
+        />
+      </Suspense>
     );
   }
 

@@ -118,15 +118,20 @@ export default function AdminInbox({ onLogout }: Props) {
 
   async function load(opts?: { silent?: boolean }) {
     if (!opts?.silent) setLoading(true);
-    const data = await fetchAllSolicitudesAdmin();
-    setItems(data.items);
-    setDrafts(data.drafts);
-    setLoadFailed(Boolean(data.error));
-    if (selected) {
-      const all = [...data.items, ...data.drafts];
-      setSelected(all.find((d) => d.id === selected.id) ?? null);
+    try {
+      const data = await fetchAllSolicitudesAdmin();
+      setItems(data.items);
+      setDrafts(data.drafts);
+      setLoadFailed(Boolean(data.error));
+      if (selected) {
+        const all = [...data.items, ...data.drafts];
+        setSelected(all.find((d) => d.id === selected.id) ?? null);
+      }
+    } catch {
+      setLoadFailed(true);
+    } finally {
+      if (!opts?.silent) setLoading(false);
     }
-    if (!opts?.silent) setLoading(false);
   }
 
   useEffect(() => {

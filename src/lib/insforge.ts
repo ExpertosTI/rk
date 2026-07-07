@@ -50,15 +50,24 @@ function headers(key: 'anon' | 'service', prefer = 'return=representation') {
   };
 }
 
+async function insforgeFetch(url: string, init?: RequestInit, timeoutMs = 20_000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: ctrl.signal, cache: 'no-store' });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function probeInsforge(table = 'rk_solicitudes') {
   if (!insforgeEnabled()) {
     return { enabled: false, connected: false, endpoint: ENDPOINT, error: 'not_configured' };
   }
   try {
-    const res = await fetch(buildUrl(table, 'limit=1'), {
+    const res = await insforgeFetch(buildUrl(table, 'limit=1'), {
       method: 'GET',
       headers: headers('anon', 'return=minimal'),
-      cache: 'no-store',
     });
     const connected = res.ok || res.status === 404 || res.status === 406;
     return {
@@ -85,14 +94,13 @@ export async function insforgeUpsert(
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
-    const res = await fetch(buildUrl(table, `on_conflict=${encodeURIComponent(onConflict)}`), {
+    const res = await insforgeFetch(buildUrl(table, `on_conflict=${encodeURIComponent(onConflict)}`), {
       method: 'POST',
       headers: {
         ...headers(key),
         Prefer: 'resolution=merge-duplicates,return=representation',
       },
       body: JSON.stringify([row]),
-      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -112,10 +120,9 @@ export async function insforgeQuery<T = Record<string, unknown>>(
 ): Promise<InsforgeResult<T[]>> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
-    const res = await fetch(buildUrl(table, qs), {
+    const res = await insforgeFetch(buildUrl(table, qs), {
       method: 'GET',
       headers: headers(key, 'return=representation'),
-      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -136,11 +143,10 @@ export async function insforgePatch(
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
-    const res = await fetch(buildUrl(table, `id=eq.${encodeURIComponent(id)}`), {
+    const res = await insforgeFetch(buildUrl(table, `id=eq.${encodeURIComponent(id)}`), {
       method: 'PATCH',
       headers: headers(key),
       body: JSON.stringify(patch),
-      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
@@ -159,11 +165,10 @@ export async function insforgeInsert(
 ): Promise<InsforgeResult> {
   if (!insforgeEnabled()) return { ok: false, error: 'not_configured' };
   try {
-    const res = await fetch(buildUrl(table), {
+    const res = await insforgeFetch(buildUrl(table), {
       method: 'POST',
       headers: headers(key),
       body: JSON.stringify(Array.isArray(row) ? row : [row]),
-      cache: 'no-store',
     });
     if (!res.ok) {
       const text = await res.text().catch(() => '');
