@@ -50,6 +50,7 @@ wait_notify_smtp() {
 cyan "══════════════════════════════════════════════"
 cyan "  RK INVERSIONES — DESPLIEGUE PRODUCCIÓN"
 cyan "  https://${DOMAIN}"
+cyan "  Rama: ${DEPLOY_BRANCH}"
 cyan "══════════════════════════════════════════════"
 
 cyan "── 1. Sincronizar repo ────────────────────────"
