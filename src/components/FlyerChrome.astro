@@ -1,5 +1,6 @@
 ---
 import { BRAND } from '../lib/constants';
+import LandingIcon from './LandingIcon.astro';
 
 interface Props {
   active?: 'general' | 'vehiculos';
@@ -15,9 +16,21 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
     <span>{BRAND.name}</span>
   </a>
   <nav class="lk-nav__links" aria-label="Principal">
-    <a href="/" class:list={['lk-nav__link', active === 'general' && 'is-active']}>Inicio</a>
-    <a href="/vehiculos" class:list={['lk-nav__link', active === 'vehiculos' && 'is-active']}>Vehículos</a>
-    <a href="/solicitar" class="lk-nav__link">Solicitar</a>
+    <a href="/" class:list={['lk-nav__link', active === 'general' && 'is-active']}>
+      <LandingIcon name="home" size={16} />
+      Inicio
+    </a>
+    <a href="/vehiculos" class:list={['lk-nav__link', active === 'vehiculos' && 'is-active']}>
+      <LandingIcon name="car" size={16} />
+      Vehículos
+    </a>
+    <a href="/solicitar" class="lk-nav__link">
+      <LandingIcon name="send" size={16} />
+      Solicitar
+    </a>
   </nav>
-  <a href={waUrl} class="lk-nav__wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+  <a href={waUrl} class="lk-nav__wa" target="_blank" rel="noopener noreferrer">
+    <LandingIcon name="whatsapp" size={16} />
+    WhatsApp
+  </a>
 </header>

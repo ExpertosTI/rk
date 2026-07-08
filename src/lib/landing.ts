@@ -1,11 +1,33 @@
 import type { ProductKey } from './constants';
-import { BRAND, PRODUCTS } from './constants';
+import { BRAND, MARKETING, PRODUCTS } from './constants';
 
-export const PRODUCT_FORM_LINES: { key: ProductKey; label: string; desc: string }[] = [
-  { key: 'apartamentos', label: PRODUCTS.apartamentos, desc: 'Vivienda para tu familia' },
-  { key: 'casas', label: PRODUCTS.casas, desc: 'Casa propia o inversión' },
-  { key: 'vehiculos', label: PRODUCTS.vehiculos, desc: 'Nuevos y usados · 60 meses' },
-  { key: 'solares', label: PRODUCTS.solares, desc: 'Terrenos y proyectos' },
+export type LandingIconName =
+  | 'building'
+  | 'home'
+  | 'car'
+  | 'land'
+  | 'zap'
+  | 'clock'
+  | 'shield'
+  | 'phone'
+  | 'whatsapp'
+  | 'arrow-right'
+  | 'calendar'
+  | 'badge-check'
+  | 'sparkles'
+  | 'send';
+
+export const PRODUCT_FORM_LINES: { key: ProductKey; label: string; desc: string; icon: LandingIconName }[] = [
+  { key: 'apartamentos', label: PRODUCTS.apartamentos, desc: 'Vivienda para tu familia', icon: 'building' },
+  { key: 'casas', label: PRODUCTS.casas, desc: 'Casa propia o inversión', icon: 'home' },
+  { key: 'vehiculos', label: PRODUCTS.vehiculos, desc: 'Nuevos y usados · 60 meses', icon: 'car' },
+  { key: 'solares', label: PRODUCTS.solares, desc: 'Terrenos y proyectos', icon: 'land' },
+];
+
+export const HERO_PERKS: { icon: LandingIconName; label: string }[] = [
+  { icon: 'zap', label: MARKETING.badges[0] },
+  { icon: 'clock', label: MARKETING.badges[1] },
+  { icon: 'shield', label: MARKETING.badges[2] },
 ];
 
 export const PRODUCT_CARDS = PRODUCT_FORM_LINES;

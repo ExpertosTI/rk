@@ -2,6 +2,7 @@
 import LandingLayout from '../layouts/LandingLayout.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import FlyerChrome from '../components/FlyerChrome.astro';
+import LandingIcon from '../components/LandingIcon.astro';
 import { BRAND } from '../lib/constants';
 import { VEHICULOS_PAGE, FOOTER } from '../lib/landing';
 
@@ -33,6 +34,7 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
     </section>
 
     <section class="lk-intro" data-reveal>
+      <div class="lk-intro__icon"><LandingIcon name="car" size={28} /></div>
       <p class="lk-eyebrow">{VEHICULOS_PAGE.hero.eyebrow}</p>
       <h1 class="lk-title">{VEHICULOS_PAGE.hero.title}</h1>
       <p class="lk-lead">{VEHICULOS_PAGE.hero.lead}</p>
@@ -41,25 +43,31 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
     <section class="lk-section lk-section--dark" data-reveal>
       <div class="lk-metrics">
         <div class="lk-metric" data-reveal-item>
+          <span class="lk-metric__icon-wrap"><LandingIcon name="calendar" size={22} /></span>
           <span class="lk-metric__value">
             <span data-count={VEHICULOS_PAGE.plazo}>0</span>
           </span>
           <span class="lk-metric__label">meses para pagar</span>
         </div>
         <div class="lk-metric lk-metric--line" data-reveal-item>
-          <span class="lk-metric__icon" aria-hidden="true">✓</span>
+          <span class="lk-metric__icon-wrap"><LandingIcon name="badge-check" size={22} /></span>
           <span class="lk-metric__label">Sin importar tu historial</span>
         </div>
       </div>
 
       <div class="lk-bar lk-bar--inline">
         <a href={VEHICULOS_PAGE.ctaHref} class="lk-btn lk-btn--primary lk-btn--wide">
+          <LandingIcon name="car" size={18} />
           {VEHICULOS_PAGE.cta}
         </a>
         <a href={waUrl} class="lk-btn lk-btn--ghost" target="_blank" rel="noopener noreferrer">
+          <LandingIcon name="whatsapp" size={18} />
           WhatsApp · {FOOTER.phone}
         </a>
-        <a href="/" class="lk-link">← Otros productos</a>
+        <a href="/" class="lk-link">
+          <LandingIcon name="arrow-right" size={14} class="lk-link__icon lk-link__icon--back" />
+          Otros productos
+        </a>
       </div>
     </section>
   </main>
