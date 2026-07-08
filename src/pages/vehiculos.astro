@@ -2,7 +2,7 @@
 import LandingLayout from '../layouts/LandingLayout.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import FlyerChrome from '../components/FlyerChrome.astro';
-import { BRAND, MARKETING } from '../lib/constants';
+import { BRAND } from '../lib/constants';
 import { VEHICULOS_PAGE, FOOTER } from '../lib/landing';
 
 const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me interesa financiamiento de vehículo con RK Inversiones')}`;
@@ -14,55 +14,59 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
 >
   <FlyerChrome active="vehiculos" />
 
-  <div class="flyer-shell">
-  <main class="flyer-page flyer-page-vehiculos" id="main">
-    <section class="flyer-visual flyer-visual-vehiculos" aria-label="Financiamiento de vehículos">
-      <img
-        src={VEHICULOS_PAGE.image}
-        alt={VEHICULOS_PAGE.title}
-        class="flyer-visual-img"
-        width="1080"
-        height="1080"
-        loading="eager"
-      />
-      <div class="flyer-visual-overlay">
-        <p class="flyer-brand-tag">{BRAND.slogan}</p>
-        <h1 class="flyer-title flyer-title-vehiculos">{VEHICULOS_PAGE.title}</h1>
+  <main class="lk lk--vehiculos" id="main">
+    <section class="lk-hero lk-hero--cinema" data-landing-hero>
+      <div class="lk-hero__bg" aria-hidden="true">
+        <img src={VEHICULOS_PAGE.image} alt="" width="1080" height="1080" loading="eager" />
+      </div>
+      <div class="lk-hero__scrim lk-hero__scrim--cinema" aria-hidden="true"></div>
+
+      <div class="lk-hero__cinema">
+        <figure class="lk-visual lk-visual--auto" data-parallax data-reveal-instant>
+          <img
+            src={VEHICULOS_PAGE.image}
+            alt="Cliente recibiendo las llaves de su vehículo"
+            width="1080"
+            height="1080"
+            loading="eager"
+          />
+          <span class="lk-visual__shine" aria-hidden="true"></span>
+          <div class="lk-visual__tag">
+            <span class="lk-visual__tag-num">{VEHICULOS_PAGE.plazo}</span>
+            <span class="lk-visual__tag-label">{VEHICULOS_PAGE.plazoLabel}</span>
+          </div>
+        </figure>
+
+        <div class="lk-hero__copy lk-hero__copy--overlay" data-reveal-instant>
+          <p class="lk-eyebrow">{VEHICULOS_PAGE.hero.eyebrow}</p>
+          <h1 class="lk-title">{VEHICULOS_PAGE.hero.title}</h1>
+          <p class="lk-lead">{VEHICULOS_PAGE.hero.lead}</p>
+        </div>
       </div>
     </section>
 
-    <section class="flyer-panel flyer-panel-dark">
-      <div class="flyer-badges">
-        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-badge flyer-badge-light">
-          {VEHICULOS_PAGE.badgeHistorial}
-        </a>
-        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-badge flyer-badge-plazo">
-          <span class="flyer-plazo-pre">Hasta</span>
-          <span class="flyer-plazo-num">{VEHICULOS_PAGE.plazo}</span>
-          <span class="flyer-plazo-post">{VEHICULOS_PAGE.plazoLabel}</span>
-        </a>
+    <section class="lk-section lk-section--dark" data-reveal>
+      <div class="lk-metrics">
+        <div class="lk-metric">
+          <span class="lk-metric__value">{VEHICULOS_PAGE.plazo}</span>
+          <span class="lk-metric__label">meses</span>
+        </div>
+        <div class="lk-metric lk-metric--line">
+          <span class="lk-metric__label">Sin importar tu historial</span>
+        </div>
       </div>
 
-      <ul class="flyer-highlights">
-        {MARKETING.highlights.map((item) => (
-          <li>{item}</li>
-        ))}
-      </ul>
-
-      <div class="flyer-actions">
-        <a href={VEHICULOS_PAGE.ctaHref} class="flyer-btn flyer-btn-primary flyer-btn-lg">
+      <div class="lk-bar lk-bar--inline">
+        <a href={VEHICULOS_PAGE.ctaHref} class="lk-btn lk-btn--primary lk-btn--wide">
           {VEHICULOS_PAGE.cta}
         </a>
-        <a href="/solicitar" class="flyer-btn flyer-btn-ghost">
-          Otros productos
-        </a>
-        <a href={waUrl} class="flyer-btn flyer-btn-wa" target="_blank" rel="noopener noreferrer">
+        <a href={waUrl} class="lk-btn lk-btn--ghost" target="_blank" rel="noopener noreferrer">
           WhatsApp · {FOOTER.phone}
         </a>
+        <a href="/" class="lk-link">← Otros productos</a>
       </div>
     </section>
   </main>
-  </div>
 
   <WhatsAppFloat />
 </LandingLayout>

@@ -2,10 +2,10 @@ import type { ProductKey } from './constants';
 import { BRAND, PRODUCTS } from './constants';
 
 export const PRODUCT_FORM_LINES: { key: ProductKey; label: string; desc: string }[] = [
-  { key: 'vehiculos', label: PRODUCTS.vehiculos, desc: 'Nuevos y usados. Hasta 60 meses. Aprobación inmediata.' },
-  { key: 'apartamentos', label: PRODUCTS.apartamentos, desc: 'Financiamiento para el apartamento que tu familia necesita.' },
-  { key: 'casas', label: PRODUCTS.casas, desc: 'Vivienda propia o inversión inmobiliaria.' },
-  { key: 'solares', label: PRODUCTS.solares, desc: 'Terrenos y solares para proyectos a mediano plazo.' },
+  { key: 'apartamentos', label: PRODUCTS.apartamentos, desc: 'Vivienda para tu familia' },
+  { key: 'casas', label: PRODUCTS.casas, desc: 'Casa propia o inversión' },
+  { key: 'vehiculos', label: PRODUCTS.vehiculos, desc: 'Nuevos y usados · 60 meses' },
+  { key: 'solares', label: PRODUCTS.solares, desc: 'Terrenos y proyectos' },
 ];
 
 export const PRODUCT_CARDS = PRODUCT_FORM_LINES;
@@ -30,16 +30,26 @@ export const GENERAL_PAGE = {
   image: '/brand/flyer-general.jpeg',
   cta: 'Solicitar financiamiento',
   ctaHref: '/solicitar',
+  hero: {
+    eyebrow: BRAND.slogan,
+    title: 'Financia sin complicaciones',
+    lead: 'Vivienda, vehículos y terrenos con respuesta rápida en RD.',
+  },
 } as const;
 
 export const VEHICULOS_PAGE = {
   title: 'FINANCIAMIENTO DE VEHÍCULO',
   badgeHistorial: 'No importa tu historial de crédito',
   plazo: '60',
-  plazoLabel: 'meses para pagar',
+  plazoLabel: 'meses',
   image: '/brand/flyer-vehiculos.jpeg',
   cta: 'Solicitar vehículo',
   ctaHref: '/solicitar?producto=vehiculos',
+  hero: {
+    eyebrow: 'Vehículos',
+    title: 'Maneja hoy',
+    lead: 'Hasta 60 meses · aprobación inmediata',
+  },
 } as const;
 
 export const FOOTER = {

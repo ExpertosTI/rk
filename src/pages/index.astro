@@ -3,9 +3,13 @@ import LandingLayout from '../layouts/LandingLayout.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import FlyerChrome from '../components/FlyerChrome.astro';
 import { BRAND } from '../lib/constants';
-import { GENERAL_PAGE, PRODUCT_LINKS, FOOTER } from '../lib/landing';
+import { GENERAL_PAGE, PRODUCT_LINKS, PRODUCT_FORM_LINES, FOOTER } from '../lib/landing';
 
 const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me gustaría información sobre RK Inversiones')}`;
+const products = PRODUCT_FORM_LINES.map((line) => ({
+  ...line,
+  href: PRODUCT_LINKS.find((l) => l.key === line.key)?.href ?? '/solicitar',
+}));
 ---
 
 <LandingLayout
@@ -14,53 +18,60 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
 >
   <FlyerChrome active="general" />
 
-  <div class="flyer-shell">
-  <main class="flyer-page" id="main">
-    <section class="flyer-visual flyer-visual-general" aria-label="Financiamiento RK">
-      <img
-        src={GENERAL_PAGE.image}
-        alt={`${BRAND.name} — ${GENERAL_PAGE.subtitle}`}
-        class="flyer-visual-img"
-        width="1080"
-        height="1080"
-        loading="eager"
-      />
-      <div class="flyer-visual-overlay">
-        <p class="flyer-brand-tag">{BRAND.slogan}</p>
-        <h1 class="flyer-title">{GENERAL_PAGE.title}</h1>
-        <p class="flyer-sub">{GENERAL_PAGE.subtitle}</p>
+  <main class="lk" id="main">
+    <section class="lk-hero" data-landing-hero>
+      <div class="lk-hero__bg" aria-hidden="true">
+        <img src={GENERAL_PAGE.image} alt="" width="1080" height="1080" loading="eager" />
+      </div>
+      <div class="lk-hero__scrim" aria-hidden="true"></div>
+
+      <div class="lk-hero__grid">
+        <div class="lk-hero__copy" data-reveal-instant>
+          <p class="lk-eyebrow">{GENERAL_PAGE.hero.eyebrow}</p>
+          <h1 class="lk-title">{GENERAL_PAGE.hero.title}</h1>
+          <p class="lk-lead">{GENERAL_PAGE.hero.lead}</p>
+          <a href={GENERAL_PAGE.ctaHref} class="lk-btn lk-btn--primary lk-hero__cta">
+            {GENERAL_PAGE.cta}
+          </a>
+        </div>
+
+        <figure class="lk-visual" data-parallax data-reveal-instant>
+          <img src={GENERAL_PAGE.image} alt={`${BRAND.name} financiamiento`} width="1080" height="1080" loading="eager" />
+          <span class="lk-visual__shine" aria-hidden="true"></span>
+        </figure>
       </div>
     </section>
 
-    <section class="flyer-panel">
-      <h2 class="flyer-panel-title">Elige tu financiamiento</h2>
-      <ul class="flyer-links">
-        {PRODUCT_LINKS.map((item) => (
-          <li>
-            <a href={item.href} class="flyer-link-card">
-              <span class="flyer-link-check" aria-hidden="true">✓</span>
-              <span class="flyer-link-label">{item.label}</span>
-              <span class="flyer-link-arrow" aria-hidden="true">→</span>
+    <section class="lk-section" data-reveal>
+      <div class="lk-section__head">
+        <h2 class="lk-section__title">Productos</h2>
+        <p class="lk-section__sub">Elige y solicita en minutos</p>
+      </div>
+
+      <ul class="lk-tiles">
+        {products.map((item, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={item.href} class="lk-tile" data-tile>
+              <span class="lk-tile__name">{item.label}</span>
+              <span class="lk-tile__desc">{item.desc}</span>
+              <span class="lk-tile__arrow" aria-hidden="true">→</span>
             </a>
           </li>
         ))}
       </ul>
+    </section>
 
-      <div class="flyer-actions">
-        <a href={GENERAL_PAGE.ctaHref} class="flyer-btn flyer-btn-primary">
-          {GENERAL_PAGE.cta}
-        </a>
-        <a href={waUrl} class="flyer-btn flyer-btn-wa" target="_blank" rel="noopener noreferrer">
-          WhatsApp · {FOOTER.phone}
-        </a>
+    <section class="lk-bar" data-reveal>
+      <div class="lk-bar__info">
+        <span class="lk-bar__label">¿Listo para empezar?</span>
+        <a href={`tel:${FOOTER.phone.replace(/-/g, '')}`} class="lk-bar__phone">{FOOTER.phone}</a>
       </div>
-
-      <p class="flyer-contact">
-        <a href={`tel:${FOOTER.phone.replace(/-/g, '')}`}>{FOOTER.phone}</a>
-      </p>
+      <div class="lk-bar__actions">
+        <a href={GENERAL_PAGE.ctaHref} class="lk-btn lk-btn--primary">Solicitar</a>
+        <a href={waUrl} class="lk-btn lk-btn--ghost" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
     </section>
   </main>
-  </div>
 
   <WhatsAppFloat />
 </LandingLayout>

@@ -9,17 +9,15 @@ const { active = 'general' } = Astro.props;
 const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, me gustaría información sobre RK Inversiones')}`;
 ---
 
-<header class="flyer-header">
-  <a href="/" class="flyer-header-brand">
-    <img src="/brand/logo.jpeg" alt={BRAND.name} width="44" height="44" />
+<header class="lk-nav">
+  <a href="/" class="lk-nav__brand">
+    <img src="/brand/logo.jpeg" alt="" width="36" height="36" />
     <span>{BRAND.name}</span>
   </a>
-  <nav class="flyer-header-nav" aria-label="Principal">
-    <a href="/" class:list={[{ active: active === 'general' }]}>Financiamiento</a>
-    <a href="/vehiculos" class:list={[{ active: active === 'vehiculos' }]}>Vehículos</a>
-    <a href="/solicitar">Solicitar</a>
+  <nav class="lk-nav__links" aria-label="Principal">
+    <a href="/" class:list={['lk-nav__link', active === 'general' && 'is-active']}>Inicio</a>
+    <a href="/vehiculos" class:list={['lk-nav__link', active === 'vehiculos' && 'is-active']}>Vehículos</a>
+    <a href="/solicitar" class="lk-nav__link">Solicitar</a>
   </nav>
-  <a href={waUrl} class="flyer-header-wa" target="_blank" rel="noopener noreferrer">
-    WhatsApp
-  </a>
+  <a href={waUrl} class="lk-nav__wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
 </header>
