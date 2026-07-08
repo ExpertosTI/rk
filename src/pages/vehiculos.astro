@@ -15,43 +15,39 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
   <FlyerChrome active="vehiculos" />
 
   <main class="lk lk--vehiculos" id="main">
-    <section class="lk-hero lk-hero--cinema" data-landing-hero>
+    <section class="lk-hero lk-hero--photo" data-landing-hero>
       <div class="lk-hero__bg" aria-hidden="true">
         <img src={VEHICULOS_PAGE.image} alt="" width="1080" height="1080" loading="eager" />
       </div>
-      <div class="lk-hero__scrim lk-hero__scrim--cinema" aria-hidden="true"></div>
+      <div class="lk-hero__scrim" aria-hidden="true"></div>
 
-      <div class="lk-hero__cinema">
-        <figure class="lk-visual lk-visual--auto" data-parallax data-reveal-instant>
-          <img
-            src={VEHICULOS_PAGE.image}
-            alt="Cliente recibiendo las llaves de su vehículo"
-            width="1080"
-            height="1080"
-            loading="eager"
-          />
-          <span class="lk-visual__shine" aria-hidden="true"></span>
-          <div class="lk-visual__tag">
-            <span class="lk-visual__tag-num">{VEHICULOS_PAGE.plazo}</span>
-            <span class="lk-visual__tag-label">{VEHICULOS_PAGE.plazoLabel}</span>
-          </div>
-        </figure>
+      <figure class="lk-photo" data-reveal-instant aria-hidden="false">
+        <img
+          src={VEHICULOS_PAGE.image}
+          alt="Cliente recibiendo las llaves de su vehículo"
+          width="1080"
+          height="1080"
+          loading="eager"
+        />
+      </figure>
+    </section>
 
-        <div class="lk-hero__copy lk-hero__copy--overlay" data-reveal-instant>
-          <p class="lk-eyebrow">{VEHICULOS_PAGE.hero.eyebrow}</p>
-          <h1 class="lk-title">{VEHICULOS_PAGE.hero.title}</h1>
-          <p class="lk-lead">{VEHICULOS_PAGE.hero.lead}</p>
-        </div>
-      </div>
+    <section class="lk-intro" data-reveal>
+      <p class="lk-eyebrow">{VEHICULOS_PAGE.hero.eyebrow}</p>
+      <h1 class="lk-title">{VEHICULOS_PAGE.hero.title}</h1>
+      <p class="lk-lead">{VEHICULOS_PAGE.hero.lead}</p>
     </section>
 
     <section class="lk-section lk-section--dark" data-reveal>
       <div class="lk-metrics">
-        <div class="lk-metric">
-          <span class="lk-metric__value">{VEHICULOS_PAGE.plazo}</span>
-          <span class="lk-metric__label">meses</span>
+        <div class="lk-metric" data-reveal-item>
+          <span class="lk-metric__value">
+            <span data-count={VEHICULOS_PAGE.plazo}>0</span>
+          </span>
+          <span class="lk-metric__label">meses para pagar</span>
         </div>
-        <div class="lk-metric lk-metric--line">
+        <div class="lk-metric lk-metric--line" data-reveal-item>
+          <span class="lk-metric__icon" aria-hidden="true">✓</span>
           <span class="lk-metric__label">Sin importar tu historial</span>
         </div>
       </div>

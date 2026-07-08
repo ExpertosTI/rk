@@ -1,4 +1,42 @@
-/** Landing RK — motion minimal, respeta prefers-reduced-motion */
+/** Landing RK — scroll reveal, contadores y micro-interacciones */
+
+function easeOutCubic(t) {
+  return 1 - (1 - t) ** 3;
+}
+
+function animateCount(el) {
+  if (el.classList.contains('is-counted')) return;
+  el.classList.add('is-counted');
+
+  const target = Number(el.dataset.count);
+  if (!Number.isFinite(target)) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    el.textContent = String(target);
+    return;
+  }
+
+  const duration = 1400;
+  const start = performance.now();
+
+  const tick = (now) => {
+    const progress = Math.min(1, (now - start) / duration);
+    el.textContent = String(Math.round(target * easeOutCubic(progress)));
+    if (progress < 1) requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
+}
+
+function revealStagger(container) {
+  container.querySelectorAll('[data-reveal-item]').forEach((item, i) => {
+    item.style.setProperty('--item-i', String(i));
+    requestAnimationFrame(() => item.classList.add('is-visible'));
+  });
+  container.querySelectorAll('[data-count]').forEach(animateCount);
+}
+
 export function initLandingMotion() {
   const root = document.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -9,24 +47,54 @@ export function initLandingMotion() {
     el.style.setProperty('--reveal-i', String(i));
   });
 
-  if (!reduced && 'IntersectionObserver' in window) {
+  if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            io.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          el.classList.add('is-visible');
+          revealStagger(el);
+          io.unobserve(el);
         });
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0.15, rootMargin: '0px 0px -6% 0px' },
     );
+
     document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+    if (!reduced) {
+      document.querySelectorAll('[data-count]').forEach((el) => {
+        const counterIo = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                animateCount(entry.target);
+                counterIo.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.5 },
+        );
+        counterIo.observe(el);
+      });
+    }
   } else {
-    document.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('is-visible'));
+    document.querySelectorAll('[data-reveal]').forEach((el) => {
+      el.classList.add('is-visible');
+      revealStagger(el);
+    });
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      el.textContent = el.dataset.count || '0';
+    });
   }
 
-  if (reduced) return;
+  if (reduced) {
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      el.textContent = el.dataset.count || '0';
+    });
+    return;
+  }
 
   const art = document.querySelector('[data-parallax]');
   if (art && window.matchMedia('(min-width: 768px)').matches) {
@@ -56,6 +124,17 @@ export function initLandingMotion() {
       tile.style.setProperty('--my', `${y}%`);
     });
   });
+
+  const photoHero = document.querySelector('[data-landing-hero]');
+  if (photoHero) {
+    const onScroll = () => {
+      const rect = photoHero.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, -rect.top / (rect.height * 0.8)));
+      photoHero.style.setProperty('--scroll-p', String(p));
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
 }
 
 if (typeof document !== 'undefined') {
