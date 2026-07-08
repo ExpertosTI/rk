@@ -5,8 +5,11 @@ dist
 .gitignore
 *.md
 *.pdf
-*.jpeg
 WhatsApp*
 PROPUESTA*
 .env*
 .DS_Store
+# Ignorar JPEG sueltos en raíz, pero incluir assets de marca en public/
+*.jpeg
+!public/brand/**
+!public/brand/*.jpeg

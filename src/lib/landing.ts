@@ -14,7 +14,6 @@ export type LandingIconName =
   | 'arrow-right'
   | 'calendar'
   | 'badge-check'
-  | 'sparkles'
   | 'send';
 
 export const PRODUCT_FORM_LINES: { key: ProductKey; label: string; desc: string; icon: LandingIconName }[] = [
