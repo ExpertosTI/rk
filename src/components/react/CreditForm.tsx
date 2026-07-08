@@ -28,6 +28,8 @@ import ModernSelect from './ModernSelect';
 import ProductStack from './ProductStack';
 import CedulaUpload from './CedulaUpload';
 import StepProgress from './StepProgress';
+import TurnstileWidget from './TurnstileWidget';
+import { turnstileEnabled, verifyTurnstile } from '../../lib/turnstile';
 
 interface Props {
   initialProduct?: ProductKey;
@@ -53,6 +55,8 @@ export default function CreditForm({ initialProduct }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [submission, setSubmission] = useState<Submission | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
 
   const {
     register,
@@ -148,6 +152,20 @@ export default function CreditForm({ initialProduct }: Props) {
   async function onSubmit(data: CreditFormData) {
     if (data.website) return;
 
+    if (turnstileEnabled()) {
+      if (!turnstileToken) {
+        setCaptchaError('Completa la verificación de seguridad antes de enviar.');
+        return;
+      }
+      const captcha = await verifyTurnstile(turnstileToken);
+      if (!captcha.ok) {
+        setCaptchaError('La verificación expiró. Vuelve a completarla.');
+        setTurnstileToken('');
+        return;
+      }
+    }
+    setCaptchaError('');
+
     setSubmitting(true);
     setTransitioning(true);
     await new Promise((r) => setTimeout(r, 1400));
@@ -198,6 +216,8 @@ export default function CreditForm({ initialProduct }: Props) {
     });
     setSubmission(null);
     setStep(1);
+    setTurnstileToken('');
+    setCaptchaError('');
   }
 
   const firstName = submission?.nombre.split(' ')[0] ?? '';
@@ -488,6 +508,17 @@ export default function CreditForm({ initialProduct }: Props) {
                 )}
               </div>
             </div>
+
+            {turnstileEnabled() && (
+              <TurnstileWidget
+                onToken={(token) => {
+                  setTurnstileToken(token);
+                  setCaptchaError('');
+                }}
+                onExpire={() => setTurnstileToken('')}
+              />
+            )}
+            {captchaError && <div className="error-msg">{captchaError}</div>}
           </div>
         )}
 
@@ -573,7 +604,7 @@ export default function CreditForm({ initialProduct }: Props) {
             <button
               type="button"
               className={`btn-next btn-ai${submitting ? ' loading' : ''}`}
-              disabled={submitting || transitioning}
+              disabled={submitting || transitioning || (turnstileEnabled() && !turnstileToken)}
               onClick={handleSubmit(onSubmit)}
             >
               {submitting ? <span className="spinner" /> : (

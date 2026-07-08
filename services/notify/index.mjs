@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 const PORT = Number(process.env.PORT || 8788);
 const INSFORGE_URL = (process.env.INSFORGE_URL || 'http://insforge_postgrest:3000').replace(/\/$/, '');
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET || '';
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY || '';
 const ADMIN_URL = (process.env.ADMIN_URL || 'https://rk.renace.tech/admin').replace(/\/$/, '');
 
 const SMTP = {
@@ -737,6 +738,43 @@ async function handleEstado(req, res) {
   }
 }
 
+async function handleTurnstile(req, res) {
+  const ip = clientIp(req);
+  if (!rateLimit(ip)) {
+    return json(res, 429, { ok: false, error: 'rate_limited' });
+  }
+
+  const body = await readBody(req);
+  if (!body || typeof body !== 'object') {
+    return json(res, 400, { ok: false, error: 'invalid_json' });
+  }
+
+  const token = String(body.token || '').trim();
+  if (!token) {
+    return json(res, 400, { ok: false, error: 'token_requerido' });
+  }
+
+  if (!TURNSTILE_SECRET) {
+    return json(res, 200, { ok: true, skipped: true });
+  }
+
+  try {
+    const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: TURNSTILE_SECRET, response: token, remoteip: ip }),
+    });
+    const data = await verify.json();
+    if (!data.success) {
+      return json(res, 403, { ok: false, error: 'captcha_invalido' });
+    }
+    return json(res, 200, { ok: true });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'verify_failed';
+    return json(res, 502, { ok: false, error: msg });
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     if (req.url === '/healthz' && req.method === 'GET') {
@@ -748,7 +786,11 @@ const server = http.createServer(async (req, res) => {
         whatsappCloud: whatsappCloudConfigured(),
         to: NOTIFY_TO.replace(/(.{2}).*(@.*)/, '$1***$2'),
         whatsappTo: WHATSAPP.to ? WHATSAPP.to.replace(/\d(?=\d{4})/g, '*') : null,
+        turnstile: Boolean(TURNSTILE_SECRET),
       });
+    }
+    if (req.url === '/turnstile' && req.method === 'POST') {
+      return await handleTurnstile(req, res);
     }
     if (req.url === '/solicitud' && req.method === 'POST') {
       return await handleSolicitud(req, res);

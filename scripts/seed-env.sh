@@ -122,6 +122,14 @@ if [ -z "$(env_get NOTIFY_SECRET "$ENV_FILE")" ]; then
 fi
 upsert_env "PUBLIC_NOTIFY_SECRET" "$(env_get NOTIFY_SECRET "$ENV_FILE")" "$ENV_FILE"
 
+upsert_env "PUBLIC_UMAMI_URL" "${SEED_UMAMI_URL:-}" "$ENV_FILE"
+upsert_env "PUBLIC_UMAMI_WEBSITE_ID" "${SEED_UMAMI_WEBSITE_ID:-}" "$ENV_FILE"
+upsert_env "PUBLIC_TURNSTILE_SITE_KEY" "${SEED_TURNSTILE_SITE_KEY:-}" "$ENV_FILE"
+for key in TURNSTILE_SECRET_KEY PUBLIC_TURNSTILE_SITE_KEY; do
+  val="$(env_get "$key" "$ENV_FILE")"
+  [ -n "$val" ] && upsert_env "$key" "$val" "$ENV_FILE"
+done
+
 normalize_env_file "$ENV_FILE"
 
 write_credentials_file() {
