@@ -27,7 +27,7 @@ export const MARKETING = {
 } as const;
 
 export const ADMIN = {
-  pin: 'RK2026',
+  pin: import.meta.env.PUBLIC_ADMIN_PIN || 'RK2026',
   maxAttempts: 5,
   lockoutMs: 5 * 60 * 1000,
 } as const;

@@ -53,7 +53,7 @@ export const GENERAL_PAGE = {
   ctaHref: '/solicitar',
   hero: {
     eyebrow: BRAND.slogan,
-    title: 'Financia sin complicaciones',
+    title: 'Financiamiento sin complicaciones',
     lead: 'Vivienda, vehículos y terrenos con respuesta rápida en RD.',
   },
 } as const;
@@ -64,7 +64,7 @@ export const VEHICULOS_PAGE = {
   plazo: '60',
   plazoLabel: 'meses',
   image: '/brand/flyer-vehiculos.jpeg',
-  cta: 'Solicitar vehículo',
+  cta: 'Solicitud de crédito',
   ctaHref: '/solicitar?producto=vehiculos',
   hero: {
     eyebrow: 'Vehículos',

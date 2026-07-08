@@ -128,10 +128,9 @@ export default function AdminInbox({ onLogout }: Props) {
   async function loadCedula(solicitudId: string) {
     const res = await fetchDocumentoCedula(solicitudId);
     if (res.ok && res.data?.[0]?.data_base64 && res.data[0].mime) {
-      setCedulaUrl(base64ToBlobUrl(res.data[0].data_base64, res.data[0].mime));
-    } else {
-      setCedulaUrl(null);
+      return base64ToBlobUrl(res.data[0].data_base64, res.data[0].mime);
     }
+    return null;
   }
 
   function friendlyBureauError(code: string) {
@@ -173,8 +172,24 @@ export default function AdminInbox({ onLogout }: Props) {
       setCedulaUrl(null);
       return;
     }
-    void loadCedula(selected.id);
-    return () => setCedulaUrl(null);
+
+    let active = true;
+    let blobUrl: string | null = null;
+
+    void loadCedula(selected.id).then((url) => {
+      if (!active) {
+        if (url) URL.revokeObjectURL(url);
+        return;
+      }
+      blobUrl = url;
+      setCedulaUrl(url);
+    });
+
+    return () => {
+      active = false;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      setCedulaUrl(null);
+    };
   }, [selected?.id, selected?.cedula_recibida]);
 
   useEffect(() => {

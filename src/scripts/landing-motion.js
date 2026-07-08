@@ -38,6 +38,9 @@ function revealStagger(container) {
 }
 
 export function initLandingMotion() {
+  if (document.documentElement.dataset.landingMotion === '1') return;
+  document.documentElement.dataset.landingMotion = '1';
+
   const root = document.documentElement;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -137,10 +140,3 @@ export function initLandingMotion() {
   }
 }
 
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLandingMotion);
-  } else {
-    initLandingMotion();
-  }
-}

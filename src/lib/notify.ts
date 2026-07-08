@@ -1,10 +1,16 @@
+const NOTIFY_SECRET = import.meta.env.PUBLIC_NOTIFY_SECRET || '';
+
+function notifyPayload(data: Record<string, unknown>) {
+  return NOTIFY_SECRET ? { ...data, secret: NOTIFY_SECRET } : data;
+}
+
 /** Notificación al recibir solicitud nueva (correo + WhatsApp al equipo). */
 export async function notifyNuevaSolicitud(solicitudId: string): Promise<void> {
   try {
     await fetch('/api/notify/solicitud', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ solicitudId }),
+      body: JSON.stringify(notifyPayload({ solicitudId })),
       keepalive: true,
     });
   } catch {
@@ -23,7 +29,7 @@ export async function notifyEstadoSolicitud(
     const res = await fetch('/api/notify/estado', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ solicitudId, estado }),
+      body: JSON.stringify(notifyPayload({ solicitudId, estado })),
       keepalive: true,
     });
     const data = (await res.json()) as {

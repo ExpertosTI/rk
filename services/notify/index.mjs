@@ -59,7 +59,16 @@ async function readBody(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   if (!chunks.length) return {};
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function checkNotifySecret(body) {
+  if (!NOTIFY_SECRET) return true;
+  return body?.secret === NOTIFY_SECRET;
 }
 
 function clientIp(req) {
@@ -530,7 +539,10 @@ async function handleSolicitud(req, res) {
   }
 
   const body = await readBody(req);
-  if (NOTIFY_SECRET && body.secret && body.secret !== NOTIFY_SECRET) {
+  if (!body || typeof body !== 'object') {
+    return json(res, 400, { ok: false, error: 'invalid_json' });
+  }
+  if (!checkNotifySecret(body)) {
     return json(res, 401, { ok: false, error: 'unauthorized' });
   }
 
@@ -621,7 +633,10 @@ async function handleEstado(req, res) {
   }
 
   const body = await readBody(req);
-  if (NOTIFY_SECRET && body.secret && body.secret !== NOTIFY_SECRET) {
+  if (!body || typeof body !== 'object') {
+    return json(res, 400, { ok: false, error: 'invalid_json' });
+  }
+  if (!checkNotifySecret(body)) {
     return json(res, 401, { ok: false, error: 'unauthorized' });
   }
 

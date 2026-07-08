@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IdCard, Upload, X } from 'lucide-react';
 import { UPLOAD, fileToBase64, validateUploadFile } from '../../lib/upload';
 
@@ -16,8 +16,19 @@ interface Props {
 
 export default function CedulaUpload({ value, onChange, error }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  function revokePreview() {
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+      previewRef.current = null;
+    }
+  }
+
+  useEffect(() => () => revokePreview(), []);
 
   async function handleFile(file: File) {
     const validation = validateUploadFile(file);
@@ -30,8 +41,11 @@ export default function CedulaUpload({ value, onChange, error }: Props) {
     const data = await fileToBase64(file);
     onChange({ data, nombre: file.name, mime: file.type });
 
+    revokePreview();
     if (file.type.startsWith('image/')) {
-      setPreview(URL.createObjectURL(file));
+      const url = URL.createObjectURL(file);
+      previewRef.current = url;
+      setPreview(url);
     } else {
       setPreview(null);
     }
@@ -39,9 +53,27 @@ export default function CedulaUpload({ value, onChange, error }: Props) {
 
   function clear() {
     onChange(null);
+    revokePreview();
     setPreview(null);
     setLocalError(null);
     if (inputRef.current) inputRef.current.value = '';
+  }
+
+  function onDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(true);
+  }
+
+  function onDragLeave(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void handleFile(file);
   }
 
   const displayError = localError || error;
@@ -58,8 +90,11 @@ export default function CedulaUpload({ value, onChange, error }: Props) {
       {!value ? (
         <button
           type="button"
-          className="cedula-dropzone"
+          className={`cedula-dropzone${dragging ? ' is-dragging' : ''}`}
           onClick={() => inputRef.current?.click()}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
         >
           <span className="cedula-dropzone-icon">
             <Upload size={22} />

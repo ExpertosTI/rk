@@ -29,8 +29,14 @@ const waUrl = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent('Hola, 
       Solicitar
     </a>
   </nav>
-  <a href={waUrl} class="lk-nav__wa" target="_blank" rel="noopener noreferrer">
-    <LandingIcon name="whatsapp" size={16} />
-    WhatsApp
-  </a>
+  <div class="lk-nav__actions">
+    <a href="/solicitar" class="lk-nav__cta">
+      <LandingIcon name="send" size={15} />
+      Solicitar
+    </a>
+    <a href={waUrl} class="lk-nav__wa" target="_blank" rel="noopener noreferrer">
+      <LandingIcon name="whatsapp" size={16} />
+      <span class="lk-nav__wa-label">WhatsApp</span>
+    </a>
+  </div>
 </header>

@@ -120,6 +120,7 @@ done
 if [ -z "$(env_get NOTIFY_SECRET "$ENV_FILE")" ]; then
   upsert_env "NOTIFY_SECRET" "$(openssl rand -hex 24)" "$ENV_FILE"
 fi
+upsert_env "PUBLIC_NOTIFY_SECRET" "$(env_get NOTIFY_SECRET "$ENV_FILE")" "$ENV_FILE"
 
 normalize_env_file "$ENV_FILE"
 

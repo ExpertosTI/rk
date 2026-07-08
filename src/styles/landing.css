@@ -94,6 +94,33 @@
   transform: scale(1.03);
 }
 
+.lk-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lk-nav__cta {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(58, 170, 53, 0.12);
+  border: 1px solid rgba(58, 170, 53, 0.35);
+  color: var(--rk-green);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.lk-nav__cta:hover {
+  background: rgba(58, 170, 53, 0.2);
+  border-color: rgba(58, 170, 53, 0.5);
+}
+
 /* Layout */
 .lk {
   max-width: 1080px;
@@ -215,6 +242,38 @@
 .lk-intro {
   padding: 28px 4px 8px;
   text-align: center;
+}
+
+.lk--vehiculos .lk-hero--photo {
+  margin: 12px 0 0;
+}
+
+.lk--vehiculos .lk-intro {
+  padding: 10px 4px 2px;
+}
+
+.lk--vehiculos .lk-intro__icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.lk--vehiculos .lk-lead {
+  margin-top: 8px;
+}
+
+.lk--vehiculos .lk-section--dark {
+  margin-top: 0;
+  padding: 18px 20px;
+}
+
+.lk--vehiculos .lk-metrics {
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.lk--vehiculos {
+  padding-bottom: 32px;
 }
 
 .lk-intro .lk-lead {
@@ -722,6 +781,15 @@
   box-shadow: 0 12px 32px rgba(58, 170, 53, 0.35);
 }
 
+.lk-btn:focus-visible {
+  outline: 2px solid var(--rk-green);
+  outline-offset: 2px;
+}
+
+.lk-btn:active {
+  transform: scale(0.98);
+}
+
 .lk-btn--ghost {
   background: transparent;
   color: rgba(255, 255, 255, 0.85);
@@ -755,6 +823,61 @@
 
 .lk-link:hover {
   color: var(--rk-green);
+}
+
+/* Legal pages */
+.legal-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 24px 20px 56px;
+}
+
+.legal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.legal-back:hover {
+  color: var(--rk-green);
+}
+
+.legal-page h1 {
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.legal-updated {
+  margin-top: 8px;
+  margin-bottom: 32px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.legal-page section {
+  margin-bottom: 28px;
+}
+
+.legal-page h2 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--rk-green);
+}
+
+.legal-page p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 /* Motion */
@@ -893,6 +1016,18 @@
 @media (max-width: 767px) {
   .lk-nav__links {
     display: none;
+  }
+
+  .lk-nav__cta {
+    display: inline-flex;
+  }
+
+  .lk-nav__wa-label {
+    display: none;
+  }
+
+  .lk-nav__wa {
+    padding: 8px 10px;
   }
 
   .lk-hero__copy--overlay .lk-title {

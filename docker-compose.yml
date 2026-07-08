@@ -11,6 +11,7 @@ services:
         PUBLIC_INSFORGE_URL: ${PUBLIC_INSFORGE_URL:-/api/insforge}
         PUBLIC_INSFORGE_MODE: ${PUBLIC_INSFORGE_MODE:-postgrest}
         PUBLIC_ADMIN_PIN: ${PUBLIC_ADMIN_PIN:-RK2026}
+        PUBLIC_NOTIFY_SECRET: ${NOTIFY_SECRET:-}
         PUBLIC_BUILD_ID: ${PUBLIC_BUILD_ID:-dev}
     networks:
       - RenaceNet

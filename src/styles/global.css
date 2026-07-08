@@ -484,6 +484,12 @@ body {
   background: var(--rk-green-light);
 }
 
+.cedula-dropzone.is-dragging {
+  border-color: var(--rk-green);
+  background: var(--rk-green-light);
+  box-shadow: 0 0 0 3px rgba(58, 170, 53, 0.15);
+}
+
 .cedula-dropzone strong {
   font-size: 14px;
   color: var(--rk-navy);
