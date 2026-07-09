@@ -31,6 +31,8 @@ Mientras Evolution no esté lista, el landing usa enlaces `wa.me` para contacto 
 
 **WhatsApp equipo:** `NOTIFY_WHATSAPP_TO` debe ser el número del sitio/flyers — **18296698958** (829-669-8958). No uses otro número de prueba.
 
+**WhatsApp solicitante:** con Evolution activa, cada solicitud envía confirmación al **WhatsApp del formulario** (campo obligatorio). `WHATSAPP_NOTIFY_APPLICANT=true` por defecto; pon `false` solo para desactivar.
+
 ## Verificación
 
 ```bash
@@ -39,6 +41,7 @@ curl -s https://rk.renace.tech/api/notify/healthz
 
 - `"smtp":true` — correo listo
 - `"whatsapp":true` — Evolution conectada
+- `"whatsappApplicant":true` — confirmación automática al cliente activa
 
 ## Seguridad
 

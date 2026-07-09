@@ -168,7 +168,7 @@ function formToRow(
     plazo: data.plazo || null,
     garantia: data.garantia ?? null,
     nombre: data.nombre || null,
-    whatsapp: data.whatsapp || null,
+    whatsapp: data.whatsapp ? phoneDigits(data.whatsapp) : null,
     email: data.email || null,
     ingresos: data.ingresos || null,
     cuota_mensual: data.cuotaMensual ? String(parseCurrency(data.cuotaMensual)) : null,

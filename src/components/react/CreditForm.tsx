@@ -315,6 +315,7 @@ export default function CreditForm({ initialProduct }: Props) {
                 type="tel"
                 placeholder="(809) 000-0000"
                 autoComplete="tel"
+                required
                 className={`input-modern${errors.whatsapp ? ' error' : ''}`}
                 {...register('whatsapp', {
                   onChange: (e) => { e.target.value = formatPhone(e.target.value); },

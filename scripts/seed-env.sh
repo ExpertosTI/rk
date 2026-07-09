@@ -89,10 +89,7 @@ upsert_env "NOTIFY_TO" "$SEED_NOTIFY_TO" "$ENV_FILE"
 upsert_env "NOTIFY_FROM" "RK Inversiones <${SEED_SMTP_USER}>" "$ENV_FILE"
 upsert_env "NOTIFY_WHATSAPP_TO" "$SEED_NOTIFY_WHATSAPP_TO" "$ENV_FILE"
 upsert_env "BRAND_PHONE" "$SEED_BRAND_PHONE" "$ENV_FILE"
-
-if [ -z "$(env_get WHATSAPP_NOTIFY_APPLICANT "$ENV_FILE")" ]; then
-  upsert_env "WHATSAPP_NOTIFY_APPLICANT" "false" "$ENV_FILE"
-fi
+upsert_env "WHATSAPP_NOTIFY_APPLICANT" "$SEED_WHATSAPP_NOTIFY_APPLICANT" "$ENV_FILE"
 
 # WhatsApp — Evolution API (cuando esté desplegada)
 load_evolution_local() {
@@ -156,6 +153,7 @@ else
 fi
 if [ -n "$(env_get EVOLUTION_API_URL "$ENV_FILE")" ] && [ -n "$(env_get EVOLUTION_API_KEY "$ENV_FILE")" ]; then
   green "   WhatsApp: Evolution API configurada"
+  green "   WhatsApp solicitante: $(env_get WHATSAPP_NOTIFY_APPLICANT "$ENV_FILE")"
 else
   warn "⚠️  WhatsApp: pendiente Evolution API — cp evolution.local.example .evolution.local"
 fi

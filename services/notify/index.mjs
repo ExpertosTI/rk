@@ -24,11 +24,15 @@ const mailSignature = () => {
   return lines.join('\n');
 };
 
+function applicantWhatsAppEnabled() {
+  const v = String(process.env.WHATSAPP_NOTIFY_APPLICANT ?? 'true').trim().toLowerCase();
+  return v !== 'false' && v !== '0' && v !== 'no';
+}
+
 const WHATSAPP = {
   to: process.env.NOTIFY_WHATSAPP_TO || '',
   accessToken: process.env.WHATSAPP_ACCESS_TOKEN || '',
   phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
-  notifyApplicant: process.env.WHATSAPP_NOTIFY_APPLICANT === 'true',
 };
 
 const EVOLUTION = {
@@ -514,6 +518,12 @@ async function sendWhatsAppTeam(text) {
   await sendWhatsAppMessage(WHATSAPP.to, text);
 }
 
+function shouldNotifyApplicant(row) {
+  return Boolean(
+    applicantWhatsAppEnabled() && row?.whatsapp && canWhatsAppToPhone(row.whatsapp),
+  );
+}
+
 function isValidSolicitud(row) {
   if (!row) return false;
   if (!row.completada) return false;
@@ -585,16 +595,35 @@ async function handleSolicitud(req, res) {
     if (needsWa) {
       await sendWhatsAppTeam(buildTeamWhatsApp(row));
       whatsappOk = true;
+      let whatsappApplicant = false;
 
-      if (WHATSAPP.notifyApplicant && row.whatsapp && canWhatsAppToPhone(row.whatsapp)) {
+      if (shouldNotifyApplicant(row)) {
         try {
           await sendWhatsAppMessage(row.whatsapp, buildApplicantWhatsApp(row));
+          whatsappApplicant = true;
         } catch (err) {
           const msg = err instanceof Error ? err.message : 'applicant_wa_failed';
           console.warn('[notify] whatsapp solicitante:', msg);
           errors.push(msg);
         }
+      } else if (applicantWhatsAppEnabled() && row.whatsapp && !canWhatsAppToPhone(row.whatsapp)) {
+        errors.push('applicant_phone_invalid');
+      } else if (applicantWhatsAppEnabled() && !row.whatsapp) {
+        errors.push('applicant_phone_missing');
       }
+
+      await markNotified(solicitudId, {
+        email: needsEmail && emailOk,
+        whatsapp: needsWa && whatsappOk,
+      });
+
+      return json(res, 200, {
+        ok: true,
+        email: emailOk,
+        whatsapp: whatsappOk,
+        whatsappApplicant,
+        warnings: errors.length ? errors : undefined,
+      });
     }
 
     await markNotified(solicitudId, {
@@ -606,6 +635,7 @@ async function handleSolicitud(req, res) {
       ok: true,
       email: emailOk,
       whatsapp: whatsappOk,
+      whatsappApplicant: false,
       warnings: errors.length ? errors : undefined,
     });
   } catch (err) {
@@ -746,6 +776,7 @@ const server = http.createServer(async (req, res) => {
         whatsapp: whatsappConfigured(),
         whatsappEvolution: whatsappEvolutionConfigured(),
         whatsappCloud: whatsappCloudConfigured(),
+        whatsappApplicant: applicantWhatsAppEnabled(),
         to: NOTIFY_TO.replace(/(.{2}).*(@.*)/, '$1***$2'),
         whatsappTo: WHATSAPP.to ? WHATSAPP.to.replace(/\d(?=\d{4})/g, '*') : null,
       });

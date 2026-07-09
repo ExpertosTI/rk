@@ -36,7 +36,7 @@ WHATSAPP_NOTIFY_APPLICANT="$(read_env WHATSAPP_NOTIFY_APPLICANT)"
 
 [ -n "$SMTP_PORT" ] || SMTP_PORT="465"
 [ -n "$SMTP_SECURE" ] || SMTP_SECURE="true"
-[ -n "$WHATSAPP_NOTIFY_APPLICANT" ] || WHATSAPP_NOTIFY_APPLICANT="false"
+[ -n "$WHATSAPP_NOTIFY_APPLICANT" ] || WHATSAPP_NOTIFY_APPLICANT="true"
 
 if [ -z "$SMTP_PASS" ]; then
   echo "⚠️  SMTP_PASS vacío en .env — revisa .smtp.local" >&2
