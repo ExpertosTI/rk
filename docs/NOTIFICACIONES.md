@@ -29,6 +29,8 @@ Variables: `EVOLUTION_API_URL`, `EVOLUTION_API_KEY`, `EVOLUTION_INSTANCE`.
 
 Mientras Evolution no esté lista, el landing usa enlaces `wa.me` para contacto manual. El servicio `notify` envía **solo correo**.
 
+**WhatsApp equipo:** `NOTIFY_WHATSAPP_TO` debe ser el número del sitio/flyers — **18296698958** (829-669-8958). No uses otro número de prueba.
+
 ## Verificación
 
 ```bash
