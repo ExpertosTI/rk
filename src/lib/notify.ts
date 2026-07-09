@@ -4,15 +4,18 @@ function notifyPayload(data: Record<string, unknown>) {
   return NOTIFY_SECRET ? { ...data, secret: NOTIFY_SECRET } : data;
 }
 
-/** Notificación al recibir solicitud nueva (correo + WhatsApp al equipo). */
+/** Notificación al enviar solicitud: correo + WhatsApp equipo + WhatsApp al solicitante (número obligatorio). */
 export async function notifyNuevaSolicitud(solicitudId: string): Promise<void> {
   try {
-    await fetch('/api/notify/solicitud', {
+    const res = await fetch('/api/notify/solicitud', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(notifyPayload({ solicitudId })),
       keepalive: true,
     });
+    if (!res.ok) {
+      console.warn('[RK] notify solicitud:', res.status, await res.text().catch(() => ''));
+    }
   } catch {
     /* no bloquear al usuario si falla */
   }

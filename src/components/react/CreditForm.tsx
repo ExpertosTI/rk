@@ -508,7 +508,8 @@ export default function CreditForm({ initialProduct }: Props) {
             </div>
 
             <p className="confirm-text">
-              {firstName}, te contactamos por WhatsApp con tu respuesta.
+              {firstName}, te enviamos confirmación por WhatsApp al{' '}
+              <strong>{formatPhone(submission.whatsapp)}</strong> y te contactamos ahí con tu respuesta.
               {` ${MARKETING.approval}.`} {BRAND.slogan} — sin demoras ni procesos complicados.
             </p>
 
@@ -519,7 +520,7 @@ export default function CreditForm({ initialProduct }: Props) {
                 ['Plazo', `${submission.plazo} meses`],
                 ['Garantía', GARANTIA_LABELS[submission.garantia]],
                 ['Nombre', submission.nombre],
-                ['WhatsApp', submission.whatsapp],
+                ['WhatsApp', formatPhone(submission.whatsapp)],
                 ...(submission.email ? [['Email', submission.email]] : []),
                 ['Ingresos', submission.ingresos],
                 ['Pago mensual', submission.cuotaMensual],
