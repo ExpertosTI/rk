@@ -472,6 +472,7 @@ async function sendWhatsAppEvolution(to, text) {
   const phone = normalizePhone(to);
   if (!phone) throw new Error('whatsapp_phone_invalid');
 
+  const delayMs = Math.max(1200, Number(process.env.WA_SEND_DELAY_MS || 1200) || 1200);
   const url = `${EVOLUTION.baseUrl}/message/sendText/${EVOLUTION.instance}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -479,13 +480,17 @@ async function sendWhatsAppEvolution(to, text) {
       'Content-Type': 'application/json',
       apikey: EVOLUTION.apiKey,
     },
-    body: JSON.stringify({ number: phone, text }),
+    body: JSON.stringify({ number: phone, text, delay: delayMs }),
   });
 
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`whatsapp_evolution_${res.status}:${err.slice(0, 200)}`);
   }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function canWhatsAppToPhone(to) {
@@ -599,6 +604,7 @@ async function handleSolicitud(req, res) {
 
       if (shouldNotifyApplicant(row)) {
         try {
+          await sleep(Math.max(2000, Number(process.env.WA_SEND_GAP_MS || 2000) || 2000));
           await sendWhatsAppMessage(row.whatsapp, buildApplicantWhatsApp(row));
           whatsappApplicant = true;
         } catch (err) {
